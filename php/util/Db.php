@@ -3,9 +3,9 @@
 class Db {
 
   function connect() {
-    $ret = pg_connect("host=postgresql.ocf.berkeley.edu"
+    $ret = pg_connect("host=localhost"
                       . " dbname=calwushu user=calwushu"
-                      . " password=uFaILUBe")
+                      . " password=1wuvnaska")
       or die('Could not connect: ' . pg_last_error());
     return $ret;
   }
