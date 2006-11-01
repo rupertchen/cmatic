@@ -1,0 +1,147 @@
+.clearingBox {
+  clear: both;
+}
+.group {
+  background-color: #999;
+  border: 1px solid black;
+  padding: 5px;
+}
+.details {
+  border: 1px solid black;
+  background-color: #AAA;
+}
+.leftColumn,
+.rightColumn {
+  width: 48%;
+}
+.leftColumn,
+.rightColumn,
+.bottomRow {
+  padding: 5px;
+}
+.leftColumn {
+  float: left;
+}
+.rightColumn {
+  float: right;
+}
+.subGroup {
+  background-color: #BBB;
+  border: 1px solid black;
+  margin: 10px auto;
+  width: 100%;
+}
+.leftColumn .subGroup {
+  margin-right: 0;
+}
+.rightColumn .subGroup {
+  margin-left: 0;
+}
+.subGroup th {
+  background-color: #DDD;
+  text-align: right;
+  vertical-align: top;
+  white-space: nowrap;
+}
+.subGroup td {
+  background-color: #CCC;
+  text-align: left;
+  width: 100%;
+}
+
+
+/*
+ * Type Specific Styling
+ */
+.contactGroup {
+  background-color: #6A6A78;
+}
+.contactGroup .details {
+  background-color: #9898AC;
+}
+.contactGroup .details .subGroup {
+  background-color: #B6B6CD;
+}
+.contactGroup .details .subGroup th,
+.contactGroup .details .subGroup td {
+  background-color: #E2E2FF;
+}
+
+
+/*
+ * IE issues
+ */
+* html .details {
+  height: 1%;
+}
+
+
+table.list {
+  border: 1px solid black;
+}
+tr.odd {
+  background-color: #EFEFEF;
+}
+tr.even {
+  background-color: #FFF;
+}
+table.list td,
+table.list th {
+  padding: 5px;
+}
+table.list th {
+  border-bottom: 2px solid black;
+}
+
+a.btn {
+    color: black;
+    border: 1px solid black;
+    background-color: pink;
+    padding: 0 4px;
+    margin: 2px;
+    text-decoration: none;
+}
+
+a.btn:hover {
+    background-color: hotpink;
+}
+
+.popup {
+    position: absolute;
+    top: 10%;
+    left: 10%;
+    height: 350px;
+    width: 80%;
+    border-color: black;
+    border-style: dotted solid solid dotted;
+    border-width: 1px 2px 2px 1px;
+    z-index: 10;
+}
+
+.win {
+    border: 1px solid black;
+    margin-top: 5px;
+    height: 285px;
+    width: 99%;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.lookupTable {
+    width: 99%;
+}
+
+.popupControlBar {
+    text-align: right;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 2px;
+}
+
+.lookupPage {
+    background-color: yellow;
+    padding-top: 25px;
+    position: relative;
+}

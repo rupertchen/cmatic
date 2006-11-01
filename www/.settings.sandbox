@@ -1,0 +1,5 @@
+<?php
+define("CODE_PATH", "/home/c/ca/calwushu/work/cmat-o-matic/php");
+define("WWW_PATH", "http://www.ocf.berkeley.edu/~calwushu/sandbox");
+define("DEBUG_MODE", true);
+?>
