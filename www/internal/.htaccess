@@ -1,4 +1,4 @@
-AuthUserFile /services/http/users/c/calwushu/.htpasswd
+AuthUserFile /home/calwushu/.htpasswd
 AuthName Tourneyheads
 AuthType Basic
 
