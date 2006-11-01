@@ -1,5 +1,5 @@
 <?php
-define("CODE_PATH", "/home/c/ca/calwushu/work/cmat-o-matic/php");
-define("WWW_PATH", "http://www.ocf.berkeley.edu/~calwushu/sandbox");
+define("CODE_PATH", "/home/calwushu/dev/cmat-o-matic/trunk/php");
+define("WWW_PATH", "http://skaos.gotdns.org/~calwushu/sandycom");
 define("DEBUG_MODE", true);
 ?>
