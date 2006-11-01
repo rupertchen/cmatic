@@ -67,6 +67,9 @@ class Listing extends BasePage {
       $q = 'SELECT * FROM cmat_core.contact'
         . " WHERE contact_id != '00000000000000000000'";
       switch ($this->type) {
+      case "all":
+        $this->title = "All Contacts";
+        break;
       case "other":
         $q .= " AND NOT EXISTS"
           . " (SELECT 1 FROM cmat_core.judge"
@@ -85,21 +88,19 @@ class Listing extends BasePage {
           . " WHERE contact.contact_id = judge.contact_id)";
         $this->title = "Judges";
         break;
-      case "tourneyhead":
-        $q .= " AND EXISTS"
-          . " (SELECT 1 FROM cmat_annual.tourneyhead"
-          . " WHERE contact.contact_id = tourneyhead.contact_id)";
-        $this->title = "Tournament Staff";
-        break;
       case "medical":
         $q .= " AND EXISTS"
           . " (SELECT 1 FROM cmat_core.medical"
           . " WHERE contact.contact_id = medical.contact_id)";
         $this->title = "Medical Staff";
         break;
-      case "all":
+      case "tourneyhead":
       default:
-        $this->title = "All Contacts";
+        $q .= " AND EXISTS"
+          . " (SELECT 1 FROM cmat_annual.tourneyhead"
+          . " WHERE contact.contact_id = tourneyhead.contact_id)";
+        $this->title = "Tournament Staff";
+        break;
       }
 
       $q .= " ORDER BY last_name, first_name, middle_name;";
