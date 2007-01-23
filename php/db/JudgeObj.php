@@ -198,6 +198,47 @@ class JudgeObj extends BaseDbObj {
                  $this->parking_pass__wants
                  . $this->parking_pass__gets);
     Db::query($q);
+
+
+    $q_format = "SELECT judge_id FROM cmat_core.judge WHERE contact_id = '%s';";
+    $q = sprintf($q_format, $this->contact_id);
+    $r = Db::query($q);
+    $row = Db::fetch_array($r);
+    $this->judge_id = $row['judge_id'];
+    Db::free_result($r);
+
+    $availability = new JudgeAvailabilityObj();
+    $availability->judge_id = $this->judge_id;
+    $availability->contact_id = $this->contact_id;
+    $availability->cmat_year = 15; // TODO: This should reference the current year.
+    $availability->early_shift = 't';
+    $availability->late_shift = 't';
+    $availability->save();
+
+    $styleMatrixTraditional = new JudgeStyleMatrixObj();
+    $styleMatrixTraditional->judge_id = $this->judge_id;
+    $styleMatrixTraditional->contact_id = $this->contact_id;
+    $styleMatrixTraditional->style = '0';
+    $styleMatrixTraditional->save();
+
+    $styleMatrixContemporary = new JudgeStyleMatrixObj();
+    $styleMatrixContemporary->judge_id = $this->judge_id;
+    $styleMatrixContemporary->contact_id = $this->contact_id;
+    $styleMatrixContemporary->style = '1';
+    $styleMatrixContemporary->save();
+
+    $styleMatrixInternal = new JudgeStyleMatrixObj();
+    $styleMatrixInternal->judge_id = $this->judge_id;
+    $styleMatrixInternal->contact_id = $this->contact_id;
+    $styleMatrixInternal->style = '2';
+    $styleMatrixInternal->save();
+    
+    $styleMatrixPushHands = new JudgeStyleMatrixObj();
+    $styleMatrixPushHands->judge_id = $this->judge_id;
+    $styleMatrixPushHands->contact_id = $this->contact_id;
+    $styleMatrixPushHands->style = '3';
+    $styleMatrixPushHands->save();
+ 
   }
 
 
