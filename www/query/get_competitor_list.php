@@ -15,12 +15,12 @@ $q0 = null;
 $q1 = null;
 if (strlen($competitorId) == 0) {
     // Get all competitors
-    $q0 = 'SELECT * FROM cmat_annual.competitor';
-    $q1 = 'SELECT * FROM cmat_annual.registration';
+    $q0 = 'SELECT * FROM cmat_annual.competitor ORDER BY last_name, first_name';
+    $q1 = 'SELECT * FROM cmat_annual.registration ORDER BY form_id';
 } else {
     // Get a specific competitor
-    $q0 = "SELECT * FROM cmat_annual.competitor WHERE competitor_id = '$competitorId'";
-    $q1 = "SELECT * FROM cmat_annual.registration WHERE competitor_id = '$competitorId'";
+    $q0 = "SELECT * FROM cmat_annual.competitor WHERE competitor_id = '$competitorId' ORDER BY last_name, first_name";
+    $q1 = "SELECT * FROM cmat_annual.registration WHERE competitor_id = '$competitorId' ORDER BY form_id";
 }
 $competitorList = array();
 $competitorSet = array();

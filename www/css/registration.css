@@ -2,3 +2,32 @@
 .formRegistrationInput {
     white-space: nowrap;
 }
+
+.evenRow {
+    background-color: #DDD;
+}
+
+.oddRow {
+    background-color: #EEE;
+}
+
+.competitorRegistrationTableCell {
+    vertical-align: top;
+}
+
+.competitorName {
+    white-space: nowrap;
+}
+
+.registeredForm {
+    display: block;
+    white-space: nowrap;
+}
+
+.formIsPaid {
+    color: green;
+}
+
+.formNotPaid {
+    color: red;
+}

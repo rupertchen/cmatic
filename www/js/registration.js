@@ -19,6 +19,7 @@ CompetitorList.prototype.makeDom = function () {
 
     // Table
     var table = HTML.makeTable(ret);
+    table.addClass("competitorRegistrationList");
 
     // Headers
     var thead = document.createElement("thead");
@@ -28,25 +29,46 @@ CompetitorList.prototype.makeDom = function () {
         var th = HTML.makeElement(table, "th", {"scope": "col"});
         HTML.makeText(th, headers[i]);
     }
-    
+
     // Competitor Row
     var tbody = HTML.makeElement(table, "tbody");
     for (var i = 0; i < this.d.length; i++) {
         var tr = HTML.makeElement(tbody, "tr");
+        tr.addClass((0 == i%2) ? "evenRow" : "oddRow");
 
         var c = this.d[i];
-        var cells = [
-            c.last_name + ", " + c.first_name,
-            CMAT.formatCompetitorId(c.competitor_id),
-            c.birthdate,
-            CMAT.formatAgeGroupId(c.age_group_id),
-            CMAT.formatGenderId(c.gender_id),
-            CMAT.formatLevelId(c.level_id),
-            c.registration.length,
-            this.extractFormsForDisplay(c.registration).join(", ")];
+        var cells = new Array(8);
+        cells[0] = HTML.makeElement(null, "span");
+        cells[1] = HTML.makeElement(null, "span");
+        cells[2] = HTML.makeText(null, c.birthdate);
+        cells[3] = HTML.makeText(null, CMAT.formatAgeGroupId(c.age_group_id));
+        cells[4] = HTML.makeText(null, CMAT.formatGenderId(c.gender_id));
+        cells[5] = HTML.makeText(null, CMAT.formatLevelId(c.level_id));
+        cells[6] = HTML.makeText(null, c.registration.length);
+        cells[7] = HTML.makeElement(null, "span");
+
+        // Name
+        HTML.makeText(cells[0], c.last_name + ", " + c.first_name);
+        cells[0].addClass("competitorName");
+
+        // Id
+        var editLink = HTML.makeElement(cells[1], "a", {"href":"competitor_registration.php?c=" + c.competitor_id});
+        HTML.makeText(editLink, CMAT.formatCompetitorId(c.competitor_id));
+
+        // Forms
+        for (var j = 0; j < c.registration.length; j++) {
+            var f = HTML.makeElement(cells[7], "span");
+            var r = c.registration[j];
+            HTML.makeText(f, CMAT.formatFormId(r.form_id));
+            f.addClass("registeredForm");
+            f.addClass(('t' == r.is_paid) ? "formIsPaid" : "formNotPaid");
+        }
+
+        // Assemble all
         for (var j = 0; j < cells.length; j++) {
             var td = HTML.makeElement(tr, "td");
-            HTML.makeText(td, cells[j]);
+            td.addClass("competitorRegistrationTableCell");
+            td.appendChild(cells[j]);
         }
     }
 
