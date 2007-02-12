@@ -9,7 +9,10 @@ CMAT = {
         4 : "Adult (Wushu)",
         5 : "Adult (Taiji)",
         6 : "Senior (Wushu)",
-        7 : "Senior (Taiji)"
+        7 : "Senior (Taiji)",
+        8 : "18-35",
+        9 : "36-52",
+        10 : "53+"
     },
 
     levelConversion: {

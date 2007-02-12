@@ -160,7 +160,6 @@
           $("birthdate_date").value = data.birthdate.substring(8, 10);
           $("age_group_id_" + data.age_group_id).checked = true;
           $("level_id_" + data.level_id).checked = true;
-          alert(data.registration_date_id);
           $("registration_date_id_" + data.registration_date_id).checked = true;
           $("registration_type_id_" + data.registration_type_id).checked = true;
           $("submission_format_id_" + data.submission_format_id).checked = true;
