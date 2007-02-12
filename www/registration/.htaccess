@@ -1,0 +1,6 @@
+AuthUserFile /home/calwushu/.htpasswd
+AuthName Tourneyheads
+AuthType Basic
+
+require user tourney
+

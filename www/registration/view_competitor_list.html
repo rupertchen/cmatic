@@ -1,0 +1,20 @@
+<html>
+    <head>
+        <title>View competitor list</title>
+        <script type="text/javascript" src="../js/mootools.v1.00.js"></script>
+        <script type="text/javascript" src="../js/html.js"></script>
+        <script type="text/javascript" src="../js/cmat.js"></script>
+        <script type="text/javascript" src="../js/registration.js"></script>
+    </head>
+    <body>
+      <div id="drawHere" style="border: 3px double orange;"></div>
+      <script type="text/javascript">
+        var theList = new CompetitorList("drawHere", null);
+        var myAjax = new Json.Remote("../query/get_competitor_list.php",
+            {"onComplete" : function (x) {
+                theList.setData(x);
+            }});
+        myAjax.send();
+      </script>
+    </body>
+</html>
