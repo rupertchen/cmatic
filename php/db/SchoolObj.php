@@ -330,13 +330,15 @@ class SchoolObj extends BaseDbObj {
 
 
   function displayHtmlTableHeader() {
-    $cols = array('Name', 'Phone', 'Fax', 'Contact', 'Street Address 1', 'Street Address 2',
+    $colClasses = array('name', 'phone', 'fax', 'contact', 'street1', 'street2', 'city', 'state', 'zip', 'country', 'comment');
+    $colLabels = array('Name', 'Phone', 'Fax', 'Contact', 'Street Address 1', 'Street Address 2',
                   'City', 'State', 'Zip', 'Country', 'Comment');
-    echo '<tr>';
-    foreach ($cols as $i => $val) {
+
+    echo '<thead><tr>';
+    foreach ($colLabels as $i => $val) {
       echo sprintf('<th scope="col">%s</th>', $val);
     }
-    echo '</tr>';
+    echo '</tr></thead>';
   }
 
 
