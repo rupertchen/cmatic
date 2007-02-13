@@ -1,3 +1,7 @@
+.footnote {
+    font-size: 75%;
+}
+
 .formRegistrationName,
 .formRegistrationInput {
     white-space: nowrap;
@@ -12,6 +16,7 @@
 }
 
 .competitorRegistrationTableCell {
+    padding: 2px 4px;
     vertical-align: top;
 }
 

@@ -18,6 +18,7 @@
 
     // Db stuff
     $conn = Db::connect();
+    Db::query('BEGIN');
 
     // Upsert competitor information
     $p0 = null;
@@ -93,20 +94,29 @@
         }
     }
 
-    header('Content-type: text/plain');
+    Db::query('COMMIT');
+    Db::close($conn);
     include '../inc/php_footer.inc';
-    print_r($_REQUEST);
-    print("Reg List");
-    print_r($regList);
-    print("Previous Reg List");
-    print_r($previousRegList);
-    print("Reg Insert");
-    print_r($regInsert);
-    print("Reg Update");
-    print_r($regUpdate);
-    print("q0: ".$q0."\n");
-    print("q1: ".$q1."\n");
-    print("q2: ".$q2."\n");
-    print("q3: ".$q3."\n");
-    print("q4: ".$q4."\n");
+?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<?php
+    if (DEBUG_MODE) {
+        print("<pre>\n");
+        print_r($_REQUEST);
+        print("Reg List");
+        print_r($regList);
+        print("Previous Reg List");
+        print_r($previousRegList);
+        print("Reg Insert");
+        print_r($regInsert);
+        print("Reg Update");
+        print_r($regUpdate);
+        print("q0: ".$q0."\n");
+        print("q1: ".$q1."\n");
+        print("q2: ".$q2."\n");
+        print("q3: ".$q3."\n");
+        print("q4: ".$q4."\n");
+        print("</pre>\n");
+    }
 ?>
