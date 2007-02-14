@@ -152,9 +152,10 @@ FormRegistration.prototype.makeDom = function () {
     var td2 = HTML.makeElement(this.root, "td");
     td2.setAttribute("class", "formRegistrationInput");
 
-    HTML.makeText(td1, CMAT.formatFormId(this.d.form_id));
+    var regCheckboxId = "reg_" + this.d.form_id;
+    HTML.makeLabel(td1, regCheckboxId, CMAT.formatFormId(this.d.form_id));
 
-    this.form = HTML.makeCheckbox(td2, "reg_"+this.d.form_id, "reg[]", this.d.form_id, "Register:");
+    this.form = HTML.makeCheckbox(td2, regCheckboxId, "reg[]", this.d.form_id, "Register:");
     this.form.cb.addEvent("change", this.handleRegister);
     if (this.d.registration_id) {
         this.form.cb.checked = true;
@@ -163,7 +164,7 @@ FormRegistration.prototype.makeDom = function () {
 
     var defaultValue = (this.d.is_paid) ? this.d.is_paid : "f";
     var isPaidName = "isPaid_" + this.d.form_id;
-    this.isPaid = HTML.makeSelect(td2, isPaidName, isPaidName, {"t":"Yes", "f":"No"}, defaultValue, "Is Paid:");
+    this.isPaid = HTML.makeSelect(td2, isPaidName, isPaidName, {"t":"Yes", "f":"No"}, defaultValue, "Paid:");
     this.isPaid.s.addEvent("change", this.handlePaidColor);
 
     // Extra
