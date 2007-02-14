@@ -1,5 +1,5 @@
 <?php
-define("CODE_PATH", "/home/calwushu/live_site/php");
-define("WWW_PATH", "http://skaos.gotdns.org/~calwushu/cmat-o-matic");
+define("CODE_PATH", "/home/rchen/dev_calwushu/live_site/cmat-o-matic/php");
+define("WWW_PATH", "http://hkn.eecs.berkeley.edu/~rchen/cmat15/cmat-o-matic");
 define("DEBUG_MODE", false);
 ?>
