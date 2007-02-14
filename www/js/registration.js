@@ -103,11 +103,26 @@ function FormRegistration (drawLocation, data) {
     this.isPaid = null;
 
     var self = this;
+    this.handleRowHover = function () {
+        self.root.toggleClass("formHoverOn");
+    };
     this.handleRegister = function () {
         if (self.form.cb.checked) {
             self.isPaid.s.disabled = false;
+	    self.handlePaidColor();
         } else {
             self.isPaid.s.disabled = true;
+	    self.root.removeClass("formIsPaid");
+	    self.root.removeClass("formNotPaid");
+        }
+    };
+    this.handlePaidColor = function () {
+        if (self.isPaid.s.value == "f") {
+	    self.root.addClass("formNotPaid");
+	    self.root.removeClass("formIsPaid");
+        } else {
+	    self.root.addClass("formIsPaid");
+	    self.root.removeClass("formNotPaid");
         }
     };
 
@@ -125,6 +140,8 @@ FormRegistration.prototype.setData = function (data) {
 
 FormRegistration.prototype.makeDom = function () {
     this.root = HTML.makeElement(null, "tr");
+    this.root.addEvent("mouseover", this.handleRowHover);
+    this.root.addEvent("mouseout", this.handleRowHover);
 
     var td1 = HTML.makeElement(this.root, "td");
     td1.setAttribute("class", "formRegistrationName");
@@ -143,6 +160,7 @@ FormRegistration.prototype.makeDom = function () {
     var defaultValue = (this.d.is_paid) ? this.d.is_paid : "f";
     var isPaidName = "isPaid_" + this.d.form_id;
     this.isPaid = HTML.makeSelect(td2, isPaidName, isPaidName, {"t":"Yes", "f":"No"}, defaultValue, "Is Paid:");
+    this.isPaid.s.addEvent("change", this.handlePaidColor);
 
     // Extra
     this.repaint();
