@@ -17,6 +17,10 @@ CompetitorList.prototype.setData = function (data) {
 CompetitorList.prototype.makeDom = function () {
     var ret = HTML.makeElement(null, "div");
 
+    // Header
+    var header = HTML.makeElement(ret, "h1");
+    HTML.makeText(header, "Registered Competitor List (" + this.d.length + " total)");
+
     // Table
     var table = HTML.makeTable(ret);
     table.addClass("competitorRegistrationList");
