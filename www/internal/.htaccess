@@ -1,4 +1,4 @@
-AuthUserFile /home/calwushu/.htpasswd
+AuthUserFile /home/rchen/.htpasswd_cmat
 AuthName Tourneyheads
 AuthType Basic
 
