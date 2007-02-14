@@ -96,7 +96,7 @@ class JudgeAvailabilityObj extends BaseDbObj {
         . " early_shift,"
         . " late_shift"
         . ") VALUES ("
-        . " cmat_pl.next_key('a06'),"
+        . " cmat_pl.next_key_a06(),"
         . " '%s',"
         . " '%s',"
         . " %d,"

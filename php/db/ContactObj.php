@@ -133,7 +133,7 @@ class ContactObj extends BaseDbObj {
         . " aim, yim, msn, icq,"
         . " known_languages"
         . ") VALUES ("
-        . " cmat_pl.next_key('a01'),"
+        . " cmat_pl.next_key_a01(),"
         . " '%s', '%s', '%s', '%s',"
         . " '%s', '%s', '%s',"
         . " '%s',"

@@ -60,7 +60,7 @@ class MedicalObj extends BaseDbObj {
         . " contact_id,"
         . " type"
         . ") VALUES ("
-        . " cmat_pl.next_key('a05'),"
+        . " cmat_pl.next_key_a05(),"
         . " '%s',"
         . " '%s');";
     }

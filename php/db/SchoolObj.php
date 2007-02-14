@@ -97,7 +97,7 @@ class SchoolObj extends BaseDbObj {
         . " mailing_city, mailing_state, mailing_zip, mailing_country,"
         . " comment"
         . ") VALUES ("
-        . " cmat_pl.next_key('a04'),"
+        . " cmat_pl.next_key_a04(),"
         . " '%s', '%s', '%s', '%s',"
         . " '%s',"
         . " '%s', '%s',"

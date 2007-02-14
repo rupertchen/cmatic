@@ -4,8 +4,8 @@ class Db {
 
   function connect() {
     $ret = pg_connect("host=localhost"
-                      . " dbname=calwushu user=calwushu"
-                      . " password=1wuvnaska")
+                      . " dbname=rchen user=rchen"
+                      . " password=coolbeans")
       or die('Could not connect: ' . pg_last_error());
     return $ret;
   }

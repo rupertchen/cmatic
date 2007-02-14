@@ -91,7 +91,7 @@ class TourneyHeadObj extends BaseDbObj {
         . " committee,"
         . " is_committee_head"
         . ") VALUES ("
-        . " cmat_pl.next_key('a03'),"
+        . " cmat_pl.next_key_a03(),"
         . " '%s',"
         . " %d,"
         . " '%s',"

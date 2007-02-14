@@ -168,7 +168,7 @@ class JudgeObj extends BaseDbObj {
         . " transportation, transportation_special,"
         . " parking_pass"
         . ") VALUES ("
-        . " cmat_pl.next_key('a02'),"
+        . " cmat_pl.next_key_a02(),"
         . " '%s',"
         . " '%s',"
         . " '%s',"

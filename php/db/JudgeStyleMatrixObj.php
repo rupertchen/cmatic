@@ -125,7 +125,7 @@ class JudgeStyleMatrixObj extends BaseDbObj {
         . " style,"
         . implode(', ', $q_matrix0)
         . ') VALUES ('
-        . " cmat_pl.next_key('a07'),"
+        . " cmat_pl.next_key_a07(),"
         . " '%s',"
         . " '%s',"
         . " %d,"

@@ -1,4 +1,142 @@
-CREATE OR REPLACE FUNCTION cmat_pl.next_key(iPrefix char(3))
+create or replace function cmat_pl.test() returns character as '
+declare
+	a := \'30\';
+begin
+return a;
+end;
+' language plpgsql;
+
+-- This is weird, but we're migrating to Postgres 7 (from 8) and
+-- 7 doesn't support arguments in the functions, so we're doing a
+-- quick switcheroo to get things to work.
+CREATE OR REPLACE FUNCTION cmat_pl.next_key_a01()
+RETURNS char AS '
+DECLARE
+  lNextKey integer;
+BEGIN
+  SELECT counter
+  INTO lNextKey
+  FROM cmat_core.next_key
+  WHERE prefix = \'a01\';
+
+  UPDATE cmat_core.next_key
+  SET counter = counter + 1
+  WHERE prefix = \'a01\';
+
+  RETURN \'a01\' || lpad(to_hex(lNextKey), 17, \'0\');
+END;
+' LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION cmat_pl.next_key_a02()
+RETURNS char AS '
+DECLARE
+  lNextKey integer;
+BEGIN
+  SELECT counter
+  INTO lNextKey
+  FROM cmat_core.next_key
+  WHERE prefix = \'a02\';
+
+  UPDATE cmat_core.next_key
+  SET counter = counter + 1
+  WHERE prefix = \'a02\';
+
+  RETURN \'a02\' || lpad(to_hex(lNextKey), 17, \'0\');
+END;
+' LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION cmat_pl.next_key_a03()
+RETURNS char AS '
+DECLARE
+  lNextKey integer;
+BEGIN
+  SELECT counter
+  INTO lNextKey
+  FROM cmat_core.next_key
+  WHERE prefix = \'a03\';
+
+  UPDATE cmat_core.next_key
+  SET counter = counter + 1
+  WHERE prefix = \'a03\';
+
+  RETURN \'a03\' || lpad(to_hex(lNextKey), 17, \'0\');
+END;
+' LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION cmat_pl.next_key_a04()
+RETURNS char AS '
+DECLARE
+  lNextKey integer;
+BEGIN
+  SELECT counter
+  INTO lNextKey
+  FROM cmat_core.next_key
+  WHERE prefix = \'a04\';
+
+  UPDATE cmat_core.next_key
+  SET counter = counter + 1
+  WHERE prefix = \'a04\';
+
+  RETURN \'a04\' || lpad(to_hex(lNextKey), 17, \'0\');
+END;
+' LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION cmat_pl.next_key_a05()
+RETURNS char AS '
+DECLARE
+  lNextKey integer;
+BEGIN
+  SELECT counter
+  INTO lNextKey
+  FROM cmat_core.next_key
+  WHERE prefix = \'a05\';
+
+  UPDATE cmat_core.next_key
+  SET counter = counter + 1
+  WHERE prefix = \'a05\';
+
+  RETURN \'a05\' || lpad(to_hex(lNextKey), 17, \'0\');
+END;
+' LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION cmat_pl.next_key_a06()
+RETURNS char AS '
+DECLARE
+  lNextKey integer;
+BEGIN
+  SELECT counter
+  INTO lNextKey
+  FROM cmat_core.next_key
+  WHERE prefix = \'a06\';
+
+  UPDATE cmat_core.next_key
+  SET counter = counter + 1
+  WHERE prefix = \'a06\';
+
+  RETURN \'a06\' || lpad(to_hex(lNextKey), 17, \'0\');
+END;
+' LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION cmat_pl.next_key_a07()
+RETURNS char AS '
+DECLARE
+  lNextKey integer;
+BEGIN
+  SELECT counter
+  INTO lNextKey
+  FROM cmat_core.next_key
+  WHERE prefix = \'a07\';
+
+  UPDATE cmat_core.next_key
+  SET counter = counter + 1
+  WHERE prefix = \'a07\';
+
+  RETURN \'a07\' || lpad(to_hex(lNextKey), 17, \'0\');
+END;
+' LANGUAGE plpgsql;
+
+/*
+CREATE OR REPLACE FUNCTION cmat_pl.next_key(iPrefix character(3))
 RETURNS char
 AS $$
 DECLARE
@@ -21,10 +159,4 @@ BEGIN
 
 END;
 $$ LANGUAGE plpgsql;
-
-
-CREATE OR REPLACE FUNCTION cmat_pl.get_contact(iContactId char(20))
-RETURNS SETOF cmat_core.contact
-AS $$
-  SELECT * FROM cmat_core.contact WHERE contact_id = $1;
-$$ LANGUAGE SQL;
+*/

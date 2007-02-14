@@ -33,7 +33,18 @@ class Competitor {
      * $f - id of a form
      */
     function addRegistration($r) {
+/*
+	print("********\n");
+	print("\tAdd!\n");
+	print_r($r->d);
+	print("\tCurrent Reg\n");
+	print_r($this->d['registration']);
+*/
         $this->d['registration'][] = $r->d;
+/*
+	print("\tNew Reg\n");
+	print_r($this->d['registration']);
+*/
     }
 
 
