@@ -22,7 +22,6 @@ if (strlen($competitorId) == 0) {
     $q0 = "SELECT * FROM cmat_annual.competitor WHERE competitor_id = '$competitorId' ORDER BY last_name, first_name";
     $q1 = "SELECT * FROM cmat_annual.registration WHERE competitor_id = '$competitorId' ORDER BY form_id";
 }
-$competitorList = array();
 $competitorSet = array();
 $registrationList = array();
 
@@ -33,7 +32,6 @@ $r = Db::query($q0);
 while ($row = Db::fetch_array($r)) {
     $tmp = new Competitor();
     $tmp->fillFromDbRow($row);
-    $competitorList[] = $tmp;
     $competitorSet[$row['competitor_id']] = $tmp;
 }
 Db::free_result($r);
@@ -54,6 +52,10 @@ foreach ($registrationList as $k => $v) {
     $competitorSet[$v->d['competitor_id']]->addRegistration($v);
 }
 
+$competitorList = array();
+foreach ($competitorSet as $k => $v) {
+    $competitorList[] = $v;
+}
 
 header('Content-type: text/plain');
 include '../inc/php_footer.inc';
