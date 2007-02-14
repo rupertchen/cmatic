@@ -134,6 +134,11 @@
           <td><h3>Push Hands</h3><table><tbody id="p_h"></tbody></table></td>
         </tr>
       </table>
+      <table border="1" cellpadding="0" cellspacing="0">
+	<tr>
+	  <td><h3>Special Events</h3><table><tbody id="s_e"></tbody></table></td>
+	</tr>
+      </table>
       <input type="submit" value="Send!"/>
     </form>
     <script type="text/javascript">
@@ -168,7 +173,12 @@
           for (var i = 0; i < data.registration.length; i++) {
             rList[data.registration[i].form_id] = data.registration[i];
           }
-        }
+        } else {
+	  // Otherwise, populat some defaults
+	  $("registration_date_id_1").checked = true;
+	  $("registration_type_id_1").checked = true;
+	  $("submission_format_id_2").checked = true;
+	}
 
         new FormRegistration("t_h", rList[1]);
         new FormRegistration("t_h", rList[2]);
@@ -224,6 +234,11 @@
         new FormRegistration("p_h", rList[47]);
         new FormRegistration("p_h", rList[48]);
         new FormRegistration("p_h", rList[49]);
+
+        new FormRegistration("s_e", rList[42]);
+        new FormRegistration("s_e", rList[39]);
+        new FormRegistration("s_e", rList[40]);
+        new FormRegistration("s_e", rList[41]);
       };
 
       if (<?php echo ($isNew ? "false" : "true"); ?>) {

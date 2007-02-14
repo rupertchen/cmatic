@@ -39,6 +39,12 @@
     $q0 = sprintf($p0, $_REQUEST['first_name'], $_REQUEST['last_name'], $_REQUEST['birthdate_year'].'-'.$_REQUEST['birthdate_month'].'-'.$_REQUEST['birthdate_date'], $_REQUEST['gender_id'], $_REQUEST['level_id'], $_REQUEST['age_group_id'], $_REQUEST['registration_date_id'], $_REQUEST['registration_type_id'], $_REQUEST['submission_format_id']);
     Db::query($q0);
 
+    if ($isNew) {
+	$q0a = "SELECT currval('cmat_annual.competitor_competitor_id_seq') AS competitor_id";
+	$r = Db::query($q0a);
+	$row = Db::fetch_array($r);
+	$competitorId = $row['competitor_id'];
+    }
 
     // Delete removed registrations
     //
@@ -100,8 +106,14 @@
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
                       "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+  <head>
+  </head>
+  <body>
+    Competitor data saved!
 <?php
     if (DEBUG_MODE) {
+	print("<h1>Debug Info</h1>\n");
         print("<pre>\n");
         print_r($_REQUEST);
         print("Reg List");
@@ -120,3 +132,5 @@
         print("</pre>\n");
     }
 ?>
+  </body>
+</html>
