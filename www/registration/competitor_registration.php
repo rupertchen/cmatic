@@ -101,6 +101,15 @@
               <input id="submission_format_id_2" type="radio" name="submission_format_id" value="2"/><label for="submission_format_id_2">E-mail</label>
             </td>
           </tr>
+          <tr>
+            <th scope="row">Payment Method:</th>
+            <td>
+              <input id="payment_method_id_0" type="radio" name="payment_method_id" value="0"/><label for="payment_method_id_0">Unknown / Pending</label>
+              <input id="payment_method_id_1" type="radio" name="payment_method_id" value="1"/><label for="payment_method_id_1">Money Order</label>
+              <input id="payment_method_id_2" type="radio" name="payment_method_id" value="2"/><label for="payment_method_id_2">Thriva</label>
+              <input id="payment_method_id_3" type="radio" name="payment_method_id" value="3"/><label for="payment_method_id_3">Check</label>
+            </td>
+          </tr>
         </tbody>
       </table>
       <h2>Event Registration</h2>
@@ -168,6 +177,7 @@
           $("registration_date_id_" + data.registration_date_id).checked = true;
           $("registration_type_id_" + data.registration_type_id).checked = true;
           $("submission_format_id_" + data.submission_format_id).checked = true;
+          $("payment_method_id_" + data.payment_method_id).checked = true;
 
           // Event Reg
           for (var i = 0; i < data.registration.length; i++) {

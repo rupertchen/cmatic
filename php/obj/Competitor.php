@@ -25,6 +25,7 @@ class Competitor {
         $this->d['registration_date_id'] = $r['registration_date_id'];
         $this->d['registration_type_id'] = $r['registration_type_id'];
         $this->d['submission_format_id'] = $r['submission_format_id'];
+	$this->d['payment_method_id'] = $r['payment_method_id'];
     }
 
 
@@ -33,18 +34,7 @@ class Competitor {
      * $f - id of a form
      */
     function addRegistration($r) {
-/*
-	print("********\n");
-	print("\tAdd!\n");
-	print_r($r->d);
-	print("\tCurrent Reg\n");
-	print_r($this->d['registration']);
-*/
         $this->d['registration'][] = $r->d;
-/*
-	print("\tNew Reg\n");
-	print_r($this->d['registration']);
-*/
     }
 
 

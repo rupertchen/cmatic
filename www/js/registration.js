@@ -85,17 +85,6 @@ CompetitorList.prototype.makeDom = function () {
     drawDest.appendChild(this.root);
 };
 
-CompetitorList.prototype.extractFormsForDisplay = function (r) {
-    var events = new Array(r.length);
-    for (var i = 0; i < r.length; i++) {
-        events[i] = CMAT.formatFormId(r[i].form_id);
-        if ("f" == r[i].is_paid) {
-            events[i] = "*" + events[i];
-        }
-    }
-    return events.sort();
-};
-
 
 /**
  * Registration UI for a single form.

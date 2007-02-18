@@ -1,7 +1,4 @@
 CMAT = {
-    ageRangeConversion: {
-    },
-
     ageGroupConversion: {
         1 : "Young Child",
         2 : "Child",
