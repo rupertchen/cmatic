@@ -1,6 +1,0 @@
-AuthUserFile /home/rchen/.htpasswd_cmat
-AuthName Tourneyheads
-AuthType Basic
-
-require user tourney
-
