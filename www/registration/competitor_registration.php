@@ -15,7 +15,6 @@
 <html>
   <head>
     <title>Competitor Registration</title>
-    <script type="text/javascript"></script>
     <script type="text/javascript" src="../js/mootools.v1.00.js"></script>
     <script type="text/javascript" src="../js/html.js"></script>
     <script type="text/javascript" src="../js/cmat.js"></script>
