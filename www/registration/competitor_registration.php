@@ -186,7 +186,8 @@
 	  // Otherwise, populat some defaults
 	  $("registration_date_id_1").checked = true;
 	  $("registration_type_id_1").checked = true;
-	  $("submission_format_id_2").checked = true;
+	  $("submission_format_id_1").checked = true;
+	  $("payment_method_id_1").checked = true;
 	}
 
         new FormRegistration("t_h", rList[1]);
