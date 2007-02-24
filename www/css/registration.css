@@ -15,18 +15,25 @@
     background-color: #EEE;
 }
 
-.competitorRegistrationTableCell {
+.registrationTableCell {
     padding: 2px 4px;
     vertical-align: top;
 }
 
-.competitorName {
+.competitorName,
+.groupName,
+.groupFormName {
     white-space: nowrap;
 }
 
-.registeredForm {
+.registeredForm,
+.groupMember {
     display: block;
     white-space: nowrap;
+}
+
+.groupFormName {
+    font-style: italic;
 }
 
 .formIsPaid {

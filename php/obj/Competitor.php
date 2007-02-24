@@ -1,8 +1,5 @@
 <?php
 
-require_once 'util/TextUtils.php';
-require_once 'util/Json.php';
-
 class Competitor {
 
     // Data

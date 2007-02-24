@@ -1,9 +1,16 @@
+REGISTRATION = {
+    competitorRegistrationLink: function(p, id) {
+        return HTML.makeElement(p, "a", {"href":"competitor_registration.php?c=" + id});
+    }
+};
+
 /**
  * Create a listing of competitors
  */
-function CompetitorList (drawLocation, data) {
+function CompetitorList (drawLocation, data, isDetailed) {
     this.drawLocation = drawLocation;
     this.d = data;
+    this.isDetailed = isDetailed;
     this.root = null;
 };
 
@@ -23,12 +30,13 @@ CompetitorList.prototype.makeDom = function () {
 
     // Table
     var table = HTML.makeTable(ret);
-    table.addClass("competitorRegistrationList");
+    table.addClass("registrationList");
 
     // Headers
-    var thead = document.createElement("thead");
-    table.appendChild(thead);
-    var headers = ["Name", "Id", "Birthdate", "Age Group", "Sex", "Divison", "#Events", "Events"];
+    var thead = HTML.makeElement(table, "thead");
+    var headers = this.isDetailed ?
+        ["Name", "Id", "Birthdate", "Age Group", "Sex", "Divison", "#Events", "Events"]
+        : ["Name", "Id", "#Events"];
     for (var i = 0; i < headers.length; i++) {
         var th = HTML.makeElement(table, "th", {"scope": "col"});
         HTML.makeText(th, headers[i]);
@@ -41,37 +49,61 @@ CompetitorList.prototype.makeDom = function () {
         tr.addClass((0 == i%2) ? "evenRow" : "oddRow");
 
         var c = this.d[i];
-        var cells = new Array(8);
-        cells[0] = HTML.makeElement(null, "span");
-        cells[1] = HTML.makeElement(null, "span");
-        cells[2] = HTML.makeText(null, c.birthdate);
-        cells[3] = HTML.makeText(null, CMAT.formatAgeGroupId(c.age_group_id));
-        cells[4] = HTML.makeText(null, CMAT.formatGenderId(c.gender_id));
-        cells[5] = HTML.makeText(null, CMAT.formatLevelId(c.level_id));
-        cells[6] = HTML.makeText(null, c.registration.length);
-        cells[7] = HTML.makeElement(null, "span");
+        var cells;
+        if (this.isDetailed) {
+            cells = new Array(8);
+            cells[0] = HTML.makeElement(null, "span");
+            cells[1] = HTML.makeElement(null, "span");
+            cells[2] = HTML.makeText(null, c.birthdate);
+            cells[3] = HTML.makeText(null, CMAT.formatAgeGroupId(c.age_group_id));
+            cells[4] = HTML.makeText(null, CMAT.formatGenderId(c.gender_id));
+            cells[5] = HTML.makeText(null, CMAT.formatLevelId(c.level_id));
+            cells[6] = HTML.makeText(null, c.registration.length);
+            cells[7] = HTML.makeElement(null, "span");
+        } else {
+            cells = new Array(3);
+            cells[0] = HTML.makeElement(null, "span");
+            cells[1] = HTML.makeElement(null, "span");
+            cells[2] = HTML.makeElement(null, "span");
+        }
 
         // Name
-        HTML.makeText(cells[0], c.last_name + ", " + c.first_name);
+        HTML.makeText(cells[0], CMAT.formatFullName(c.first_name, c.last_name));
         cells[0].addClass("competitorName");
 
         // Id
-        var editLink = HTML.makeElement(cells[1], "a", {"href":"competitor_registration.php?c=" + c.competitor_id});
+        var editLink = this.isDetailed ?
+            REGISTRATION.competitorRegistrationLink(cells[1], c.competitor_id)
+            : cells[1];
         HTML.makeText(editLink, CMAT.formatCompetitorId(c.competitor_id));
 
         // Forms
-        for (var j = 0; j < c.registration.length; j++) {
-            var f = HTML.makeElement(cells[7], "span");
-            var r = c.registration[j];
-            HTML.makeText(f, CMAT.formatFormId(r.form_id));
-            f.addClass("registeredForm");
-            f.addClass(('t' == r.is_paid) ? "formIsPaid" : "formNotPaid");
+        if (this.isDetailed) {
+            for (var j = 0; j < c.registration.length; j++) {
+                var f = HTML.makeElement(cells[7], "span");
+                var r = c.registration[j];
+                HTML.makeText(f, CMAT.formatFormId(r.form_id));
+                f.addClass("registeredForm");
+                f.addClass(('t' == r.is_paid) ? "formIsPaid" : "formNotPaid");
+            }
+        } else {
+            var paidEvents = 0;
+            var totalEvents = 0;
+            for (var j = 0; j < c.registration.length; j++) {
+                totalEvents++;
+                if ('t' == c.registration[j].is_paid) {
+                    paidEvents++;
+                }
+            }
+            var f = HTML.makeElement(cells[2], "span");
+            HTML.makeText(f, paidEvents + "/" + totalEvents);
+            f.addClass((paidEvents == totalEvents) ? "allFormsPaid" : "notAllFormsPaid");
         }
 
         // Assemble all
         for (var j = 0; j < cells.length; j++) {
             var td = HTML.makeElement(tr, "td");
-            td.addClass("competitorRegistrationTableCell");
+            td.addClass("registrationTableCell");
             td.appendChild(cells[j]);
         }
     }
@@ -84,6 +116,89 @@ CompetitorList.prototype.makeDom = function () {
     drawDest.innerHtml = "";
     drawDest.appendChild(this.root);
 };
+
+
+/**
+ * Create a listing of groups
+ */
+function GroupList (drawLocation, data) {
+    this.drawLocation = drawLocation;
+    this.d = data;
+    this.root = null;
+}
+
+
+GroupList.prototype.setData = function (data) {
+    this.d = data;
+    this.makeDom();
+}
+
+
+GroupList.prototype.makeDom = function () {
+    var ret = HTML.makeElement(null, "div");
+
+    // Header
+    var header = HTML.makeElement(ret, "h1");
+    HTML.makeText(header, "Registered Group List (" + this.d.length + " total)");
+
+    // Table
+    var table = HTML.makeTable(ret);
+    table.addClass("registrationList");
+
+    // Headers
+    var thead = HTML.makeElement(table, "thead");
+    var headers = ["Event", "Name", "Id", "#Members", "Members"];
+    for (var i = 0; i < headers.length; i++) {
+        var th = HTML.makeElement(table, "th", {"scope": "col"});
+        HTML.makeText(th, headers[i]);
+    }
+
+    // Group Row
+    var tbody = HTML.makeElement(table, "tbody");
+    for (var i = 0; i < this.d.length; i++) {
+        var tr = HTML.makeElement(tbody, "tr");
+        tr.addClass((0 == i%2) ? "evenRow" : "oddRow");
+
+        var g = this.d[i];
+        var cells = new Array(5);
+        cells[0] = HTML.makeElement(null, "span");
+        cells[1] = HTML.makeElement(null, "span");
+        cells[2] = HTML.makeText(null, CMAT.formatGroupId(g.group_id));
+        cells[3] = HTML.makeText(null, g.member.length);
+        cells[4] = HTML.makeElement(null, "span");
+
+        HTML.makeText(cells[0], CMAT.formatFormId(g.form_id));
+        cells[0].addClass("groupFormName");
+        HTML.makeText(cells[1], g.name);
+        cells[1].addClass("groupName");
+
+        // Members
+        for (var j = 0; j < g.member.length; j++) {
+            var mSpan = HTML.makeElement(cells[4], "span");
+            mSpan.addClass("groupMember");
+            var m = g.member[j];
+            HTML.makeText(mSpan, CMAT.formatFullName(m.first_name, m.last_name));
+            HTML.makeText(mSpan, " (");
+            var editLink = REGISTRATION.competitorRegistrationLink(mSpan, m.member_id);
+            HTML.makeText(editLink, CMAT.formatCompetitorId(m.member_id));
+            HTML.makeText(mSpan, ")");
+        }
+
+        for (var j = 0; j < cells.length; j++) {
+            var td = HTML.makeElement(tr, "td");
+            td.addClass("registrationTableCell");
+            td.appendChild(cells[j]);
+        }
+    }
+
+    // save new DOM
+    this.root = ret;
+
+    // Draw to page
+    var drawDest = document.getElementById(this.drawLocation);
+    drawDest.innerHtml = "";
+    drawDest.appendChild(this.root);
+}
 
 
 /**

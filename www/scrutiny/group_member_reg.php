@@ -34,6 +34,12 @@
         . ' WHERE g.group_id = gm.group_id'
         . ' GROUP BY g.form_id, gm.member_id';
 
+    // Groups are associated to group forms
+    $q3 = 'SELECT g.group_id, g.form_id'
+        . ' FROM cmat_annual."group" g, cmat_enum.form f'
+        . ' WHERE g.form_id = f.form_id'
+        . ' AND f.is_group = false';
+
 
     // Sorted results
     $numRegisteredGroupForms = array();
@@ -41,6 +47,7 @@
     $groupMemberForms = array();
     $groupFormRegistrations = array();
     $numGroupMembershipsPerForm = array();
+    $groupsWithNonGroupForms = array();
 
 
     // Database calls
@@ -74,13 +81,19 @@
         if (!isset($groupFormRegistrations[$competitorId])) {
             $groupFormRegistrations[$competitorId] = array();
         }
-        $groupFormRegistrations[$competitorId][] = $row['form_id'];;
+        $groupFormRegistrations[$competitorId][] = $row['form_id'];
     }
     Db::free_result($r);
 
     $r = Db::query($q2);
     while ($row = Db::fetch_array($r)) {
         $numGroupMembershipsPerForm[] = $row;
+    }
+    Db::free_result($r);
+
+    $r = Db::query($q3);
+    while ($row = Db::fetch_array($r)) {
+        $groupsWithNonGroupForms[] = $row;
     }
     Db::free_result($r);
 
@@ -114,24 +127,24 @@
             $regFormIdList = array();
         }
         $diff0 = array_diff($memberFormIdList, $regFormIdList);
-        $diff1 = array_diff($regFormIdList, $memberFormIdList);
         foreach ($diff0 as $k => $fId) {
             $fail1[$cId.'_'.$fId] = sprintf($p1a, $cId, $fId);
         }
+        $diff1 = array_diff($regFormIdList, $memberFormIdList);
         foreach ($diff1 as $k => $fId) {
             $fail1[$cId.'_'.$fId] = sprintf($p1b, $cId, $fId);
         }
     }
     foreach ($groupFormRegistrations as $cId => $regFormIdList) {
         $memberFormIdList = $groupMemberForms[$cId];
-        if (!is_array($MemberFormIdList)) {
+        if (!is_array($memberFormIdList)) {
             $memberFormIdList = array();
         }
         $diff0 = array_diff($memberFormIdList, $regFormIdList);
-        $diff1 = array_diff($regFormIdList, $memberFormIdList);
         foreach ($diff0 as $k => $fId) {
             $fail1[$cId.'_'.$fId] = sprintf($p1a, $cId, $fId);
         }
+        $diff1 = array_diff($regFormIdList, $memberFormIdList);
         foreach ($diff1 as $k => $fId) {
             $fail1[$cId.'_'.$fId] = sprintf($p1b, $cId, $fId);
         }
@@ -139,12 +152,37 @@
 
     // no multiple groups of the same form
     $p2 = 'Competitor %d is in %d groups doing form %d.';
+    $fail2 = array();
     foreach ($numGroupMembershipsPerForm as $k => $v) {
         $count = $v['count'];
         if ($v['count'] != 1) {
             $cId = $v['competitor_id'];
             $fId = $v['form_id'];
             $fail2[$cId . '_' . $fId] = sprintf($p2, $cId, $count, $fId);
+        }
+    }
+
+    // groups must be associated to group forms
+    $p3 = 'Group %d is associated to the individual form %d.';
+    $fail3 = array();
+    foreach ($groupsWithNonGroupForms as $k => $v) {
+        $gId = $v['group_id'];
+        $fId = $v['form_id'];
+        $fail3[$gId.'_'.$fId] = sprintf($p3, $gId, $fId);
+    }
+
+
+    // Functions
+    function printFailures($failures) {
+        if (count($failures) > 0) {
+            echo "<pre>\n";
+            foreach ($failures as $k => $v) {
+                echo $v;
+                echo "\n";
+            }
+            echo "</pre>\n";
+        } else {
+            echo "Passed.\n";
         }
     }
 
@@ -159,43 +197,12 @@
   <body>
     <h1>Scrutiny: Check Group Member Registration</h1>
     <h2>Competitors should be in as many groups as they are registered for group events.</h2>
-<?php
-    if (count($fail0) > 0) {
-        echo "<pre>\n";
-        foreach ($fail0 as $k => $v) {
-            echo $v;
-            echo "\n";
-        }
-        echo "</pre>\n";
-    } else {
-        echo "Passed.\n";
-    }
-?>
+<?php printFailures($fail0); ?>
     <h2>All group members should be registered for the group's form.</h2>
-<?php
-    if (count($fail1) > 0) {
-        echo "<pre>\n";
-        foreach ($fail1 as $k => $v) {
-            echo $v;
-            echo "\n";
-        }
-        echo "</pre>\n";
-    } else {
-        echo "Passed.\n";
-    }
-?>
+<?php printFailures($fail1); ?>
     <h2>A competitor is in no more than one group for each form.</h2>
-<?php
-    if (count($fail2) > 0) {
-        echo "<pre>\n";
-        foreach ($fail2 as $k => $v) {
-            echo $v;
-            echo "\n";
-        }
-        echo "</pre>\n";
-    } else {
-        echo "Passed.\n";
-    }
-?>
+<?php printFailures($fail2); ?>
+    <h2>A group is associated to an individiual form.</h2>
+<?php printFailures($fail3); ?>
   </body>
 </html>

@@ -80,6 +80,10 @@ CMAT = {
         return "CMAT15-" + id;
     },
 
+    formatGroupId: function (id) {
+        return "G-" + id;
+    },
+
     formatAgeGroupId: function (id) {
         return this.ageGroupConversion[id];
     },
@@ -94,5 +98,9 @@ CMAT = {
 
     formatFormId: function (id) {
         return this.formConversion[id];
+    },
+
+    formatFullName: function (first, last) {
+        return last + ", " + first;
     }
 };
