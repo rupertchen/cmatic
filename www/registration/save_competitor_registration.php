@@ -28,7 +28,7 @@
         $p0 = 'INSERT INTO cmat_annual.competitor ('
             . 'cmat_year, first_name, last_name, birthdate, gender_id, level_id, age_group_id, email, registration_date_id, registration_type_id, submission_format_id, payment_method_id'
             . ') VALUES ('
-            . "15, '%s', '%s', '%s', %d, %d, %d, %s, %d, %d, %d, %d"
+            . "15, '%s', '%s', '%s', %d, %d, %d, '%s', %d, %d, %d, %d"
             . ')';
     } else {
         // Update
