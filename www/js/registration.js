@@ -7,7 +7,7 @@ REGISTRATION = {
 /**
  * Create a listing of competitors
  */
-function CompetitorList (drawLocation, data, isDetailed) {
+function CompetitorList (drawLocation, data) {
     this.drawLocation = drawLocation;
     this.d = data;
     this.root = null;
@@ -63,9 +63,7 @@ CompetitorList.prototype.makeDom = function () {
         cells[0].addClass("competitorName");
 
         // Id
-        var editLink = this.isDetailed ?
-            REGISTRATION.competitorRegistrationLink(cells[1], c.competitor_id)
-            : cells[1];
+        var editLink = REGISTRATION.competitorRegistrationLink(cells[1], c.competitor_id);
         HTML.makeText(editLink, CMAT.formatCompetitorId(c.competitor_id));
 
         // Forms

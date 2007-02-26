@@ -12,7 +12,7 @@
     <body>
       <div id="drawHere"></div>
       <script type="text/javascript">
-        var theList = new CompetitorList("drawHere", null, true);
+        var theList = new CompetitorList("drawHere", null);
         var myAjax = new Json.Remote("../query/get_competitor_list.php",
             {"onComplete" : function (x) {
                 theList.setData(x);
