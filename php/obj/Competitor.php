@@ -23,6 +23,7 @@ class Competitor {
         $this->d['registration_type_id'] = $r['registration_type_id'];
         $this->d['submission_format_id'] = $r['submission_format_id'];
 	$this->d['payment_method_id'] = $r['payment_method_id'];
+        $this->d['email'] = $r['email'];
     }
 
 

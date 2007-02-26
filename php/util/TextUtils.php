@@ -140,6 +140,23 @@ class TextUtils {
       return ($isInternal) ? '>53' : '>36';
     }
   }
+
+
+    /**
+     * Print out failure strings for HTML with pre tags.
+     */
+    function printFailures($failures) {
+        if (count($failures) > 0) {
+            echo "<pre>\n";
+            foreach ($failures as $k => $v) {
+                echo $v;
+                echo "\n";
+            }
+            echo "</pre>\n";
+        } else {
+            echo "Passed.\n";
+        }
+    }
 }
 
 ?>

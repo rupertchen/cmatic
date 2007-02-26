@@ -80,6 +80,15 @@
             </td>
           </tr>
           <tr>
+            <th scope="row">Email:</th>
+            <td><input id="email" type="text" name="email" size="80" maxlength="80"/></td>
+          </tr>
+        </tbody>
+      </table>
+      <h2>Tracking Information</h2>
+      <table border="1" cellpadding="2" cellspacing="1">
+        <tbody>
+          <tr>
             <th scope="row">Registration Date:</th>
             <td>
               <input id="registration_date_id_1" type="radio" name="registration_date_id" value="1"/><label for="registration_date_id_1">Early</label>
@@ -173,6 +182,7 @@
           $("birthdate_date").value = data.birthdate.substring(8, 10);
           $("age_group_id_" + data.age_group_id).checked = true;
           $("level_id_" + data.level_id).checked = true;
+          $("email").value = data.email;
           $("registration_date_id_" + data.registration_date_id).checked = true;
           $("registration_type_id_" + data.registration_type_id).checked = true;
           $("submission_format_id_" + data.submission_format_id).checked = true;

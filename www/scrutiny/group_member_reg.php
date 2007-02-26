@@ -2,6 +2,7 @@
     include '../inc/php_header.inc';
 
     require_once 'util/Db.php';
+    require_once 'util/TextUtils.php';
 
 
     // Queries
@@ -171,21 +172,6 @@
         $fail3[$gId.'_'.$fId] = sprintf($p3, $gId, $fId);
     }
 
-
-    // Functions
-    function printFailures($failures) {
-        if (count($failures) > 0) {
-            echo "<pre>\n";
-            foreach ($failures as $k => $v) {
-                echo $v;
-                echo "\n";
-            }
-            echo "</pre>\n";
-        } else {
-            echo "Passed.\n";
-        }
-    }
-
     include '../inc/php_footer.inc';
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
@@ -197,12 +183,12 @@
   <body>
     <h1>Scrutiny: Check Group Member Registration</h1>
     <h2>Competitors should be in as many groups as they are registered for group events.</h2>
-<?php printFailures($fail0); ?>
+<?php TextUtils::printFailures($fail0); ?>
     <h2>All group members should be registered for the group's form.</h2>
-<?php printFailures($fail1); ?>
+<?php TextUtils::printFailures($fail1); ?>
     <h2>A competitor is in no more than one group for each form.</h2>
-<?php printFailures($fail2); ?>
-    <h2>A group is associated to an individiual form.</h2>
-<?php printFailures($fail3); ?>
+<?php TextUtils::printFailures($fail2); ?>
+    <h2>A group is not associated to an individiual form.</h2>
+<?php TextUtils::printFailures($fail3); ?>
   </body>
 </html>

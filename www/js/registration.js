@@ -10,7 +10,6 @@ REGISTRATION = {
 function CompetitorList (drawLocation, data, isDetailed) {
     this.drawLocation = drawLocation;
     this.d = data;
-    this.isDetailed = isDetailed;
     this.root = null;
 };
 
@@ -26,7 +25,7 @@ CompetitorList.prototype.makeDom = function () {
 
     // Header
     var header = HTML.makeElement(ret, "h1");
-    HTML.makeText(header, "Registered Competitor List (" + this.d.length + " total)");
+    HTML.makeText(header, "Competitor List (" + this.d.length + " total)");
 
     // Table
     var table = HTML.makeTable(ret);
@@ -34,9 +33,7 @@ CompetitorList.prototype.makeDom = function () {
 
     // Headers
     var thead = HTML.makeElement(table, "thead");
-    var headers = this.isDetailed ?
-        ["Name", "Id", "Birthdate", "Age Group", "Sex", "Divison", "#Events", "Events"]
-        : ["Name", "Id", "#Events"];
+    var headers = ["Name", "Id", "Email", "Birthdate", "Age Group", "Sex", "Divison", "#Events", "Events"];
     for (var i = 0; i < headers.length; i++) {
         var th = HTML.makeElement(table, "th", {"scope": "col"});
         HTML.makeText(th, headers[i]);
@@ -50,22 +47,16 @@ CompetitorList.prototype.makeDom = function () {
 
         var c = this.d[i];
         var cells;
-        if (this.isDetailed) {
-            cells = new Array(8);
-            cells[0] = HTML.makeElement(null, "span");
-            cells[1] = HTML.makeElement(null, "span");
-            cells[2] = HTML.makeText(null, c.birthdate);
-            cells[3] = HTML.makeText(null, CMAT.formatAgeGroupId(c.age_group_id));
-            cells[4] = HTML.makeText(null, CMAT.formatGenderId(c.gender_id));
-            cells[5] = HTML.makeText(null, CMAT.formatLevelId(c.level_id));
-            cells[6] = HTML.makeText(null, c.registration.length);
-            cells[7] = HTML.makeElement(null, "span");
-        } else {
-            cells = new Array(3);
-            cells[0] = HTML.makeElement(null, "span");
-            cells[1] = HTML.makeElement(null, "span");
-            cells[2] = HTML.makeElement(null, "span");
-        }
+        cells = new Array(9);
+        cells[0] = HTML.makeElement(null, "span");
+        cells[1] = HTML.makeElement(null, "span");
+        cells[2] = HTML.makeText(null, c.email);
+        cells[3] = HTML.makeText(null, c.birthdate);
+        cells[4] = HTML.makeText(null, CMAT.formatAgeGroupId(c.age_group_id));
+        cells[5] = HTML.makeText(null, CMAT.formatGenderId(c.gender_id));
+        cells[6] = HTML.makeText(null, CMAT.formatLevelId(c.level_id));
+        cells[7] = HTML.makeText(null, c.registration.length);
+        cells[8] = HTML.makeElement(null, "span");
 
         // Name
         HTML.makeText(cells[0], CMAT.formatFullName(c.first_name, c.last_name));
@@ -78,26 +69,12 @@ CompetitorList.prototype.makeDom = function () {
         HTML.makeText(editLink, CMAT.formatCompetitorId(c.competitor_id));
 
         // Forms
-        if (this.isDetailed) {
-            for (var j = 0; j < c.registration.length; j++) {
-                var f = HTML.makeElement(cells[7], "span");
-                var r = c.registration[j];
-                HTML.makeText(f, CMAT.formatFormId(r.form_id));
-                f.addClass("registeredForm");
-                f.addClass(('t' == r.is_paid) ? "formIsPaid" : "formNotPaid");
-            }
-        } else {
-            var paidEvents = 0;
-            var totalEvents = 0;
-            for (var j = 0; j < c.registration.length; j++) {
-                totalEvents++;
-                if ('t' == c.registration[j].is_paid) {
-                    paidEvents++;
-                }
-            }
-            var f = HTML.makeElement(cells[2], "span");
-            HTML.makeText(f, paidEvents + "/" + totalEvents);
-            f.addClass((paidEvents == totalEvents) ? "allFormsPaid" : "notAllFormsPaid");
+        for (var j = 0; j < c.registration.length; j++) {
+            var f = HTML.makeElement(cells[8], "span");
+            var r = c.registration[j];
+            HTML.makeText(f, CMAT.formatFormId(r.form_id));
+            f.addClass("registeredForm");
+            f.addClass(('t' == r.is_paid) ? "formIsPaid" : "formNotPaid");
         }
 
         // Assemble all
