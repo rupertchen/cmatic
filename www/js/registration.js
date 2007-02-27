@@ -50,7 +50,7 @@ CompetitorList.prototype.makeDom = function () {
         cells = new Array(9);
         cells[0] = HTML.makeElement(null, "span");
         cells[1] = HTML.makeElement(null, "span");
-        cells[2] = HTML.makeText(null, c.email);
+        cells[2] = HTML.makeElement(null, "span");
         cells[3] = HTML.makeText(null, c.birthdate);
         cells[4] = HTML.makeText(null, CMAT.formatAgeGroupId(c.age_group_id));
         cells[5] = HTML.makeText(null, CMAT.formatGenderId(c.gender_id));
@@ -65,6 +65,10 @@ CompetitorList.prototype.makeDom = function () {
         // Id
         var editLink = REGISTRATION.competitorRegistrationLink(cells[1], c.competitor_id);
         HTML.makeText(editLink, CMAT.formatCompetitorId(c.competitor_id));
+
+        // Email
+        var confirmLink = HTML.makeElement(cells[2], "a", {"href":"request_confirmation.php?c="+c.competitor_id+"&r="+c.email});
+        HTML.makeText(confirmLink, c.email);
 
         // Forms
         for (var j = 0; j < c.registration.length; j++) {
@@ -87,7 +91,7 @@ CompetitorList.prototype.makeDom = function () {
     this.root = ret;
 
     // Draw to page
-    var drawDest = document.getElementById(this.drawLocation);
+    var drawDest = $(this.drawLocation);
     drawDest.innerHtml = "";
     drawDest.appendChild(this.root);
 };
@@ -170,7 +174,7 @@ GroupList.prototype.makeDom = function () {
     this.root = ret;
 
     // Draw to page
-    var drawDest = document.getElementById(this.drawLocation);
+    var drawDest = $(this.drawLocation);
     drawDest.innerHtml = "";
     drawDest.appendChild(this.root);
 }
