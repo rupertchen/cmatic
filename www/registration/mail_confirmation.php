@@ -41,6 +41,7 @@
     $messagePattern = 'This a confirmation that we have received a registration form for %s %s for CMAT15.'
         . ' If there are any errors please contact the registration committee at cmat15_registration@calwushu.com.'
         . ' Please note that competitors are not guaranteed a place in the tournament until we have received payment.'
+        . ' Competitors waiting for Thriva can find updates on the website http://tournament.calwushu.com/.'
         . "\n";
     $cDetailPattern = "\nFirst Name: %s\nLast Name: %s\nGender: %s\nLevel: %s\nAge Group: %s\n";
     $rDetailPattern = "Event: %s (%s)\n";
