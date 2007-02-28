@@ -43,12 +43,12 @@
         . ' Please note that competitors are not guaranteed a place in the tournament until we have received payment.'
         . ' Competitors waiting for Thriva can find updates on the website http://tournament.calwushu.com/.'
         . "\n";
-    $cDetailPattern = "\nFirst Name: %s\nLast Name: %s\nGender: %s\nLevel: %s\nAge Group: %s\n";
+    $cDetailPattern = "\nCompetitor Id: %s\nFirst Name: %s\nLast Name: %s\nGender: %s\nLevel: %s\nAge Group: %s\n";
     $rDetailPattern = "Event: %s (%s)\n";
 
     $subject = sprintf($subjectPattern, $cInfo['competitor_id'], $cInfo['last_name'], $cInfo['first_name']);
     $message = sprintf($messagePattern, $cInfo['first_name'], $cInfo['last_name']);
-    $cDetail = sprintf($cDetailPattern, $cInfo['first_name'], $cInfo['last_name'], $cInfo['gender'], $cInfo['level'], $cInfo['age_group']);
+    $cDetail = sprintf($cDetailPattern, $cInfo['competitor_id'], $cInfo['first_name'], $cInfo['last_name'], $cInfo['gender'], $cInfo['level'], $cInfo['age_group']);
     $rDetails = array();
     foreach ($regInfo as $k => $v) {
         $paid = ($v['is_paid'] == 't') ? 'paid' : '**NOT PAID**';
