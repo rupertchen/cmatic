@@ -157,6 +157,68 @@ class TextUtils {
             echo "Passed.\n";
         }
     }
+
+
+    /**
+     * Convert division id to text
+     */
+    function convertDivisionIdToChar($id) {
+        $m = array(0 => 'N', 1 => 'B', 2 => 'I', 3 => 'A');
+        return $m[$id];
+    }
+
+
+    /**
+     * Convert gender id to text
+     */
+    function convertGenderIdToChar($id) {
+        $m = array(1 => 'M', 2 => 'F', 3 => 'C');
+        return $m[$id];
+    }
+
+
+    /**
+     * Convert age id to text
+     */
+    function convertAgeGroupIdToChar($id) {
+        $m = array(
+	    0 => 'N',
+  	    1 => 'Y',
+	    2 => 'C',
+	    3 => 'T',
+	    4 => 'A',
+	    5 => 'A',
+	    6 => 'S',
+	    7 => 'S');
+  	return $m[$id];
+    }
+
+    /**
+     * Convert form id to text
+     */
+    function convertFormidToChar($id) {
+        return str_pad($id, 2, '0', STR_PAD_LEFT);
+    }
+
+
+    /**
+     * Create an event code based on event characteristics.
+     */
+    function makeEventCode($divisions, $genders, $ageGroups, $forms) {
+        sort($divisions);
+	sort($genders);
+	sort($ageGroups);
+	sort($forms);
+        $cDivisions = array_map(array('TextUtils', 'convertDivisionIdToChar'), $divisions);
+	$cGenders = array_map(array('TextUtils', 'convertGenderIdToChar'), $genders);
+	$cAgeGroups = array_map(array('TextUtils', 'convertAgeGroupIdToChar'), $ageGroups);
+	$cForms = array_map(array('TextUtils', 'convertFormIdToChar'), $forms);
+        // If more than one gender, it must be combined
+        if (count($cGenders) > 1) {
+            $cGenders = array(convertGenderIdToChar(3));
+        }
+        return join('', $cDivisions) . join('', $cGenders) . join('', $cAgeGroups) . join('-', $cForms);
+    }
 }
 
 ?>
