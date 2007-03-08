@@ -19,6 +19,13 @@
         $q1 = 'SELECT gm.*, c.first_name, c.last_name FROM cmat_annual.group_member gm, cmat_annual.competitor c WHERE gm.member_id = c.competitor_id';
     } else {
         // Get a specific group
+        $q0 = 'SELECT * FROM cmat_annual."group"'
+            . " WHERE group_id = $groupId"
+            . ' ORDER BY form_id, name';
+        $q1 = 'SELECT gm.*, c.first_name, c.last_name'
+            . ' FROM cmat_annual.group_member gm, cmat_annual.competitor c'
+            . ' WHERE gm.member_id = c.competitor_id'
+            . " AND gm.group_id = $groupId";
     }
     $groupSet = array();
     $memberList = array();
