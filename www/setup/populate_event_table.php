@@ -13,8 +13,8 @@
         $q0 = 'SELECT form_blowout_id FROM cmat_annual.form_blowout WHERE event_id = 0';
         // Create a new event
         $p1 = 'INSERT INTO cmat_annual.event'
-            . ' (cmat_year, event_code) VALUES'
-            . " (15, '%s')";
+            . ' (cmat_year, event_order, event_code) VALUES'
+            . " (15, -1, '%s')";
         // Associate a form blow out to the last created event
         $p2 = 'UPDATE cmat_annual.form_blowout'
             . " SET event_id = currval('cmat_annual.event_event_id_seq')"
