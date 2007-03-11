@@ -1,0 +1,62 @@
+#consoleHeader {
+    border: 5px double orange;
+    height: 50px;
+}
+
+#consoleBodyOuter2 {
+    width: 100%;
+}
+
+#consoleBodyOuter1 {
+    vertical-align: top;
+}
+
+#consoleBodyInner {
+    width: 100%;
+}
+
+
+#consoleSidebar {
+    margin: 10px;
+    width: 220px;
+
+/* temp */
+    background-color: green;
+    height: 600px;
+}
+
+#consoleContentArea {
+    margin: 10px auto;
+    width: 97%;
+
+/* temp */
+    background-color: red;
+    height: 400px;
+}
+
+.ringConfiguration {
+    background-color: lightblue;
+    border: 1px dotted black;
+    margin: 10px 0;
+    padding: 10px 2px;
+    font-size: 80%;
+}
+
+.ringConfiguration th {
+    font-weight: bold;
+    text-align: right;
+}
+
+.ringConfiguration th,
+.ringConfiguration td {
+    padding: 1px 2px;
+    white-space: nowrap;
+}
+
+.ringConfiguration input {
+    width: 100px;
+}
+
+.ringConfiguration select {
+    width: 120px;
+}

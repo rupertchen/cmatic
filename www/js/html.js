@@ -13,7 +13,9 @@ HTML = {
             p.appendChild(e);
         }
         for (var i in attribs) {
-            e.setAttribute(i, attribs[i]);
+            if (attribs[i]) {
+                e.setAttribute(i, attribs[i]);
+            }
         }
         return e;
     },
@@ -28,8 +30,12 @@ HTML = {
         return l;
     },
 
-    makeHidden: function(p, name, value) {
-        return HTML.makeElement(p, "input", {"type":"hidden", "name":name, "value":value});
+    makeInput: function (p, id, name, value) {
+        return HTML.makeElement(p, "input", {"type":"text", "id":id, "name":name, "value":value});
+    },
+
+    makeHidden: function (p, id, name, value) {
+        return HTML.makeElement(p, "input", {"type":"hidden", "id":id, "name":name, "value":value});
     },
 
     makeCheckbox: function (p, id, name, value, label) {

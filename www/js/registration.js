@@ -213,7 +213,10 @@ function FormRegistration (drawLocation, data) {
         }
     };
 
-    this.d = (data) ? this.setData(data) : null;
+    this.d = null;
+    if (data) {
+        this.setData(data);
+    }
 };
 
 FormRegistration.prototype.repaint = function () {
@@ -242,7 +245,7 @@ FormRegistration.prototype.makeDom = function () {
     this.form.cb.addEvent("change", this.handleRegister);
     if (this.d.registration_id) {
         this.form.cb.checked = true;
-        HTML.makeHidden(td2, "previousReg[]", this.d.form_id);
+        HTML.makeHidden(td2, null, "previousReg[]", this.d.form_id);
     }
 
     var defaultValue = (this.d.is_paid) ? this.d.is_paid : "f";
