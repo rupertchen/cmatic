@@ -14,7 +14,6 @@
 	$q0 = 'SELECT r.registration_id, r.competitor_id, c.cmat_year, fb.form_blowout_id'
 	    . ' FROM cmat_annual.registration r, cmat_annual.competitor c, cmat_annual.form_blowout fb, cmat_enum.form f'
 	    . ' WHERE r.scoring_id IS NULL'
-            . ' AND r.is_paid = true'
             . ' AND c.cmat_year = 15'
             . ' AND f.is_group = false'
             . ' AND f.ring_configuration_id <> 1'
@@ -31,7 +30,6 @@
             . ' FROM cmat_annual.registration r, cmat_annual."group" g, cmat_annual.group_member gm, cmat_annual.form_blowout fb'
             . ' WHERE g.cmat_year = 15'
             . ' AND r.scoring_id IS NULL'
-            . ' AND r.is_paid = true'
             . ' AND g.group_id = gm.group_id'
             . ' AND r.competitor_id = gm.member_id'
             . ' AND r.form_id = g.form_id'
@@ -41,11 +39,21 @@
             . ' AND fb.level_id = 0'
             . ' AND fb.age_group_id = 0';
 
+        // Get the duplicated group scoring entries
+        $q1b = 'SELECT scoring_id, group_id, form_blowout_id'
+            . ' FROM cmat_annual.scoring'
+            . ' WHERE group_id IS NOT NULL';
+
+        // Get the duplicated group scoring entries we will keep
+        $q1c = 'SELECT DISTINCT ON (form_blowout_id, group_id) scoring_id, group_id, form_blowout_id'
+            . ' FROM cmat_annual.scoring'
+            . ' WHERE group_id IS NOT NULL'
+            . ' ORDER BY form_blowout_id, group_id';
+
         // Get form blowout that fits each push hands registration entry
         $q2 = 'SELECT r.registration_id, r.competitor_id, c.cmat_year, fb.form_blowout_id'
             . ' FROM cmat_annual.registration r, cmat_annual.competitor c, cmat_annual.form_blowout fb, cmat_enum.form f'
             . ' WHERE r.scoring_id IS NULL'
-            . ' AND r.is_paid = true'
             . ' AND f.ring_configuration_id = 1'
             . ' AND r.form_id = f.form_id'
             . ' AND r.competitor_id = c.competitor_id'
@@ -66,7 +74,7 @@
             . " SET scoring_id = currval('cmat_annual.scoring_scoring_id_seq')"
             . ' WHERE registration_id = %d';
 
-        // Create a new group event scoring row
+        // Create a new group event scoring row (per member, this needs to be merged)
         $p2 = 'INSERT INTO cmat_annual.scoring'
             . ' (cmat_year, group_id, form_blowout_id)'
             . ' VALUES'
@@ -78,12 +86,22 @@
             . ' VALUES'
             . ' (%d, %d, %d)';
 
+        // Point group reg entries to a single scoring row per group
+        $p4 = 'UPDATE cmat_annual.registration'
+            . ' SET scoring_id = %d'
+            . ' WHERE scoring_id = %d';
+
+        // Delete scoring row
+        $p5 = 'DELETE FROM cmat_annual.scoring'
+            . ' WHERE scoring_id = %d';
 
 
         // Sorted results
         $individualScoringList = array();
         $groupScoringList = array();
         $pushHandsScoringList = array();
+        $dupeGroupScoringList = array();
+        $dupeGroupScoringKeepList = array();
 
 
         // Database calls
@@ -105,11 +123,10 @@
         while ($row = Db::fetch_array($r)) {
             $pushHandsScoringList[] = $row;
         }
+        Db::free_result($r);
 
 
         // Work
-        // For every event, its name will be built based on what
-        // characteristics it has.
         Db::query('BEGIN');
         foreach ($individualScoringList as $k => $v) {
             // Create scoring row
@@ -129,6 +146,27 @@
             // Link registration row to new scoring row
             Db::query(sprintf($p1, $v['registration_id']));
         }
+
+        // Get rid of dupes by first remapping, then killing of extraneous rows
+        $r = Db::query($q1b);
+        while ($row = Db::fetch_array($r)) {
+            $dupeGroupScoringList[] = $row;
+        }
+        Db::free_result($r);
+        $r = Db::query($q1c);
+        while ($row = Db::fetch_array($r)) {
+            $dupeGroupScoringKeepList[$row['form_blowout_id'] . '_' . $row['group_id']] = $row['scoring_id'];
+        }
+        Db::free_result($r);
+        foreach ($dupeGroupScoringList as $k => $v) {
+            $newScoringId = $dupeGroupScoringKeepList[$v['form_blowout_id'].'_'.$v['group_id']];
+            $oldScoringId = $v['scoring_id'];
+            if ($newScoringId != $oldScoringId) {
+                Db::query(sprintf($p4, $newScoringId, $oldScoringId));
+                Db::query(sprintf($p5, $oldScoringId));
+            }
+        }
+
         Db::query('COMMIT');
         Db::close($conn);
     }
@@ -150,6 +188,9 @@
         <li><?php echo count($individualScoringList); ?> individual scoring rows added.</li>
         <li><?php echo count($groupScoringList); ?> group scoring rows added.</li>
         <li><?php echo count($pushHandsScoringList); ?> push hands scoring rows added.</li>
+      </ul>
+      <ul>
+        <li><?php echo count($dupeGroupScoringList); ?> potential duplicate group scoring entries merged into <?php echo count($dupeGroupScoringKeepList); ?></li>
       </ul>
     </p>
 <?php } else { ?>
