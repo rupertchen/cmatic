@@ -50,6 +50,7 @@
     while ($row = Db::fetch_array($r)) {
         $scoringWithNoReg[] = $row['scoring_id'];
     }
+    Db::free_result($r);
 
     Db::close($conn);
 
