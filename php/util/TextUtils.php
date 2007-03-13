@@ -148,6 +148,7 @@ class TextUtils {
     function printFailures($failures) {
         if (count($failures) > 0) {
             echo "<pre>\n";
+            echo count($failures) . " failures.\n";
             foreach ($failures as $k => $v) {
                 echo $v;
                 echo "\n";
