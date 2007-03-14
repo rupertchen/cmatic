@@ -259,6 +259,5 @@ FormRegistration.prototype.makeDom = function () {
 
     // Draw to page
     var drawDest = $(this.drawLocation);
-    drawDest.innerHTML = "";
     drawDest.appendChild(this.root);
 };
