@@ -33,12 +33,12 @@
 
 .pinnedEventSummary {
     background-color: #FEE;
-    border-color: red;
+    border-color: #FF409F;
     border-style: solid;
 }
 
 .highlightEventSummary {
-    background-color: #EFF;
+    background-color: #FBD4E7;
 }
 
 .detailsTitle {
