@@ -92,7 +92,7 @@ CompetitorList.prototype.makeDom = function () {
 
     // Draw to page
     var drawDest = $(this.drawLocation);
-    drawDest.innerHtml = "";
+    drawDest.innerHTML = "";
     drawDest.appendChild(this.root);
 };
 
@@ -175,7 +175,7 @@ GroupList.prototype.makeDom = function () {
 
     // Draw to page
     var drawDest = $(this.drawLocation);
-    drawDest.innerHtml = "";
+    drawDest.innerHTML = "";
     drawDest.appendChild(this.root);
 }
 
@@ -259,6 +259,6 @@ FormRegistration.prototype.makeDom = function () {
 
     // Draw to page
     var drawDest = $(this.drawLocation);
-    drawDest.innerHtml = "";
+    drawDest.innerHTML = "";
     drawDest.appendChild(this.root);
 };

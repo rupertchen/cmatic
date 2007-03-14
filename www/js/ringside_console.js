@@ -22,6 +22,7 @@ RING_CONFIG = {
     }
 };
 
+
 /**
  * Store the configuration of this ring
  */
