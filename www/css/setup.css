@@ -7,6 +7,7 @@
     background-color: black;
     color: white;
     height: 3.75em;
+    overflow: hidden;
     padding: 2px 5px;
     position: fixed;
     top: 0;
@@ -30,6 +31,12 @@
     white-space: nowrap;
 }
 
+.pinnedEventSummary {
+    background-color: #FEE;
+    border-color: red;
+    border-style: solid;
+}
+
 .detailsTitle {
     display: block;
     font-size: 110%;
@@ -41,3 +48,4 @@
     font-size: 90%;
     padding-left: 50px;
 }
+

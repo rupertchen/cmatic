@@ -55,7 +55,7 @@ EventOrder.prototype.makeDom = function () {
     this.root.addClass("eventOrder");
 
     // Detail bar
-    this.detailsBox = HTML.makeElement(this.root);
+    this.detailsBox = HTML.makeElement(this.root, "div");
     this.detailsBox.addClass("detailsBox");
 
     // Event order table    
@@ -89,7 +89,19 @@ EventOrder.prototype.makeEventSummaryDom = function (parent, eventSummaryData) {
     HTML.makeText(tmp, eventSummaryData.event_code + " (" + eventSummaryData.form_blowout.competitor_count + ")" );
 
     var self = this;
-    tmp.addEvent("mouseover", function () {self.displayDetails(self.detailsBox, eventSummaryData)});
+
+    var handleShowDetails = function () {
+        if (!self.detailsBox.pinnedEvent) {
+            self.displayDetails(self.detailsBox, eventSummaryData);
+        }
+    };
+    var handleTogglePin = function () {
+        self.togglePinDetails(self.detailsBox, tmp);
+        self.displayDetails(self.detailsBox, eventSummaryData);
+    };
+
+    tmp.addEvent("mouseover", handleShowDetails);
+    tmp.addEvent("click", handleTogglePin);
 };
 
 EventOrder.prototype.displayDetails = function (detailsBox, eventSummaryData) {
@@ -118,4 +130,16 @@ EventOrder.prototype.displayDetails = function (detailsBox, eventSummaryData) {
         + " [event_id, " + e.event_id + "]"
         + " [form_blowout_id, " + fb.form_blowout_id + "]");
 
+};
+
+EventOrder.prototype.togglePinDetails = function (detailsBox, pinnedEvent) {
+    if (detailsBox.pinnedEvent) {
+        detailsBox.pinnedEvent.toggleClass("pinnedEventSummary");
+    }
+    if (detailsBox.pinnedEvent == pinnedEvent) {
+        detailsBox.pinnedEvent = null;
+    } else {
+        detailsBox.pinnedEvent = pinnedEvent;
+        detailsBox.pinnedEvent.toggleClass("pinnedEventSummary");
+    }
 };
