@@ -109,6 +109,7 @@ EventOrder.prototype.displayDetails = function (detailsBox, eventSummaryData) {
     HTML.makeText(eventDetails, "Details:"
         + " [Ring, " + e.ring_id + "]"
         + " [Order, " + e.event_order + "]"
+        + " [Competitor Count, " + fb.competitor_count + "]"
         + " [Done, " + e.is_done + "]");
 
     var dbDetails = HTML.makeElement(detailsBox, "span");
