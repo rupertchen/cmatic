@@ -101,6 +101,7 @@ EventOrder.prototype.displayDetails = function (detailsBox, eventSummaryData) {
     title.addClass("detailsTitle");
     HTML.makeText(title, CMAT.formatLevelId(fb.level_id)
         + " " + CMAT.formatGenderId(fb.gender_id)
+        + " " + CMAT.formatAgeGroupId(fb.age_group_id)
         + " " + CMAT.formatFormId(fb.form_id));
 
     var eventDetails = HTML.makeElement(detailsBox, "span");
