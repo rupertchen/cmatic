@@ -1,5 +1,8 @@
 SETUP = {
-    TOTAL_NUM_RINGS : 8
+    TOTAL_NUM_RINGS : 8,
+    SORT_EVENT_SUMMARY : function (eventA, eventB) {
+        return eventA.event_order - eventB.event_order;
+    }
 };
 
 /**
@@ -27,7 +30,7 @@ EventOrder.prototype.setData = function (data) {
     // Save all original data
     this.d = data;
 
-    // Sort the events into the proper rings
+    // Bucketize the events into the proper rings
     for (var i = 0; i < data.length; i++) {
         var event = data[i];
         if (-1 == event.ring_id) {
@@ -37,6 +40,11 @@ EventOrder.prototype.setData = function (data) {
         } else {
             this.ringsData[event.ring_id - 1].push(event);
         }
+    }
+
+    // Sort each of the rings
+    for (var i = 0; i < this.ringsData.length; i++) {
+        this.ringsData[i].sort(SETUP.SORT_EVENT_SUMMARY);
     }
 
     this.makeDom();
