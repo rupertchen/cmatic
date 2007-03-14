@@ -99,9 +99,14 @@ EventOrder.prototype.makeEventSummaryDom = function (parent, eventSummaryData) {
         self.togglePinDetails(self.detailsBox, tmp);
         self.displayDetails(self.detailsBox, eventSummaryData);
     };
+    var handleHighlight = function() {
+        tmp.toggleClass("highlightEventSummary");
+    };
 
     tmp.addEvent("mouseover", handleShowDetails);
     tmp.addEvent("click", handleTogglePin);
+    tmp.addEvent("mouseover", handleHighlight);
+    tmp.addEvent("mouseout", handleHighlight);
 };
 
 EventOrder.prototype.displayDetails = function (detailsBox, eventSummaryData) {

@@ -37,6 +37,10 @@
     border-style: solid;
 }
 
+.highlightEventSummary {
+    background-color: #EFF;
+}
+
 .detailsTitle {
     display: block;
     font-size: 110%;
