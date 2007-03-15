@@ -9,19 +9,13 @@
 
     // Request parameters
     $eventId = $_REQUEST['e'];
+    $ringId = $_REQUEST['r'];
 
     // Fetch data
     $q0 = null;
     $q1 = null;
     $q2 = null;
-    if (strlen($eventId) == 0) {
-        // Get all events
-        $q0 = 'SELECT * FROM cmat_annual.event';
-        $q1 = 'SELECT * FROM cmat_annual.form_blowout';
-        $q2 = 'SELECT form_blowout_id, count(*)'
-           . ' FROM cmat_annual.scoring'
-           . ' GROUP BY form_blowout_id';
-    } else {
+    if (strlen($eventId) > 0) {
         // Get a specific event
         $q0 = 'SELECT * FROM cmat_annual.event'
             . " WHERE event_id = $eventId";
@@ -31,7 +25,27 @@
             . ' FROM cmat_annual.scoring s, cmat_annual.form_blowout fb'
             . ' WHERE s.form_blowout_id = fb.form_blowout_id'
             . " AND fb.event_id = $eventId"
-            . ' GROUP BY form_blowout_id';
+            . ' GROUP BY s.form_blowout_id';
+    } else if (strlen($ringId) > 0) {
+        $q0 = 'SELECT * FROM cmat_annual.event'
+            . " WHERE ring_id = $ringId";
+        $q1 = 'SELECT fb.*'
+            . ' FROM cmat_annual.form_blowout fb, cmat_annual.event e'
+            . ' WHERE fb.event_id = e.event_id'
+            . " AND ring_id = $ringId";
+        $q2 = 'SELECT s.form_blowout_id, count(*)'
+            . ' FROM cmat_annual.scoring s, cmat_annual.form_blowout fb, cmat_annual.event e'
+            . ' WHERE s.form_blowout_id = fb.form_blowout_id'
+            . ' AND fb.event_id = e.event_id'
+            . " AND e.ring_id = $ringId"
+            . ' GROUP BY s.form_blowout_id';
+    } else {
+        // Get all events
+        $q0 = 'SELECT * FROM cmat_annual.event';
+        $q1 = 'SELECT * FROM cmat_annual.form_blowout';
+        $q2 = 'SELECT form_blowout_id, count(*)'
+           . ' FROM cmat_annual.scoring'
+           . ' GROUP BY form_blowout_id';
     }
     $eventSet = array();
     $formBlowoutSet = array();
