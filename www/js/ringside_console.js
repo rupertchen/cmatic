@@ -19,11 +19,20 @@ RING_CONFIG = {
         5 : "External Group",
         6 : "Internal Group",
         7 : "Nandu"
-    }
+    },
+
+    BLANK_NAME : "--",
+
+    NEEDS_NAME : "<Enter name>"
 };
 
 RING_EVENT_LIST = {
-    HEADER_TEXT : ["Code", "#", "Details"]
+    HEADER_TEXT : ["Code", "#", "Details"],
+
+    MIN_BODY_HEIGHT : 50,
+
+    // This is the magic value that gets us the correct resizing of the list body
+    MAGIC_VAL_1 : 400
 };
 
 
@@ -61,7 +70,13 @@ RingConfiguration.prototype.fillDomValues = function () {
 
 RingConfiguration.prototype.disableExtraJudges = function () {
     for (var i = 0; i < RING_CONFIG.MAX_JUDGES; i++) {
-        this.judges[i].disabled = i > (RING_CONFIG.NUM_JUDGES[this.d.type] - 1);
+        var extraJudge = RING_CONFIG.NUM_JUDGES[this.d.type] <= i;
+        if (extraJudge) {
+            this.judges[i].value = RING_CONFIG.BLANK_NAME;
+        } else if (!extraJudge && this.judges[i].disabled) {
+            this.judges[i].value = RING_CONFIG.NEEDS_NAME;
+        }
+        this.judges[i].disabled = extraJudge;
     }
 };
 
@@ -180,7 +195,7 @@ RingEventList.prototype.makeDom = function () {
     // Extra
     this.repaint();
     var resizeBody = function () {
-        listBody.style.height = (window.getHeight() - 400) + 'px';
+        listBody.style.height = Math.max(RING_EVENT_LIST.MIN_BODY_HEIGHT, (window.getHeight() - RING_EVENT_LIST.MAGIC_VAL_1)) + 'px';
     };
     resizeBody();
     window.addEvent("resize", resizeBody);

@@ -45,18 +45,12 @@
     </table>
     <script type="text/javascript">
       // Initial data
+      var emptyJudge = {"name" : "<Enter Name>"};
       var initialRingConfig = {
         "ring_id" : <?php echo intval($ringId); ?>,
         "type" : 4,
-        "judges" : [
-          {"name": "--none--"},
-          {"name": "--none--"},
-          {"name": "--none--"},
-          {"name": "--none--"},
-          {"name": "--none--"},
-          {"name": "--none--"},
-          {"name": "--none--"}],
-        "ringLeader" : "--none--"
+        "judges" : [emptyJudge, emptyJudge, emptyJudge, emptyJudge, emptyJudge, emptyJudge, emptyJudge],
+        "ringLeader" : "<Enter Name>"
       };
 
 
