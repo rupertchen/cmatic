@@ -107,6 +107,8 @@ EventOrder.prototype.makeEventSummaryDom = function (parent, eventSummaryData) {
     tmp.addEvent("click", handleTogglePin);
     tmp.addEvent("mouseover", handleHighlight);
     tmp.addEvent("mouseout", handleHighlight);
+
+    return tmp;
 };
 
 EventOrder.prototype.displayDetails = function (detailsBox, eventSummaryData) {

@@ -4,6 +4,12 @@
     // Request parameters
     $ringId = $_REQUEST['r'];
 
+    // Fail fast
+    if (!isset($_REQUEST['r']) || $ringId < 1 || $ringId > 8) {
+        echo "No valid ring number (r) given.";
+        exit;
+    }
+
     // Page values
     $pageTitle = "Ringside Console: Ring " . $ringId;
     include '../inc/php_footer.inc';
@@ -29,6 +35,7 @@
         <td>
           <div id="consoleSidebar">
             <div id="ringConfiguration"></div>
+            <div id="ringEventList"></div>
           </div>
         </td>
         <td id="consoleBodyInner">
@@ -37,8 +44,8 @@
       </tr>
     </table>
     <script type="text/javascript">
-      var rc = new RingConfiguration("ringConfiguration", null);
-      var tempData = {
+      // Initial data
+      var initialRingConfig = {
         "ring_id" : <?php echo intval($ringId); ?>,
         "type" : 4,
         "judges" : [
@@ -51,7 +58,18 @@
           {"name": "--none--"}],
         "ringLeader" : "--none--"
       };
-      rc.setData(tempData);
+
+
+      // Create modules
+      var rc = new RingConfiguration("ringConfiguration", initialRingConfig);
+      var rel = new RingEventList("ringEventList", null);
+
+      // Prep AJAX
+      var relAjax = new Json.Remote("../query/get_event_summary_list.php?r=<?php echo $ringId; ?>",
+          {"onComplete" : function (x) { rel.setData(x); }});
+
+      // AJAX requests
+      relAjax.send();
     </script>
   </body>
 </html>

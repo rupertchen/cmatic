@@ -22,6 +22,10 @@ RING_CONFIG = {
     }
 };
 
+RING_EVENT_LIST = {
+    HEADER_TEXT : ["Code", "#", "Details"]
+};
+
 
 /**
  * Store the configuration of this ring
@@ -29,15 +33,17 @@ RING_CONFIG = {
 function RingConfiguration (drawLocation, data) {
     this.drawLocation = drawLocation;
     this.d = null;
-    if (data) {
-        this.setData(data);
-    }
 
     // DOM
     this.root = null;
     this.ringType = null;
     this.judges = new Array(RING_CONFIG.MAX_JUDGES);
     this.ringLeader = null;
+
+    // initialize data
+    if (data) {
+        this.setData(data);
+    }
 };
 
 RingConfiguration.prototype.setData = function (data) {
@@ -67,6 +73,7 @@ RingConfiguration.prototype.repaint = function () {
 RingConfiguration.prototype.makeDom = function () {
     var self = this;
     this.root = HTML.makeElement(null, "div");
+    this.root.addClass("sidebarModule");
     this.root.addClass("ringConfiguration");
 
     var table = HTML.makeTable(this.root);
@@ -105,6 +112,112 @@ RingConfiguration.prototype.makeDom = function () {
 
     // Draw to page
     var drawDest = $(this.drawLocation);
-    drawDest.innerHtml = "";
+    drawDest.innerHTML = "";
     drawDest.appendChild(this.root);
+};
+
+
+/**
+ * Events to be run in this ring
+ */
+function RingEventList(drawLocation, data) {
+    this.drawLocation = drawLocation;
+    this.d = null;
+
+    // DOM
+    this.root = null;
+    this.titleBar = null;
+    this.items = null;
+
+    // initialize data
+    if (data) {
+        this.setData(data);
+    }
+};
+
+RingEventList.prototype.setData = function (data) {
+    this.d = data;
+    this.items = new Array(this.d.length);
+    this.makeDom();
+};
+
+RingEventList.prototype.alternateRowStyle = function () {
+    for (var i = 0; i < this.items.length; i++) {
+        this.items[i].addClass((i%2) ? "evenRow" : "oddRow");
+    }
+};
+
+RingEventList.prototype.repaint = function () {
+    this.alternateRowStyle();
+};
+
+RingEventList.prototype.makeDom = function () {
+    this.root = HTML.makeElement(null, "div");
+    this.root.addClass("sidebarModule");
+    this.root.addClass("ringEventList");
+
+    // Title bar
+    this.titleBar = HTML.makeElement(this.root, "div");
+    this.titleBar.addClass("ringEventListTitleBar");
+    HTML.makeText(this.titleBar, "Wee!");
+
+    // Listing
+    var listTable = HTML.makeTable(this.root);
+    listTable.addClass("ringEventListTable");
+    var listHead = HTML.makeElement(listTable, "thead");
+    listHead.addClass("ringEventListHead");
+    for (var i = 0; i < RING_EVENT_LIST.HEADER_TEXT.length; i++) {
+        var th = HTML.makeElement(listHead, "th", {"scope":"col"});
+        HTML.makeText(th, RING_EVENT_LIST.HEADER_TEXT[i]);
+    }
+    var listBody = HTML.makeElement(listTable, "tbody");
+    listBody.addClass("ringEventListBody");
+
+    for (var i = 0; i < this.d.length; i++) {
+        this.items[i] = this.makeItemRow(listBody, this.d[i]);
+    }
+
+    // Extra
+    this.repaint();
+    var resizeBody = function () {
+        listBody.style.height = (window.getHeight() - 400) + 'px';
+    };
+    resizeBody();
+    window.addEvent("resize", resizeBody);
+
+    var drawDest = $(this.drawLocation);
+    drawDest.innerHTML = "";
+    drawDest.appendChild(this.root);
+};
+
+RingEventList.prototype.makeItemRow = function (parent, itemData) {
+    var item = HTML.makeElement(parent, "tr");
+    item.addClass("ringEventListItemRow");
+    var td = null;
+
+    // Code
+    td = HTML.makeElement(item, "td");
+    td.addClass("ringEventListItemCode");
+    HTML.makeText(td, itemData.event_code);
+
+    // Competitor Count
+    td = HTML.makeElement(item, "td");
+    td.addClass("ringEventListItemCompetitorCount");
+    HTML.makeText(td, itemData.form_blowout.competitor_count);
+
+    // Details
+    td = HTML.makeElement(item, "td");
+    td.addClass("ringEventListItemDetails");
+    HTML.makeText(td, CMAT.formatFormId(itemData.form_blowout.form_id));
+
+    // Create handlers
+    var handleHighlight = function () {
+        item.toggleClass("highlightRow");
+    }
+
+    // Attach handlers
+    item.addEvent("mouseover", handleHighlight);
+    item.addEvent("mouseout", handleHighlight);
+
+    return item;
 };

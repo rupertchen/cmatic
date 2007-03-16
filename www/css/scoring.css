@@ -19,10 +19,6 @@
 #consoleSidebar {
     margin: 10px;
     width: 220px;
-
-/* temp */
-    background-color: green;
-    height: 600px;
 }
 
 #consoleContentArea {
@@ -34,11 +30,14 @@
     height: 400px;
 }
 
-.ringConfiguration {
-    background-color: lightblue;
+.sidebarModule {
     border: 1px dotted black;
     margin: 10px 0;
     padding: 10px 2px;
+}
+
+.ringConfiguration {
+    background-color: lightblue;
     font-size: 80%;
 }
 
@@ -59,4 +58,76 @@
 
 .ringConfiguration select {
     width: 120px;
+}
+
+.ringEventList {
+    background-color: lightgreen;
+}
+
+.ringEventListTitleBar {
+    border-bottom: 1px dotted black;
+    margin-bottom: 5px;
+}
+
+.ringEventListTable {
+    background-color: white;
+    font-size: 90%;
+    width: 100%;
+}
+
+.ringEventListHead {
+    white-space: nowrap;
+}
+
+.ringEventListHead th {
+    border-bottom: 1px solid black;
+    font-weight: bold;
+    text-align: center;
+}
+
+.ringEventListBody {
+/*    height: 150px;*/
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.ringEventListItemRow {
+    font-size: 90%;
+    vertical-align: top;
+}
+
+.ringEventListItemCode,
+.ringEventListItemCompetitorCount,
+.ringEventListItemDetails {
+    padding: 1px 2px;
+}
+
+.ringEventListItemCode,
+.ringEventListItemCompetitorCount {
+    font-family: "Courier New", monospace;
+}
+
+.ringEventListItemCode {
+    text-align: center;
+}
+
+.ringEventListItemCompetitorCount {
+    text-align: right;
+}
+
+.ringEventListItemDetails {
+    font-size: 90%;
+    padding-right: 20px;
+    vertical-align: middle;
+}
+
+.evenRow {
+}
+
+.oddRow {
+    background-color: thistle;
+}
+
+.highlightRow {
+    background-color: yellow;
 }
