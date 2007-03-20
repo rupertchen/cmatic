@@ -35,6 +35,10 @@ RING_EVENT_LIST = {
     MAGIC_VAL_1 : 400
 };
 
+EVENT_SCORING = {
+    HEADER_TEXT_5 : ["ID", "Competitor", "#1", "#2", "#3", "#4", "#5", "Time", "Time Deduction", "Other Deduction", "Final", "Tie Breaker"],
+    HEADER_TEXT_6 : ["ID", "Competitor", "#1", "#2", "#3", "#4", "#5", "#6", "Time", "Time Deduction", "Other Deduction", "Final", "Tie Breaker"]
+};
 
 /**
  * Store the configuration of this ring
@@ -88,7 +92,7 @@ RingConfiguration.prototype.repaint = function () {
 RingConfiguration.prototype.makeDom = function () {
     var self = this;
     this.root = HTML.makeElement(null, "div");
-    this.root.addClass("sidebarModule");
+    this.root.addClass("module");
     this.root.addClass("ringConfiguration");
 
     var table = HTML.makeTable(this.root);
@@ -127,7 +131,7 @@ RingConfiguration.prototype.makeDom = function () {
 
     // Draw to page
     var drawDest = $(this.drawLocation);
-    drawDest.innerHTML = "";
+    drawDest.setHTML("");
     drawDest.appendChild(this.root);
 };
 
@@ -168,7 +172,7 @@ RingEventList.prototype.repaint = function () {
 
 RingEventList.prototype.makeDom = function () {
     this.root = HTML.makeElement(null, "div");
-    this.root.addClass("sidebarModule");
+    this.root.addClass("module");
     this.root.addClass("ringEventList");
 
     // Title bar
@@ -201,7 +205,7 @@ RingEventList.prototype.makeDom = function () {
     window.addEvent("resize", resizeBody);
 
     var drawDest = $(this.drawLocation);
-    drawDest.innerHTML = "";
+    drawDest.setHTML("");
     drawDest.appendChild(this.root);
 };
 
@@ -218,21 +222,196 @@ RingEventList.prototype.makeItemRow = function (parent, itemData) {
     // Competitor Count
     td = HTML.makeElement(item, "td");
     td.addClass("ringEventListItemCompetitorCount");
-    HTML.makeText(td, itemData.form_blowout.competitor_count);
+    HTML.makeText(td, itemData.form_blowout[0].competitor_count);
 
     // Details
     td = HTML.makeElement(item, "td");
     td.addClass("ringEventListItemDetails");
-    HTML.makeText(td, CMAT.formatFormId(itemData.form_blowout.form_id));
+    HTML.makeText(td, CMAT.formatFormId(itemData.form_blowout[0].form_id));
 
     // Create handlers
     var handleHighlight = function () {
         item.toggleClass("highlightRow");
-    }
+    };
+    var handleOpenEventScoring = function () {
+        var newId = "scoring_" + itemData.event_id;
+        if ($(newId)) {
+            // It's already opened, so don't make it
+        } else {
+            HTML.makeElement($("consoleContentArea"), "div", {"id" : newId});
+            var ajax = new Json.Remote("../query/get_event_scoring.php?e=" + itemData.event_id,
+                {"onComplete" : function (x) { new EventScoring(newId, x); }});
+            ajax.send();
+        }
+    };
 
     // Attach handlers
     item.addEvent("mouseover", handleHighlight);
     item.addEvent("mouseout", handleHighlight);
+    item.addEvent("click", handleOpenEventScoring);
 
     return item;
 };
+
+
+/**
+ * Event Scoring
+ */
+function EventScoring (drawLocation, data) {
+    this.drawLocation = drawLocation;
+    this.d = null;
+
+    // DOM
+    this.root = null;
+    this.titleBar = null;
+    this.contentBox = null;
+
+    // initialize data
+    if (data) {
+        this.setData(data);
+    }
+};
+
+
+EventScoring.prototype.setData = function (data) {
+    this.d = data;
+    this.makeDom();
+};
+
+EventScoring.prototype.repaint = function () {
+};
+
+EventScoring.prototype.makeDom = function () {
+    this.root = HTML.makeElement(null, "div");
+    this.root.addClass("module");
+    this.root.addClass("eventScoring");
+
+    // Title bar
+    this.titleBar = HTML.makeElement(this.root, "div");
+    this.titleBar.addClass("eventScoringTitleBar");
+    var controls = HTML.makeElement(this.titleBar, "div");
+    controls.addClass("eventScoringControlBox");
+
+    var controlMoveDownEvent = HTML.makeElement(controls, "span");
+    controlMoveDownEvent.addClass("eventScoringControl");
+    controlMoveDownEvent.addClass("controlMoveDownEvent");
+    HTML.makeText(controlMoveDownEvent, "v");
+
+    var controlMoveUpEvent = HTML.makeElement(controls, "span");
+    controlMoveUpEvent.addClass("eventScoringControl");
+    controlMoveUpEvent.addClass("controlMoveUpEvent");
+    HTML.makeText(controlMoveUpEvent, "^");
+
+    var controlToggleShade = HTML.makeElement(controls, "span");
+    controlToggleShade.addClass("eventScoringControl");
+    controlToggleShade.addClass("controlToggleShade");
+    HTML.makeText(controlToggleShade, "-");
+
+    var controlCloseEvent = HTML.makeElement(controls, "span");
+    controlCloseEvent.addClass("eventScoringControl");
+    controlCloseEvent.addClass("controlCloseEvent");
+    HTML.makeText(controlCloseEvent, "X");
+
+    HTML.makeText(this.titleBar, this.d.event_code);
+
+    // Content
+    this.contentBox = HTML.makeElement(this.root, "div");
+    this.contentBox.addClass("eventScoringContent");
+
+    var table = HTML.makeTable(this.contentBox);
+    var thead = HTML.makeElement(table, "thead");
+    for (var i = 0; i < EVENT_SCORING.HEADER_TEXT_5.length; i++) {
+        var th = HTML.makeElement(thead, "th", {"scope":"col"});
+        HTML.makeText(th, EVENT_SCORING.HEADER_TEXT_5[i]);
+    }
+    var tbody = HTML.makeElement(table, "tbody");
+    for (var i = 0; i < this.d.scoring.length; i++) {
+        var row = HTML.makeElement(tbody, "tr");
+        new Scoring(row, this.d.scoring[i]);
+    }
+
+    // Create handlers
+    var self = this;
+    var handleMoveDownEvent = function () {
+        var current = $(self.drawLocation);
+        var next = current.getNext();
+        if (next) {
+            $(current).injectAfter($(next));
+        }
+    };
+    var handleMoveUpEvent = function () {
+        var current = $(self.drawLocation);
+        var previous = current.getPrevious();
+        if (previous) {
+            $(current).injectBefore($(previous));
+        }
+    };
+    var handleToggleShade = function () {
+        self.root.toggleClass("shadedEventScoring");
+    };
+    var handleCloseEvent = function () {
+        var t = $(self.drawLocation);
+        t.setHTML("");
+        t.remove();
+    };
+
+    // Attach handlers
+    controlMoveDownEvent.addEvent("click", handleMoveDownEvent);
+    controlMoveUpEvent.addEvent("click", handleMoveUpEvent);
+    controlToggleShade.addEvent("click", handleToggleShade);
+    controlCloseEvent.addEvent("click", handleCloseEvent);
+
+    // Extra
+    this.repaint();
+
+    var drawDest = $(this.drawLocation);
+    drawDest.setHTML("");
+    drawDest.appendChild(this.root);
+};
+
+
+/**
+ * Represent a scoring row
+ */
+function Scoring(drawLocation, data) {
+    this.drawLocation = drawLocation;
+    this.d = null;
+
+    // DOM
+    this.cells = new Array();
+
+    // initialize data
+    if (data) {
+        this.setData(data);
+    }
+};
+
+Scoring.prototype.setData = function (data) {
+    this.d = data;
+    this.makeDom();
+};
+
+Scoring.prototype.repaint = function () {
+};
+
+Scoring.prototype.makeDom = function () {
+    var td = null;
+
+    td = HTML.makeElement(null, "td");
+    HTML.makeText(td, this.d.competitor_id);
+    this.cells.push(td);
+
+    td = HTML.makeElement(null, "td");
+    HTML.makeText(td, this.d.competitor_first_name + " " + this.d.competitor_last_name);
+    this.cells.push(td);
+
+    // Extra
+    this.repaint();
+
+    var drawDest = $(this.drawLocation);
+    drawDest.setHTML("");
+    for (var i = 0; i < this.cells.length; i++) {
+        drawDest.appendChild(this.cells[i]);
+    }
+};
+

@@ -22,15 +22,10 @@
 }
 
 #consoleContentArea {
-    margin: 10px auto;
-    width: 97%;
-
-/* temp */
-    background-color: red;
-    height: 400px;
+    margin: 10px;
 }
 
-.sidebarModule {
+.module {
     border: 1px dotted black;
     margin: 10px 0;
     padding: 10px 2px;
@@ -92,6 +87,7 @@
 }
 
 .ringEventListItemRow {
+    cursor: pointer;
     font-size: 90%;
     vertical-align: top;
 }
@@ -130,4 +126,31 @@
 
 .highlightRow {
     background-color: yellow;
+}
+
+.eventScoring {
+/* temp */
+    background-color: cornsilk;
+}
+
+.eventScoringControlBox {
+    float: right;
+}
+
+.eventScoringControl {
+    border: 1px dotted black;
+    margin: 0 2px;
+    cursor: pointer;
+/* temp */
+    background-color: skyblue;
+}
+
+.eventScoringContent {
+    border: 1px dotted black;
+/* temp */
+    background-color: white;
+}
+
+.shadedEventScoring .eventScoringContent {
+    display: none;
 }

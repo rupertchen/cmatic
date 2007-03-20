@@ -20,6 +20,12 @@ HTML = {
         return e;
     },
 
+    makeAnchor: function (p, id, href, text) {
+        var ret = HTML.makeElement(p, "a", {"id":id, "href":href});
+        HTML.makeText(ret, text);
+        return ret;
+    },
+
     makeTable: function (p) {
         return HTML.makeElement(p, "table", {"border":"0", "cellpadding":"0", "cellspacing":"0"});
     },

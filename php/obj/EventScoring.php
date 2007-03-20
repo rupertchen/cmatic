@@ -1,9 +1,9 @@
 <?php
 
-class EventSummary {
+class EventScoring {
 
     // Data
-    var $d = array('form_blowout'=>array());
+    var $d = array('form_blowout'=>array(), 'scoring'=>array());
 
 
     function fillFromDbRow($r) {
@@ -18,6 +18,11 @@ class EventSummary {
 
     function addFormBlowout($fb) {
         $this->d['form_blowout'][] = $fb->d;
+    }
+
+
+    function addScoring($s) {
+        $this->d['scoring'][] = $s->d;
     }
 
 

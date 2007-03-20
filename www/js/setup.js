@@ -85,8 +85,8 @@ EventOrder.prototype.makeDom = function () {
 EventOrder.prototype.makeEventSummaryDom = function (parent, eventSummaryData) {
     var tmp = HTML.makeElement(parent, "div");
     tmp.addClass("eventSummary");
-    tmp.style.height = eventSummaryData.form_blowout.competitor_count + "em";
-    HTML.makeText(tmp, eventSummaryData.event_code + " (" + eventSummaryData.form_blowout.competitor_count + ")" );
+    tmp.style.height = eventSummaryData.form_blowout[0].competitor_count + "em";
+    HTML.makeText(tmp, eventSummaryData.event_code + " (" + eventSummaryData.form_blowout[0].competitor_count + ")" );
 
     var self = this;
 
@@ -113,7 +113,7 @@ EventOrder.prototype.makeEventSummaryDom = function (parent, eventSummaryData) {
 
 EventOrder.prototype.displayDetails = function (detailsBox, eventSummaryData) {
     var e = eventSummaryData;
-    var fb = e.form_blowout;
+    var fb = e.form_blowout[0];
 
     detailsBox.innerHTML = "";
     var title = HTML.makeElement(detailsBox, "span");

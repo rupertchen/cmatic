@@ -32,7 +32,9 @@ class Json {
      */
     function encode($o) {
         $json = '';
-        if (is_object($o) || is_resource($o)) {
+        if (is_null($o)) {
+            $json = 'null';
+        } else if (is_object($o) || is_resource($o)) {
             // can't encode objects or resources
         } else if (is_float($o) || is_int($o)) {
             // encode numbers as Javascript numbers
