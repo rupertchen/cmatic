@@ -1,3 +1,20 @@
+EVENT_SCORING = {
+    HEADER_TEXT_5 : [
+        "ID", "Competitor",
+        "#1", "#2", "#3", "#4", "#5",
+        "Time",
+        "Merited Score", "Time Deduction", "Other Deduction",
+        "Final Score", "Tie Breaker",
+        ""],
+    HEADER_TEXT_6 : [
+        "ID", "Competitor",
+        "#1", "#2", "#3", "#4", "#5", "#6",
+        "Time",
+        "Merited Score", "Time Deduction", "Other Deduction",
+        "Final Score", "Tie Breaker",
+        ""]
+};
+
 RING_CONFIG = {
     NUM_JUDGES: {
         1 : 1,
@@ -21,6 +38,16 @@ RING_CONFIG = {
         7 : "Nandu"
     },
 
+    SCORING_HEADER: {
+        1 : EVENT_SCORING.HEADER_TEXT_5,
+        2 : EVENT_SCORING.HEADER_TEXT_5,
+        3 : EVENT_SCORING.HEADER_TEXT_5,
+        4 : EVENT_SCORING.HEADER_TEXT_5,
+        5 : EVENT_SCORING.HEADER_TEXT_5,
+        6 : EVENT_SCORING.HEADER_TEXT_5,
+        7 : EVENT_SCORING.HEADER_TEXT_6
+    },
+
     BLANK_NAME : "--",
 
     NEEDS_NAME : "<Enter name>"
@@ -33,11 +60,6 @@ RING_EVENT_LIST = {
 
     // This is the magic value that gets us the correct resizing of the list body
     MAGIC_VAL_1 : 400
-};
-
-EVENT_SCORING = {
-    HEADER_TEXT_5 : ["ID", "Competitor", "#1", "#2", "#3", "#4", "#5", "Time", "Time Deduction", "Other Deduction", "Final", "Tie Breaker"],
-    HEADER_TEXT_6 : ["ID", "Competitor", "#1", "#2", "#3", "#4", "#5", "#6", "Time", "Time Deduction", "Other Deduction", "Final", "Tie Breaker"]
 };
 
 /**
@@ -312,16 +334,23 @@ EventScoring.prototype.makeDom = function () {
     controlCloseEvent.addClass("controlCloseEvent");
     HTML.makeText(controlCloseEvent, "X");
 
-    HTML.makeText(this.titleBar, this.d.event_code);
+    var fb = this.d.form_blowout[0];
+    HTML.makeText(this.titleBar, this.d.event_code + ":"
+        + " " + CMAT.formatLevelId(fb.level_id)
+        + " " + CMAT.formatGenderId(fb.gender_id)
+        + " " + CMAT.formatAgeGroupId(fb.age_group_id)
+        + " " + CMAT.formatFormId(fb.form_id));
 
     // Content
     this.contentBox = HTML.makeElement(this.root, "div");
     this.contentBox.addClass("eventScoringContent");
 
     var table = HTML.makeTable(this.contentBox);
+    table.addClass("eventScoringTable");
     var thead = HTML.makeElement(table, "thead");
     for (var i = 0; i < EVENT_SCORING.HEADER_TEXT_5.length; i++) {
         var th = HTML.makeElement(thead, "th", {"scope":"col"});
+        th.addClass("eventScoringHeaderCell");
         HTML.makeText(th, EVENT_SCORING.HEADER_TEXT_5[i]);
     }
     var tbody = HTML.makeElement(table, "tbody");
@@ -398,12 +427,91 @@ Scoring.prototype.makeDom = function () {
     var td = null;
 
     td = HTML.makeElement(null, "td");
-    HTML.makeText(td, this.d.competitor_id);
+    td.addClass("scoringCompetitorId");
     this.cells.push(td);
+    var competitorId = HTML.makeElement(td, "span");
+    HTML.makeText(competitorId, this.d.competitor_id);
 
+    // Competitior
     td = HTML.makeElement(null, "td");
-    HTML.makeText(td, this.d.competitor_first_name + " " + this.d.competitor_last_name);
+    td.addClass("scoringCompetitorName");
     this.cells.push(td);
+    var competitorName = HTML.makeElement(td, "span");
+    HTML.makeText(competitorName, this.d.competitor_first_name + " " + this.d.competitor_last_name);
+
+    // Given scores
+    // TODO: Need to switch between configs
+    var inputId = null;
+    var idSuffix = "_" + this.d.scoring_id + "_" + i;
+    for (var i = 0; i < 5; i++) {
+        var inputId = "judgeScore" + idSuffix;
+        td = HTML.makeElement(null, "td");
+        td.addClass("scoringInput");
+        td.addClass("judgeScore");
+        this.cells.push(td);
+        var scoringInput = HTML.makeInput(td, inputId, inputId, "0.0");
+        scoringInput.setAttribute("maxlength", "4");
+    }
+
+    // Time
+    inputId = "time" + idSuffix;
+    td = HTML.makeElement(null, "td");
+    td.addClass("scoringInput");
+    td.addClass("routineTime");
+    this.cells.push(td);
+    var timeInput = HTML.makeInput(td, inputId, inputId, "0");
+    timeInput.setAttribute("maxlength", "8");
+
+    // Computation
+    inputId = "meritedScore" + idSuffix;
+    td = HTML.makeElement(null, "td");
+    td.addClass("scoringInput");
+    td.addClass("meritedScore");
+    this.cells.push(td);
+    var mScoreInput = HTML.makeInput(td, inputId, inputId, "0");
+    mScoreInput.setAttribute("readonly", "readonly");
+
+    inputId = "timeDeduction" + idSuffix;
+    td = HTML.makeElement(null, "td");
+    td.addClass("scoringInput");
+    td.addClass("timeDeduction");
+    this.cells.push(td);
+    HTML.makeText(td, "-");
+    var tDeductInput = HTML.makeInput(td, inputId, inputId, "0");
+    tDeductInput.setAttribute("maxlength", "4");
+
+    inputId = "otherDeduction" + idSuffix;
+    td = HTML.makeElement(null, "td");
+    td.addClass("scoringInput");
+    td.addClass("otherDeduction");
+    this.cells.push(td);
+    HTML.makeText(td, "-");
+    var oDeductInput = HTML.makeInput(td, inputId, inputId, "0");
+    oDeductInput.setAttribute("maxlength", "4");
+
+    inputId = "finalScore" + idSuffix;
+    td = HTML.makeElement(null, "td");
+    td.addClass("scoringInput");
+    td.addClass("finalScore");
+    this.cells.push(td);
+    var fScoreInput = HTML.makeInput(td, inputId, inputId, "0");
+    fScoreInput.setAttribute("readonly", "readonly");
+
+    inputId = "tieBreaker" + idSuffix;
+    td = HTML.makeElement(null, "td");
+    td.addClass("scoringInput");
+    td.addClass("tieBreakerValue");
+    this.cells.push(td);
+    var tieBreakerInput = HTML.makeInput(td, inputId, inputId, "0");
+    tieBreakerInput.setAttribute("readonly", "readonly");
+
+    // Submit score
+    td = HTML.makeElement(null, "td");
+    td.addClass("eventScoringControl");
+    td.addClass("controlSubmitScore");
+    this.cells.push(td);
+    var controlSubmitScore = HTML.makeElement(td, "span");
+    HTML.makeText(controlSubmitScore, ">");
 
     // Extra
     this.repaint();

@@ -151,6 +151,55 @@
     background-color: white;
 }
 
+.eventScoringHeaderCell {
+    font-size: 70%;
+    font-weight: bold;
+    text-align: center;
+    vertical-align: bottom;
+}
+
 .shadedEventScoring .eventScoringContent {
     display: none;
 }
+
+.scoringCompetitorId,
+.scoringCompetitorName,
+.scoringInput {
+    padding: 1px 2px;
+}
+
+.scoringCompetitorId {
+    font-family: "Courier New", monospace;
+    font-size: 70%;
+}
+
+.scoringCompetitorName {
+    white-space: nowrap;
+}
+
+.scoringInput {
+    font-size: 90%;
+    text-align: center;
+}
+
+.scoringInput input {
+    border: 1px solid #CCC;
+    width: 3em;
+}
+
+.judgeScore {
+}
+
+.routineTime {
+}
+
+.meritedScore {
+}
+
+.timeDeduction {
+}
+
+.otherDeduction {
+}
+
+
