@@ -2,15 +2,15 @@ EVENT_SCORING = {
     HEADER_TEXT_5 : [
         "ID", "Competitor",
         "#1", "#2", "#3", "#4", "#5",
-        "Time",
-        "Merited Score", "Time Deduction", "Other Deduction",
+        "Time (sec.)",
+        "Merited Score", "Time Deduct.", "Other Deduct.",
         "Final Score", "Tie Breaker",
         ""],
     HEADER_TEXT_6 : [
         "ID", "Competitor",
         "#1", "#2", "#3", "#4", "#5", "#6",
-        "Time",
-        "Merited Score", "Time Deduction", "Other Deduction",
+        "Time (sec.)",
+        "Merited Score", "Time Deduct.", "Other Deduct.",
         "Final Score", "Tie Breaker",
         ""]
 };
@@ -443,14 +443,15 @@ Scoring.prototype.makeDom = function () {
     // TODO: Need to switch between configs
     var inputId = null;
     var idSuffix = "_" + this.d.scoring_id + "_" + i;
-    for (var i = 0; i < 5; i++) {
+    var scoringInputs = new Array(5)
+    for (var i = 0; i < scoringInputs.length; i++) {
         var inputId = "judgeScore" + idSuffix;
         td = HTML.makeElement(null, "td");
         td.addClass("scoringInput");
         td.addClass("judgeScore");
         this.cells.push(td);
-        var scoringInput = HTML.makeInput(td, inputId, inputId, "0.0");
-        scoringInput.setAttribute("maxlength", "4");
+        scoringInputs[i] = HTML.makeInput(td, inputId, inputId, "0.0");
+        scoringInputs[i].setAttribute("maxlength", "4");
     }
 
     // Time
@@ -476,7 +477,7 @@ Scoring.prototype.makeDom = function () {
     td.addClass("scoringInput");
     td.addClass("timeDeduction");
     this.cells.push(td);
-    HTML.makeText(td, "-");
+    HTML.makeText(td, "- ");
     var tDeductInput = HTML.makeInput(td, inputId, inputId, "0");
     tDeductInput.setAttribute("maxlength", "4");
 
@@ -485,7 +486,7 @@ Scoring.prototype.makeDom = function () {
     td.addClass("scoringInput");
     td.addClass("otherDeduction");
     this.cells.push(td);
-    HTML.makeText(td, "-");
+    HTML.makeText(td, "- ");
     var oDeductInput = HTML.makeInput(td, inputId, inputId, "0");
     oDeductInput.setAttribute("maxlength", "4");
 
@@ -494,6 +495,7 @@ Scoring.prototype.makeDom = function () {
     td.addClass("scoringInput");
     td.addClass("finalScore");
     this.cells.push(td);
+    HTML.makeText(td, "= ");
     var fScoreInput = HTML.makeInput(td, inputId, inputId, "0");
     fScoreInput.setAttribute("readonly", "readonly");
 
@@ -502,8 +504,10 @@ Scoring.prototype.makeDom = function () {
     td.addClass("scoringInput");
     td.addClass("tieBreakerValue");
     this.cells.push(td);
+    HTML.makeText(td, "( ");
     var tieBreakerInput = HTML.makeInput(td, inputId, inputId, "0");
     tieBreakerInput.setAttribute("readonly", "readonly");
+    HTML.makeText(td, " )");
 
     // Submit score
     td = HTML.makeElement(null, "td");
@@ -512,6 +516,63 @@ Scoring.prototype.makeDom = function () {
     this.cells.push(td);
     var controlSubmitScore = HTML.makeElement(td, "span");
     HTML.makeText(controlSubmitScore, ">");
+
+    // Create handlers
+    var self = this;
+    var handleMeritedScore = function () {
+        // Find max and min and sum
+        var minScore = 10; // Start way higher
+        var maxScore = 0; // Start way lower
+        var sumScore = 0; // Start at nothing
+        var numScores = scoringInputs.length;
+        for (var i = 0; i < numScores; i++) {
+            var thisScore = scoringInputs[i].value;
+            minScore = Math.min(minScore, thisScore);
+            maxScore = Math.max(maxScore, thisScore);
+            sumScore = sumScore + parseFloat(thisScore);
+        }
+
+        // Set merited score
+        var mScoreValue = (sumScore - minScore - maxScore) / (numScores - 2);
+        mScoreInput.value = (Math.round(mScoreValue * 100) / 100);
+        mScoreInput.fireEvent("change");
+    };
+    var handleTimeDeduction = function () {
+        // Magicaly get max and min
+        var limits = CMAT.getTimeLimits(3, 4, 17); // TODO Faked: need a way to really get this info
+        var time = CMAT.parseSeconds(timeInput.value);
+        var diff = 0;
+        if (null != limits[0] && time < limits[0]) {
+            diff = limits[0] - time;
+        } else if (null != limits[1] && time > limits[1]) {
+            diff = time - limits[1];
+        }
+
+        var deduction = 0;
+        var penaltyInterval = 2; // TODO Faked.. figure out how to get the real interval
+        if (diff > 0.090009) { // 0.09 is official, 0.090009 gets us past reasonable rounding errors
+            deduction = Math.ceil(diff / penaltyInterval) * 0.1;
+        }
+        tDeductInput.value = deduction;
+        tDeductInput.fireEvent("change");
+    };
+    var handleFinalScore = function () {
+        var mScoreValue = parseFloat(mScoreInput.value);
+        var tDeductValue = parseFloat(tDeductInput.value);
+        var oDeductValue = parseFloat(oDeductInput.value);
+        var fScoreValue = mScoreValue - tDeductValue - oDeductValue;
+        fScoreInput.value = (Math.round(fScoreValue * 100) / 100);
+        fScoreInput.fireEvent("change");
+    };
+
+    // Attach handlers
+    for (var i = 0; i < scoringInputs.length; i++) {
+        scoringInputs[i].addEvent("change", handleMeritedScore);
+    }
+    timeInput.addEvent("change", handleTimeDeduction);
+    mScoreInput.addEvent("change", handleFinalScore);
+    tDeductInput.addEvent("change", handleFinalScore);
+    oDeductInput.addEvent("change", handleFinalScore);
 
     // Extra
     this.repaint();

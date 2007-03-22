@@ -139,8 +139,10 @@
 
 .eventScoringControl {
     border: 1px dotted black;
-    margin: 0 2px;
     cursor: pointer;
+    font-size: 80%;
+    margin: 0 2px;
+
 /* temp */
     background-color: skyblue;
 }
@@ -152,6 +154,7 @@
 }
 
 .eventScoringHeaderCell {
+    border-bottom: 1px solid #000;
     font-size: 70%;
     font-weight: bold;
     text-align: center;
@@ -166,6 +169,7 @@
 .scoringCompetitorName,
 .scoringInput {
     padding: 1px 2px;
+    white-space: nowrap;
 }
 
 .scoringCompetitorId {
@@ -174,7 +178,6 @@
 }
 
 .scoringCompetitorName {
-    white-space: nowrap;
 }
 
 .scoringInput {
@@ -183,23 +186,47 @@
 }
 
 .scoringInput input {
-    border: 1px solid #CCC;
+    background-color: #FFF;
+    border: 1px solid #000;
+    text-align: center;
     width: 3em;
 }
 
 .judgeScore {
+    background-color: #70A7AB;
 }
 
 .routineTime {
+    background-color: #8470AB;
 }
 
-.meritedScore {
+.meritedScore input,
+.finalScore input,
+.tieBreakerValue input {
+    background-color: #EEE;
+    color: #666;
 }
 
-.timeDeduction {
+
+.finalScore input {
+    font-weight: bold;
+    color: blue;
 }
 
+.meritedScore,
+.timeDeduction,
 .otherDeduction {
+    background-color: #70AB82;
 }
 
+.finalScore,
+.tieBreakerValue {
+    background-color: #AB7094;
+}
 
+.tieBreakerValue input {
+    width: 2em;
+}
+
+.controlSubmitScore {
+}

@@ -102,5 +102,103 @@ CMAT = {
 
     formatFullName: function (first, last) {
         return last + ", " + first;
+    },
+
+    getTimeLimits: function (levelId, ageGroupId, formId) {
+        var ret = [null, null];
+        if (1 <= formId && 6 <= formId) {
+            // Traditional
+            if (1 == ageGroupId || 2 == ageGroupId) {
+                // <7, 8-12
+                ret = [30, 120];
+            } else if (3 <= ageGroupId && ageGroupId <= 10) {
+                // 13-17, Adult, Senior
+                if (1 == levelId || 2 == levelId) {
+                    // Beginner, Intermediate
+                    ret = [30, 120];
+                } else if (3 == levelId) {
+                    // Advanced
+                    ret = [45, 120];
+                }
+            }
+        } else if (7 <= formId && formId <= 16) {
+            // Contemporary
+            if (1 == levelId) {
+                // Beginners
+                ret = [30, null];
+            } else if (2 == levelId){
+                // Intermediate
+                ret = [60, null];
+            } else if (3 == levelid) {
+                // Advanced
+                if (9 == formId || 16 == formId) {
+                    // Contemporary Other Hand Form, Contemporary Other Weapon
+                    ret = [60, null];
+                } else {
+                    ret = [80, null];
+                }
+            }
+        } else if (17 <= formId && formId <= 24) {
+            // Nandu
+            ret = [80, null];
+        } else if (25 <= formId && formId <= 38) {
+            // Internal
+            if (26 == formId || 27 == formId) {
+                // 24 Form Chen, 24 Form Yang
+                ret = [240, 300];
+            } else if (35 == formId) {
+                // 42 Form Taiji Straightsword
+                ret = [180, 240];
+            } else if (25 == formId) {
+                // 42 Form Taijiquan
+                ret = [300, 600];
+            } else if (31 == formId) {
+                // Bagua Zhang
+                ret = [60, 120];
+            } else if (28 == formId || 29 == formId || 32 == formId
+                || 33 == formId || 34 == formId) {
+                // Guangping, Open Chen, Open Yang, Sun Taiji, Internal Other,
+                ret = [180, 210];
+            } else if (36 == formId) {
+                // Other Tiaji Sword
+                ret = [120, 300];
+            } else if (38 == formId) {
+                // Interal Other Weapon, Other Taiji Sword
+                ret = [120, 180];
+            } else if (30 == formId) {
+                // Xingyiquan
+                ret = [60, 120];
+            }
+        } else if (39 <= formId && formId <= 41) {
+            // Group Sets (not sparring)
+            ret = [45, 360];
+        } else if (42 == formId) {
+            // Sparring set
+            ret = [45, 120];
+        } else if (43 <= formId && formId <= 48) {
+            // Push hands -- N/A
+        }
+        return ret;
+    },
+
+    parseSeconds : function (timeString) {
+        var splitTime = timeString.split(":");
+        var seconds = null;
+        if (1 == splitTime.length) {
+            seconds = parseFloat(splitTime[0]);
+        } else if (2 == splitTime.length) {
+            seconds = parseInt(splitTime[0]) * 60 + parseFloat(splitTime[1]);
+        }
+        return seconds;
+    },
+
+    formatSeconds : function (seconds) {
+        var time = null;
+        if (seconds < 60) {
+            time = seconds + "";
+        } else {
+            time = Math.floor(seconds / 60) + ":" + (seconds % 60);
+        }
+        return time;
     }
 };
