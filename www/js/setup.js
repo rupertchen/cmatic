@@ -1,8 +1,5 @@
 SETUP = {
-    TOTAL_NUM_RINGS : 8,
-    SORT_EVENT_SUMMARY : function (eventA, eventB) {
-        return eventA.event_order - eventB.event_order;
-    }
+    TOTAL_NUM_RINGS : 8
 };
 
 /**
@@ -44,7 +41,7 @@ EventOrder.prototype.setData = function (data) {
 
     // Sort each of the rings
     for (var i = 0; i < this.ringsData.length; i++) {
-        this.ringsData[i].sort(SETUP.SORT_EVENT_SUMMARY);
+        this.ringsData[i].sort(CMAT.sortEventSummary);
     }
 
     this.makeDom();

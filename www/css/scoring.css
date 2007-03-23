@@ -150,6 +150,12 @@
 .eventScoringContent {
     border: 1px dotted black;
 /* temp */
+    background-color: #D7D7D7;
+}
+
+.eventScoringTable {
+    border: 1px dotted black;
+/* temp */
     background-color: white;
 }
 
@@ -201,6 +207,7 @@
 }
 
 .meritedScore input,
+.timeDeduction input,
 .finalScore input,
 .tieBreakerValue input {
     background-color: #EEE;
@@ -229,4 +236,10 @@
 }
 
 .controlSubmitScore {
+}
+
+.eventScoringInfoBox {
+    font-size: 70%;
+    padding: 2px;
+    text-align: center;
 }

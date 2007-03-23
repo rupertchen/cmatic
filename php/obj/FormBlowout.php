@@ -14,6 +14,7 @@ class FormBlowout {
         $this->d['level_id'] = $r['level_id'];
         $this->d['age_group_id'] = $r['age_group_id'];
         $this->d['event_id'] = $r['event_id'];
+        $this->d['ring_configuration_id'] = $r['ring_configuration_id'];
     }
 
 

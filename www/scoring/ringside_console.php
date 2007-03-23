@@ -45,22 +45,29 @@
     </table>
     <script type="text/javascript">
       // Initial data
-      var emptyJudge = {"name" : "<Enter Name>"};
       var initialRingConfig = {
         "ring_id" : <?php echo intval($ringId); ?>,
         "type" : 4,
-        "judges" : [emptyJudge, emptyJudge, emptyJudge, emptyJudge, emptyJudge, emptyJudge, emptyJudge],
+        "judges" : [
+            {"name" : "<Enter Name>"},
+            {"name" : "<Enter Name>"},
+            {"name" : "<Enter Name>"},
+            {"name" : "<Enter Name>"},
+            {"name" : "<Enter Name>"},
+            {"name" : "<Enter Name>"},
+            {"name" : "<Enter Name>"},
+        ],
         "ringLeader" : "<Enter Name>"
       };
 
 
       // Create modules
-      var rc = new RingConfiguration("ringConfiguration", initialRingConfig);
-      var rel = new RingEventList("ringEventList", null);
+      var GLOBAL_RING_CONFIG = new RingConfiguration("ringConfiguration", initialRingConfig);
+      var GLOBAL_RING_EVENT_LIST = new RingEventList("ringEventList", null);
 
       // Prep AJAX
       var relAjax = new Json.Remote("../query/get_event_summary_list.php?r=<?php echo $ringId; ?>",
-          {"onComplete" : function (x) { rel.setData(x); }});
+          {"onComplete" : function (x) { GLOBAL_RING_EVENT_LIST.setData(x); }});
 
       // AJAX requests
       relAjax.send();

@@ -19,8 +19,10 @@
         // Get a specific event
         $q0 = 'SELECT * FROM cmat_annual.event'
             . " WHERE event_id = $eventId";
-        $q1 = 'SELECT * FROM cmat_annual.form_blowout'
-            . " WHERE event_id = $eventId";
+        $q1 = 'SELECT fb.*, f.ring_configuration_id'
+            . ' FROM cmat_annual.form_blowout fb'
+            . ' INNER JOIN cmat_enum.form f ON (fb.form_id = f.form_id)'
+            . " WHERE fb.event_id = $eventId";
         $q2 = 'SELECT s.form_blowout_id, count(*)'
             . ' FROM cmat_annual.scoring s, cmat_annual.form_blowout fb'
             . ' WHERE s.form_blowout_id = fb.form_blowout_id'
@@ -29,9 +31,10 @@
     } else if (strlen($ringId) > 0) {
         $q0 = 'SELECT * FROM cmat_annual.event'
             . " WHERE ring_id = $ringId";
-        $q1 = 'SELECT fb.*'
-            . ' FROM cmat_annual.form_blowout fb, cmat_annual.event e'
+        $q1 = 'SELECT fb.*, f.ring_configuration_id'
+            . ' FROM cmat_annual.form_blowout fb, cmat_annual.event e, cmat_enum.form f'
             . ' WHERE fb.event_id = e.event_id'
+            . ' AND fb.form_id = f.form_id'
             . " AND ring_id = $ringId";
         $q2 = 'SELECT s.form_blowout_id, count(*)'
             . ' FROM cmat_annual.scoring s, cmat_annual.form_blowout fb, cmat_annual.event e'
@@ -42,7 +45,7 @@
     } else {
         // Get all events
         $q0 = 'SELECT * FROM cmat_annual.event';
-        $q1 = 'SELECT * FROM cmat_annual.form_blowout';
+        $q1 = 'SELECT fb.*, f.ring_configuration_id FROM cmat_annual.form_blowout fb INNER JOIN cmat_enum.form f ON (fb.form_id = f.form_id)';
         $q2 = 'SELECT form_blowout_id, count(*)'
            . ' FROM cmat_annual.scoring'
            . ' GROUP BY form_blowout_id';

@@ -15,18 +15,18 @@ class Scoring {
         $this->d['group_id'] = $r['group_id'];
         $this->d['group_name'] = $r['group_name'];
         $this->d['form_blowout_id'] = $r['form_blowout_id'];
-        $this->d['judge_00'] = $r['judge_00'];
-        $this->d['judge_01'] = $r['judge_01'];
-        $this->d['judge_02'] = $r['judge_02'];
-        $this->d['judge_03'] = $r['judge_03'];
-        $this->d['judge_04'] = $r['judge_04'];
-        $this->d['judge_05'] = $r['judge_05'];
-        $this->d['scoring_00'] = $r['scoring_00'];
-        $this->d['scoring_01'] = $r['scoring_01'];
-        $this->d['scoring_02'] = $r['scoring_02'];
-        $this->d['scoring_03'] = $r['scoring_03'];
-        $this->d['scoring_04'] = $r['scoring_04'];
-        $this->d['scoring_05'] = $r['scoring_05'];
+        $this->d['judge_0'] = $r['judge_0'];
+        $this->d['judge_1'] = $r['judge_1'];
+        $this->d['judge_2'] = $r['judge_2'];
+        $this->d['judge_3'] = $r['judge_3'];
+        $this->d['judge_4'] = $r['judge_4'];
+        $this->d['judge_5'] = $r['judge_5'];
+        $this->d['score_0'] = $r['score_0'];
+        $this->d['score_1'] = $r['score_1'];
+        $this->d['score_2'] = $r['score_2'];
+        $this->d['score_3'] = $r['score_3'];
+        $this->d['score_4'] = $r['score_4'];
+        $this->d['score_5'] = $r['score_5'];
         $this->d['time'] = $r['time'];
         $this->d['time_deduction'] = $r['time_deduction'];
         $this->d['other_deduction'] = $r['other_deduction'];
@@ -34,7 +34,7 @@ class Scoring {
         $this->d['final_placement'] = $r['final_placement'];
         $this->d['scored_at'] = $r['scored_at'];
         $this->d['picked_up_medal'] = $r['picked_up_medal'];
-        $this->d['tie_breaker'] = $r['tie_breaker'];
+        $this->d['merited_score'] = $r['merited_score'];
     }
 
 

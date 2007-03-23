@@ -106,7 +106,7 @@ CMAT = {
 
     getTimeLimits: function (levelId, ageGroupId, formId) {
         var ret = [null, null];
-        if (1 <= formId && 6 <= formId) {
+        if (1 <= formId && formId <= 6) {
             // Traditional
             if (1 == ageGroupId || 2 == ageGroupId) {
                 // <7, 8-12
@@ -129,7 +129,7 @@ CMAT = {
             } else if (2 == levelId){
                 // Intermediate
                 ret = [60, null];
-            } else if (3 == levelid) {
+            } else if (3 == levelId) {
                 // Advanced
                 if (9 == formId || 16 == formId) {
                     // Contemporary Other Hand Form, Contemporary Other Weapon
@@ -181,24 +181,43 @@ CMAT = {
         return ret;
     },
 
+    getPenaltyTimeInterval: function (formId) {
+        var interval = null;
+        if (7 <= formId && formId <= 16) {
+            interval = 2;
+        } else {
+            interval = 5;
+        }
+        return interval;
+    },
+
     parseSeconds : function (timeString) {
         var splitTime = timeString.split(":");
         var seconds = null;
         if (1 == splitTime.length) {
             seconds = parseFloat(splitTime[0]);
         } else if (2 == splitTime.length) {
-            seconds = parseInt(splitTime[0]) * 60 + parseFloat(splitTime[1]);
+            seconds = (parseInt(splitTime[0]) * 60) + parseFloat(splitTime[1]);
         }
         return seconds;
     },
 
     formatSeconds : function (seconds) {
         var time = null;
-        if (seconds < 60) {
-            time = seconds + "";
+        if (null == seconds) {
+            time = "n/a";
         } else {
-            time = Math.floor(seconds / 60) + ":" + (seconds % 60);
+            var m = Math.floor(seconds / 60);
+            var s = seconds - (m * 60);
+            if (1 == s.length) {
+                s = "0" + s;
+            }
+            time = m + ":" + s;
         }
         return time;
+    },
+
+    sortEventSummary : function (eventA, eventB) {
+        return eventA.event_order - eventB.event_order;
     }
 };
