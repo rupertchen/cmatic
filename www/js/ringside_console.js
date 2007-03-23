@@ -482,7 +482,8 @@ Scoring.prototype.makeDom = function () {
         td.addClass("judgeScore");
         this.cells.push(td);
         initialValue = this.d["score_"+i];
-        scoringInputs[i] = HTML.makeInput(td, inputId, inputId, initialValue ? initialValue : "0.0");
+        scoringInputs[i] = HTML.makeInput(td, inputId, inputId,
+            initialValue ? CMAT.formatFloat(initialValue, 100) : "0.0");
         scoringInputs[i].setAttribute("maxlength", "4");
     }
 
@@ -493,7 +494,7 @@ Scoring.prototype.makeDom = function () {
     td.addClass("routineTime");
     this.cells.push(td);
     initialValue = this.d.time;
-    var timeInput = HTML.makeInput(td, inputId, inputId, initialValue ? CMAT.formatSeconds(initialValue) : "0");
+    var timeInput = HTML.makeInput(td, inputId, inputId, initialValue ? CMAT.formatSeconds(CMAT.formatFloat(initialValue, 100)) : "0");
     timeInput.setAttribute("maxlength", "8");
 
     // Computation
@@ -503,8 +504,8 @@ Scoring.prototype.makeDom = function () {
     td.addClass("meritedScore");
     this.cells.push(td);
     initialValue = this.d.merited_score;
-    var mScoreInput = HTML.makeInput(td, inputId, inputId, initialValue ? initialValue : "0");
-    mScoreInput.setAttribute("readonly", "readonly");
+    var mScoreInput = HTML.makeInput(td, inputId, inputId, initialValue ? CMAT.formatFloat(initialValue, 100) : "0");
+    mScoreInput.setAttribute("disabled", "disabled");
 
     inputId = "timeDeduction" + idSuffix;
     td = HTML.makeElement(null, "td");
@@ -513,8 +514,8 @@ Scoring.prototype.makeDom = function () {
     this.cells.push(td);
     HTML.makeText(td, "- ");
     initialValue = this.d.time_deduction;
-    var tDeductInput = HTML.makeInput(td, inputId, inputId, initialValue ? initialValue : "0");
-    tDeductInput.setAttribute("readonly", "readonly");
+    var tDeductInput = HTML.makeInput(td, inputId, inputId, initialValue ? CMAT.formatFloat(initialValue, 100) : "0");
+    tDeductInput.setAttribute("disabled", "disabled");
 
     inputId = "otherDeduction" + idSuffix;
     td = HTML.makeElement(null, "td");
@@ -523,7 +524,7 @@ Scoring.prototype.makeDom = function () {
     this.cells.push(td);
     HTML.makeText(td, "- ");
     initialValue = this.d.other_deduction;
-    var oDeductInput = HTML.makeInput(td, inputId, inputId, initialValue ? initialValue : "0");
+    var oDeductInput = HTML.makeInput(td, inputId, inputId, initialValue ? CMAT.formatFloat(initialValue, 100) : "0");
     oDeductInput.setAttribute("maxlength", "4");
 
     inputId = "finalScore" + idSuffix;
@@ -533,8 +534,8 @@ Scoring.prototype.makeDom = function () {
     this.cells.push(td);
     HTML.makeText(td, "= ");
     initialValue = this.d.final_score;
-    var fScoreInput = HTML.makeInput(td, inputId, inputId, initialValue ? initialValue : "0");
-    fScoreInput.setAttribute("readonly", "readonly");
+    var fScoreInput = HTML.makeInput(td, inputId, inputId, initialValue ? CMAT.formatFloat(initialValue, 100) : "0");
+    fScoreInput.setAttribute("disabled", "disabled");
 
     // Submit score
     td = HTML.makeElement(null, "td");

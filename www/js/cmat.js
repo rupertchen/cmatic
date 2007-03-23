@@ -219,5 +219,10 @@ CMAT = {
 
     sortEventSummary : function (eventA, eventB) {
         return eventA.event_order - eventB.event_order;
+    },
+
+    // Rounds a number off to the 1/place-th place
+    formatFloat : function (n, place) {
+        return Math.round(n * place) / place;
     }
 };
