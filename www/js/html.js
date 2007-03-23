@@ -37,7 +37,7 @@ HTML = {
     },
 
     makeInput: function (p, id, name, value) {
-        return HTML.makeElement(p, "input", {"type":"text", "id":id, "name":name, "value":value});
+        return HTML.makeElement(p, "input", {"type":"text", "id":id, "name":name, "value":(value + "")});
     },
 
     makeHidden: function (p, id, name, value) {

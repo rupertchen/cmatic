@@ -461,22 +461,27 @@ Scoring.prototype.makeDom = function () {
     td.addClass("scoringCompetitorId");
     this.cells.push(td);
     var competitorId = HTML.makeElement(td, "span");
-    HTML.makeText(competitorId, this.d.competitor_id);
+    HTML.makeText(competitorId, (this.d.competitor_id) ? this.d.competitor_id : this.d.group_id);
 
     // Competitior
     td = HTML.makeElement(null, "td");
-    td.addClass("scoringCompetitorName");
     this.cells.push(td);
     var competitorName = HTML.makeElement(td, "span");
-    HTML.makeText(competitorName, this.d.competitor_first_name + " " + this.d.competitor_last_name);
+    if (this.d.competitor_first_name) {
+        HTML.makeText(competitorName, this.d.competitor_first_name + " " + this.d.competitor_last_name);
+        td.addClass("scoringCompetitorName");
+    } else {
+        HTML.makeText(competitorName, this.d.group_name);
+        td.addClass("scoringGroupName");
+    }
 
     // Given scores
     var inputId = null;
     var initialValue = null;
-    var idSuffix = "_" + this.d.scoring_id + "_" + i;
+    var idSuffix = "_" + this.d.scoring_id;
     var scoringInputs = new Array(RING_CONFIG.NUM_JUDGES[this.ringConfigurationId] - 1)
     for (var i = 0; i < scoringInputs.length; i++) {
-        var inputId = "judgeScore" + idSuffix;
+        var inputId = "judgeScore_" + i + idSuffix;
         td = HTML.makeElement(null, "td");
         td.addClass("scoringInput");
         td.addClass("judgeScore");

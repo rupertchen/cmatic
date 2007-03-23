@@ -173,9 +173,14 @@
 
 .scoringCompetitorId,
 .scoringCompetitorName,
+.scoringGroupName,
 .scoringInput {
     padding: 1px 2px;
     white-space: nowrap;
+}
+
+.scoringGroupName {
+    white-space: normal;
 }
 
 .scoringCompetitorId {

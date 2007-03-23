@@ -209,7 +209,7 @@ CMAT = {
         } else {
             var m = Math.floor(seconds / 60);
             var s = seconds - (m * 60);
-            if (1 == s.length) {
+            if (1 == (s + "").length) {
                 s = "0" + s;
             }
             time = m + ":" + s;
