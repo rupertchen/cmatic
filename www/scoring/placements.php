@@ -16,7 +16,7 @@
 
     $q0 = 'SELECT s.scoring_id, s.competitor_id, c.first_name, c.last_name, f.name AS form_name, final_placement, s.final_score, picked_up_medal'
         . ' FROM cmat_annual.scoring s'
-        . ' INNER JOIN cmat_annual.competitor c ON (s.competitor_id = c.competitor_id)'
+        . ' LEFT OUTER JOIN cmat_annual.competitor c ON (s.competitor_id = c.competitor_id)'
         . ' INNER JOIN cmat_annual.form_blowout fb ON (s.form_blowout_id = fb.form_blowout_id)'
         . ' INNER JOIN cmat_enum.form f ON (fb.form_id = f.form_id)'
         . ' WHERE final_placement < 4'
@@ -27,7 +27,7 @@
 
     $r = Db::query($q0);
     while ($row = Db::fetch_array($r)) {
-        if ('t' == $row['picked_up_metal']) {
+        if ('t' == $row['picked_up_medal']) {
             $placementListGot[] = $row;
         } else {
             $placementListNeed[] = $row;
@@ -78,7 +78,7 @@ foreach ($placementListNeed as $k => $v) {
         </thead>
         <tbody>
 <?php
-foreach ($placementListNeed as $k => $v) {
+foreach ($placementListGot as $k => $v) {
     $trFormat = '<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td></td></tr>' . "\n";
     echo sprintf($trFormat,
         $v['last_name'] . ', ' . $v['first_name'] . '(' . $v['competitor_id'] . ')',
