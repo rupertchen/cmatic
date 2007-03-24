@@ -1,6 +1,6 @@
-AuthUserFile /home/rchen/.htpasswd_cmat
-AuthName Tourneyheads
+AuthUserFile /home/calwushu/.htpasswd_cmat
+AuthName CMAT15
 AuthType Basic
 
-require user tourney
+require valid-user
 
