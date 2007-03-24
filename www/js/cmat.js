@@ -249,5 +249,9 @@ CMAT = {
     // Rounds a number off to the 1/place-th place
     formatFloat : function (n, place) {
         return Math.round(n * place) / place;
+    },
+
+    convertDbBoolean : function (val) {
+        return 't' == val;
     }
 };

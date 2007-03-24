@@ -81,7 +81,6 @@
 }
 
 .ringEventListBody {
-/*    height: 150px;*/
     overflow-y: auto;
     overflow-x: hidden;
 }
@@ -90,6 +89,11 @@
     cursor: pointer;
     font-size: 90%;
     vertical-align: top;
+}
+
+.ringEventListItemRowDone {
+    color: #666;
+    font-style: italic;
 }
 
 .ringEventListItemCode,
@@ -129,8 +133,40 @@
 }
 
 .eventScoring {
-/* temp */
     background-color: cornsilk;
+}
+
+/* Hide buttons as appropriate */
+.eventScoring .controlEventEdit,
+.eventScoring .controlEventDone,
+.eventScoringDone .controlEventStart,
+.eventScoringDone .controlEventDone,
+.eventScoring._inProgress .controlEventStart,
+.eventScoring._inProgress .controlEventEdit,
+.eventScorintDone._underEdit .controlEventStart,
+.eventScoringDone._underEdit .controlEventEdit {
+    display: none;
+}
+/* Show buttons as appropraite */
+.eventScoring .controlEventStart,
+.eventScoringDone .controlEventEdit,
+.eventScoring._inProgress .controlEventDone,
+.eventScoringDone._underEdit .controlEventDone {
+    display: inline;
+}
+
+.eventScoring._inProgress {
+    background-color: yellow;
+}
+
+
+.eventScoringDone {
+    background-color: gray;
+}
+
+
+.eventScoringDone._underEdit {
+    background-color: orange;
 }
 
 .eventScoringControlBox {

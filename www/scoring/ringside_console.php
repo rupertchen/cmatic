@@ -61,9 +61,10 @@
       };
 
 
-      // Create modules
+      // Create globals
       var GLOBAL_RING_CONFIG = new RingConfiguration("ringConfiguration", initialRingConfig);
       var GLOBAL_RING_EVENT_LIST = new RingEventList("ringEventList", null);
+      var GLOBAL_CURRENT_EVENT = null;
 
       // Prep AJAX
       var relAjax = new Json.Remote("../query/get_event_summary_list.php?r=<?php echo $ringId; ?>",

@@ -1,3 +1,6 @@
+// WARNING: This file expects certain global variables to be available.
+// Search for "GLOBAL_"
+
 EVENT_SCORING = {
     HEADER_TEXT_5 : [
         "ID", "Competitor",
@@ -236,6 +239,9 @@ RingEventList.prototype.makeDom = function () {
 RingEventList.prototype.makeItemRow = function (parent, itemData) {
     var item = HTML.makeElement(parent, "tr");
     item.addClass("ringEventListItemRow");
+    if (CMAT.convertDbBoolean(itemData.is_done)) {
+        item.addClass("ringEventListItemRowDone");
+    }
     var td = null;
 
     // Code
@@ -285,6 +291,7 @@ function EventScoring (drawLocation, data) {
     this.drawLocation = drawLocation;
     this.d = null;
 
+    this.scoring = null;
 
     // DOM
     this.root = null;
@@ -309,7 +316,11 @@ EventScoring.prototype.repaint = function () {
 EventScoring.prototype.makeDom = function () {
     this.root = HTML.makeElement(null, "div");
     this.root.addClass("module");
-    this.root.addClass("eventScoring");
+    if (CMAT.convertDbBoolean(this.d.is_done)) {
+        this.root.addClass("eventScoringDone");
+    } else {
+        this.root.addClass("eventScoring");
+    }
 
     // Title bar
     this.titleBar = HTML.makeElement(this.root, "div");
@@ -360,9 +371,10 @@ EventScoring.prototype.makeDom = function () {
     var tbody = HTML.makeElement(table, "tbody");
     var timeLimits = CMAT.getTimeLimits(fb.level_id, fb.age_group_id, fb.form_id);
     var penaltyTimeInterval = CMAT.getPenaltyTimeInterval(fb.form_id);
+    this.scoring = new Array(this.d.scoring.length);
     for (var i = 0; i < this.d.scoring.length; i++) {
         var row = HTML.makeElement(tbody, "tr");
-        new Scoring(row, this.d.scoring[i], timeLimits[0], timeLimits[1], penaltyTimeInterval, fb.ring_configuration_id);
+        this.scoring[i] = new Scoring(row, this.d.scoring[i], timeLimits[0], timeLimits[1], penaltyTimeInterval, fb.ring_configuration_id);
     }
 
     var buttons = HTML.makeElement(this.contentBox, "div");
@@ -406,9 +418,45 @@ EventScoring.prototype.makeDom = function () {
         self.root.toggleClass("shadedEventScoring");
     };
     var handleCloseEvent = function () {
+        // TODO: DON'T CLOSE IF EVENT IS ALL SAVED
         var t = $(self.drawLocation);
         t.setHTML("");
         t.remove();
+    };
+    var handleStartEvent = function () {
+        if (GLOBAL_CURRENT_EVENT) {
+            alert("Can't start event. Event " + GLOBAL_CURRENT_EVENT.d.event_code + " is still in progress.");
+        } else {
+            GLOBAL_CURRENT_EVENT = self;
+            self.root.addClass("_inProgress");
+            for (var i = 0; i < self.scoring.length; i++) {
+                self.scoring[i].disableEditableInputs(false);
+            }
+        }
+    };
+    var handleEditEvent = function () {
+        self.root.addClass("_underEdit");
+        for (var i = 0; i < self.scoring.length; i++) {
+            self.scoring[i].disableEditableInputs(false);
+        }
+    };
+    var handleDoneEvent = function () {
+        if (GLOBAL_CURRENT_EVENT == self || CMAT.convertDbBoolean(self.d.is_done)) {
+            for (var i = 0; i < self.scoring.length; i++) {
+                self.scoring[i].disableEditableInputs(true);
+            }
+
+            var url = "../query/save_event_done.php";
+            var body = {};
+            body["event_id"] = self.d.event_id;
+            body["ring_configuration_id"] = self.d.form_blowout[0].ring_configuration_id;
+            var myAjax = new Ajax(url, {postBody: body});
+            myAjax.request();
+            GLOBAL_CURRENT_EVENT = null;
+            controlCloseEvent.fireEvent("click");
+        } else {
+            alert("Can't end this event. It is not in progress.");
+        }
     };
 
     // Attach handlers
@@ -416,6 +464,9 @@ EventScoring.prototype.makeDom = function () {
     controlMoveUpEvent.addEvent("click", handleMoveUpEvent);
     controlToggleShade.addEvent("click", handleToggleShade);
     controlCloseEvent.addEvent("click", handleCloseEvent);
+    startButton.addEvent("click", handleStartEvent);
+    editButton.addEvent("click", handleEditEvent);
+    doneButton.addEvent("click", handleDoneEvent);
 
     // Extra
     this.repaint();
@@ -439,6 +490,12 @@ function Scoring(drawLocation, data, minTime, maxTime, penaltyInterval, ringConf
 
     // DOM
     this.cells = new Array();
+    this.scoringInputs = null;
+    this.timeInput = null;
+    this.mScoreInput = null;
+    this.tDeductInput = null;
+    this.oDeductInput = null;
+    this.fScoreInput = null;
 
     // initialize data
     if (data) {
@@ -449,6 +506,14 @@ function Scoring(drawLocation, data, minTime, maxTime, penaltyInterval, ringConf
 Scoring.prototype.setData = function (data) {
     this.d = data;
     this.makeDom();
+};
+
+Scoring.prototype.disableEditableInputs = function (flag) {
+    for (var i = 0; i < this.scoringInputs.length; i++) {
+        this.scoringInputs[i].disabled = flag;
+    }
+    this.timeInput.disabled = flag;
+    this.oDeductInput.disabled = flag;
 };
 
 Scoring.prototype.repaint = function () {
@@ -479,17 +544,17 @@ Scoring.prototype.makeDom = function () {
     var inputId = null;
     var initialValue = null;
     var idSuffix = "_" + this.d.scoring_id;
-    var scoringInputs = new Array(RING_CONFIG.NUM_JUDGES[this.ringConfigurationId] - 1)
-    for (var i = 0; i < scoringInputs.length; i++) {
+    this.scoringInputs = new Array(RING_CONFIG.NUM_JUDGES[this.ringConfigurationId] - 1)
+    for (var i = 0; i < this.scoringInputs.length; i++) {
         var inputId = "judgeScore_" + i + idSuffix;
         td = HTML.makeElement(null, "td");
         td.addClass("scoringInput");
         td.addClass("judgeScore");
         this.cells.push(td);
         initialValue = this.d["score_"+i];
-        scoringInputs[i] = HTML.makeInput(td, inputId, inputId,
+        this.scoringInputs[i] = HTML.makeInput(td, inputId, inputId,
             initialValue ? CMAT.formatFloat(initialValue, 100) : "0.0");
-        scoringInputs[i].setAttribute("maxlength", "4");
+        this.scoringInputs[i].setAttribute("maxlength", "4");
     }
 
     // Time
@@ -499,8 +564,8 @@ Scoring.prototype.makeDom = function () {
     td.addClass("routineTime");
     this.cells.push(td);
     initialValue = this.d.time;
-    var timeInput = HTML.makeInput(td, inputId, inputId, initialValue ? CMAT.formatSeconds(CMAT.formatFloat(initialValue, 100)) : "0");
-    timeInput.setAttribute("maxlength", "8");
+    this.timeInput = HTML.makeInput(td, inputId, inputId, initialValue ? CMAT.formatSeconds(CMAT.formatFloat(initialValue, 100)) : "0");
+    this.timeInput.setAttribute("maxlength", "8");
 
     // Computation
     inputId = "meritedScore" + idSuffix;
@@ -509,8 +574,8 @@ Scoring.prototype.makeDom = function () {
     td.addClass("meritedScore");
     this.cells.push(td);
     initialValue = this.d.merited_score;
-    var mScoreInput = HTML.makeInput(td, inputId, inputId, initialValue ? CMAT.formatFloat(initialValue, 100) : "0");
-    mScoreInput.setAttribute("disabled", "disabled");
+    this.mScoreInput = HTML.makeInput(td, inputId, inputId, initialValue ? CMAT.formatFloat(initialValue, 100) : "0");
+    this.mScoreInput.setAttribute("disabled", "disabled");
 
     inputId = "timeDeduction" + idSuffix;
     td = HTML.makeElement(null, "td");
@@ -519,8 +584,8 @@ Scoring.prototype.makeDom = function () {
     this.cells.push(td);
     HTML.makeText(td, "- ");
     initialValue = this.d.time_deduction;
-    var tDeductInput = HTML.makeInput(td, inputId, inputId, initialValue ? CMAT.formatFloat(initialValue, 100) : "0");
-    tDeductInput.setAttribute("disabled", "disabled");
+    this.tDeductInput = HTML.makeInput(td, inputId, inputId, initialValue ? CMAT.formatFloat(initialValue, 100) : "0");
+    this.tDeductInput.setAttribute("disabled", "disabled");
 
     inputId = "otherDeduction" + idSuffix;
     td = HTML.makeElement(null, "td");
@@ -529,8 +594,8 @@ Scoring.prototype.makeDom = function () {
     this.cells.push(td);
     HTML.makeText(td, "- ");
     initialValue = this.d.other_deduction;
-    var oDeductInput = HTML.makeInput(td, inputId, inputId, initialValue ? CMAT.formatFloat(initialValue, 100) : "0");
-    oDeductInput.setAttribute("maxlength", "4");
+    this.oDeductInput = HTML.makeInput(td, inputId, inputId, initialValue ? CMAT.formatFloat(initialValue, 100) : "0");
+    this.oDeductInput.setAttribute("maxlength", "4");
 
     inputId = "finalScore" + idSuffix;
     td = HTML.makeElement(null, "td");
@@ -539,8 +604,8 @@ Scoring.prototype.makeDom = function () {
     this.cells.push(td);
     HTML.makeText(td, "= ");
     initialValue = this.d.final_score;
-    var fScoreInput = HTML.makeInput(td, inputId, inputId, initialValue ? CMAT.formatFloat(initialValue, 100) : "0");
-    fScoreInput.setAttribute("disabled", "disabled");
+    this.fScoreInput = HTML.makeInput(td, inputId, inputId, initialValue ? CMAT.formatFloat(initialValue, 100) : "0");
+    this.fScoreInput.setAttribute("disabled", "disabled");
 
     // Submit score
     td = HTML.makeElement(null, "td");
@@ -553,14 +618,14 @@ Scoring.prototype.makeDom = function () {
     var self = this;
     // Keep data in sync
     var makeScoreSyncFn = function(_i) { return function () { self.d["score_" + _i] = this.value;}; };
-    for (var i = 0; i < scoringInputs.length; i++) {
-        scoringInputs[i].addEvent("change", makeScoreSyncFn(i));
+    for (var i = 0; i < this.scoringInputs.length; i++) {
+        this.scoringInputs[i].addEvent("change", makeScoreSyncFn(i));
     }
-    timeInput.addEvent("change", function () {self.d.time = CMAT.parseSeconds(this.value);});
-    mScoreInput.addEvent("change", function () {self.d.merited_score = this.value;});
-    tDeductInput.addEvent("change", function () {self.d.time_deduction = this.value;});
-    oDeductInput.addEvent("change", function () {self.d.other_deduction = this.value;});
-    fScoreInput.addEvent("change", function () {self.d.final_score = this.value;});
+    this.timeInput.addEvent("change", function () {self.d.time = CMAT.parseSeconds(this.value);});
+    this.mScoreInput.addEvent("change", function () {self.d.merited_score = this.value;});
+    this.tDeductInput.addEvent("change", function () {self.d.time_deduction = this.value;});
+    this.oDeductInput.addEvent("change", function () {self.d.other_deduction = this.value;});
+    this.fScoreInput.addEvent("change", function () {self.d.final_score = this.value;});
     
 
     // Create handlers
@@ -569,9 +634,9 @@ Scoring.prototype.makeDom = function () {
         var minScore = 10; // Start way higher
         var maxScore = 0; // Start way lower
         var sumScore = 0; // Start at nothing
-        var numScores = scoringInputs.length;
+        var numScores = self.scoringInputs.length;
         for (var i = 0; i < numScores; i++) {
-            var thisScore = scoringInputs[i].value;
+            var thisScore = self.scoringInputs[i].value;
             minScore = Math.min(minScore, thisScore);
             maxScore = Math.max(maxScore, thisScore);
             sumScore += parseFloat(thisScore);
@@ -579,20 +644,19 @@ Scoring.prototype.makeDom = function () {
 
         // Set merited score
         var mScoreValue = (sumScore - minScore - maxScore) / (numScores - 2);
-        mScoreInput.value = (Math.round(mScoreValue * 100) / 100);
-        mScoreInput.fireEvent("change");
+        self.mScoreInput.value = (Math.round(mScoreValue * 100) / 100);
+        self.mScoreInput.fireEvent("change");
     };
     var handleMeritedScoreNandu = function () {
         var sumScore = 0;
-        for (var i = 0; i < scoringInputs.length; i++) {
-            sumScore += parseFloat(scoringInputs[i].value);
+        for (var i = 0; i < self.scoringInputs.length; i++) {
+            sumScore += parseFloat(self.scoringInputs[i].value);
         }
-        mScoreInput.value = sumScore;
-        mScoreInput.fireEvent("change");
+        self.mScoreInput.value = sumScore;
+        self.mScoreInput.fireEvent("change");
     }
     var handleTimeDeduction = function () {
-        // Magicaly get max and min
-        var time = CMAT.parseSeconds(timeInput.value);
+        var time = CMAT.parseSeconds(self.timeInput.value);
         var diff = 0;
         if (null != self.minTime && time < self.minTime) {
             diff = self.minTime - time;
@@ -602,18 +666,18 @@ Scoring.prototype.makeDom = function () {
 
         var deduction = 0;
         if (diff > 0.090009) { // 0.09 is official, 0.090009 gets us past reasonable rounding errors
-            deduction = Math.ceil(diff / self.penaltyInterval) * 0.1;
+            deduction = CMAT.formatFloat(Math.ceil(diff / self.penaltyInterval) * 0.1, 100);
         }
-        tDeductInput.value = deduction;
-        tDeductInput.fireEvent("change");
+        self.tDeductInput.value = deduction;
+        self.tDeductInput.fireEvent("change");
     };
     var handleFinalScore = function () {
-        var mScoreValue = parseFloat(mScoreInput.value);
-        var tDeductValue = parseFloat(tDeductInput.value);
-        var oDeductValue = parseFloat(oDeductInput.value);
+        var mScoreValue = parseFloat(self.mScoreInput.value);
+        var tDeductValue = parseFloat(self.tDeductInput.value);
+        var oDeductValue = parseFloat(self.oDeductInput.value);
         var fScoreValue = mScoreValue - tDeductValue - oDeductValue;
-        fScoreInput.value = (Math.round(fScoreValue * 100) / 100);
-        fScoreInput.fireEvent("change");
+        self.fScoreInput.value = (Math.round(fScoreValue * 100) / 100);
+        self.fScoreInput.fireEvent("change");
     };
     var handleSubmitScore = function () {
         var url = "../query/save_scoring_row.php";
@@ -624,8 +688,8 @@ Scoring.prototype.makeDom = function () {
         body["time_deduction"] = self.d.time_deduction;
         body["other_deduction"] = self.d.other_deduction;
         body["final_score"] = self.d.final_score;
-        body["num_judges"] = scoringInputs.length;
-        for (var i = 0; i < scoringInputs.length; i++) {
+        body["num_judges"] = self.scoringInputs.length;
+        for (var i = 0; i < self.scoringInputs.length; i++) {
             // i+1 accounts for the head judge (doesn't score) in RingConfiguration
             body["judge_" + i] = encodeURIComponent(GLOBAL_RING_CONFIG.d.judges[i+1].name);
             body["score_" + i] = self.d["score_" + i];
@@ -635,17 +699,18 @@ Scoring.prototype.makeDom = function () {
     };
 
     // Attach handlers
-    for (var i = 0; i < scoringInputs.length; i++) {
-        scoringInputs[i].addEvent("change",
+    for (var i = 0; i < this.scoringInputs.length; i++) {
+        this.scoringInputs[i].addEvent("change",
             (7 == this.ringConfigurationId) ? handleMeritedScoreNandu : handleMeritedScore);
     }
-    timeInput.addEvent("change", handleTimeDeduction);
-    mScoreInput.addEvent("change", handleFinalScore);
-    tDeductInput.addEvent("change", handleFinalScore);
-    oDeductInput.addEvent("change", handleFinalScore);
+    this.timeInput.addEvent("change", handleTimeDeduction);
+    this.mScoreInput.addEvent("change", handleFinalScore);
+    this.tDeductInput.addEvent("change", handleFinalScore);
+    this.oDeductInput.addEvent("change", handleFinalScore);
     controlSubmitScore.addEvent("click", handleSubmitScore);
 
     // Extra
+    this.disableEditableInputs(true);
     this.repaint();
 
     var drawDest = $(this.drawLocation);
