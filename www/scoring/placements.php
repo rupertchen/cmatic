@@ -3,12 +3,18 @@
 
     require_once 'util/Db.php';
 
+    $conn = Db::connect();
 
     $isSave = isset($_REQUEST["save"]);
     if ($isSave) {
+        $scoringIds = $_REQUEST['medalPickup'];
+        $updateQuery = 'UPDATE cmat_annual.scoring'
+            . ' SET picked_up_medal = true '
+            . ' WHERE scoring_id IN (' . implode(', ', $scoringIds) . ')';
+        Db::query($updateQuery);
     }
 
-    $q0 = 'SELECT s.competitor_id, c.first_name, c.last_name, f.name AS form_name, final_placement'
+    $q0 = 'SELECT s.scoring_id, s.competitor_id, c.first_name, c.last_name, f.name AS form_name, final_placement, s.final_score'
         . ' FROM cmat_annual.scoring s'
         . ' INNER JOIN cmat_annual.competitor c ON (s.competitor_id = c.competitor_id)'
         . ' INNER JOIN cmat_annual.form_blowout fb ON (s.form_blowout_id = fb.form_blowout_id)'
@@ -19,7 +25,6 @@
 
     $placementList = array();
 
-    $conn = Db::connect();
     $r = Db::query($q0);
     while ($row = Db::fetch_array($r)) {
         $placementList[] = $row;
@@ -35,28 +40,27 @@
 <html>
   <head>
     <title>Placement</title>
-    <script type="text/javascript" src="../js/mootools.v1.00.js"></script>
-    <script type="text/javascript" src="../js/html.js"></script>
-    <script type="text/javascript" src="../js/cmat.js"></script>
-    <script type="text/javascript" src="../js/ringside_console.js"></script>
     <link rel="stylesheet" type="text/css" href="../css/reset.css"/>
     <link rel="stylesheet" type="text/css" href="../css/scoring.css"/>
   </head>
   <body>
     <h1>Placement</h1>
-    <form action="placements.php">
+    <form action="placements.php" method="post">
       <input type="submit" name="save" value="Save!"/>
       <table>
         <thead>
-          <tr><th>Competitor</th><th>Event</th><th>Place</th></tr>
+          <tr><th>Competitor</th><th>Event</th><th>Final Score</th><th>Place</th><th>Medal</th></tr>
         </thead>
         <tbody>
 <?php
 foreach ($placementList as $k => $v) {
-    $trFormat = "<tr><td>%s</td><td>%s</td><td>%s</td></tr>\n";
+    $trFormat = '<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td><input name="medalPickup[]" value="%s" type="checkbox"/></td></tr>' . "\n";
     echo sprintf($trFormat,
         $v['last_name'] . ', ' . $v['first_name'] . '(' . $v['competitor_id'] . ')',
-        $v['form_name'], $v['final_placement']);
+        $v['form_name'],
+        $v['final_score'],
+        $v['final_placement'],
+        $v['scoring_id']);
 }
 ?>
         </tbody>
