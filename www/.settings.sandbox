@@ -1,5 +1,5 @@
 <?php
-define("CODE_PATH", "/home/rchen/dev_calwushu/cmat-o-matic/trunk/php");
-define("WWW_PATH", "http://hkn.eecs.berkeley.edu/~rchen/cmat15/sandycom");
+define("CODE_PATH", "/home/calwushu/dev_tera/cmat-o-matic/trunk/php");
+define("WWW_PATH", "http://192.168.1.105/~calwushu/cmat15/sandycom");
 define("DEBUG_MODE", true);
 ?>
