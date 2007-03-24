@@ -220,9 +220,9 @@ CMAT = {
         var splitTime = timeString.split(":");
         var seconds = null;
         if (1 == splitTime.length) {
-            seconds = parseFloat(splitTime[0]);
+            seconds = splitTime[0];
         } else if (2 == splitTime.length) {
-            seconds = (parseInt(splitTime[0]) * 60) + parseFloat(splitTime[1]);
+            seconds = (splitTime[0] * 60) + splitTime[1];
         }
         return seconds;
     },
@@ -253,5 +253,10 @@ CMAT = {
 
     convertDbBoolean : function (val) {
         return 't' == val;
+    },
+
+    isValidTimeString : function (timeString) {
+        var pTime = CMAT.parseSeconds(timeString);
+        return pTime == parseFloat(pTime);
     }
 };

@@ -484,6 +484,11 @@ EventScoring.prototype.makeDom = function () {
     var drawDest = $(this.drawLocation);
     drawDest.setHTML("");
     drawDest.appendChild(this.root);
+
+    // Extra warning
+    if (this.d.form_blowout[0].ring_configuration_id != GLOBAL_RING_CONFIG.d.type) {
+        alert("Be careful! The current ring configuration type does not match this event's type.");
+    }
 };
 
 
@@ -705,25 +710,34 @@ Scoring.prototype.makeDom = function () {
         self.fScoreInput.fireEvent("change");
     };
     var handleSubmitScore = function () {
-        var url = "../query/save_scoring_row.php";
-        var body = {};
-        body["scoring_id"] = self.d.scoring_id;
-        body["time"] = self.d.time;
-        body["merited_score"] = self.d.merited_score;
-        body["time_deduction"] = self.d.time_deduction;
-        body["other_deduction"] = self.d.other_deduction;
-        body["final_score"] = self.d.final_score;
-        body["num_judges"] = self.scoringInputs.length;
-        body["ring_leader"] = encodeURIComponent(GLOBAL_RING_CONFIG.d.ring_leader);
-        body["head_judge"] = encodeURIComponent(GLOBAL_RING_CONFIG.d.judges[0].name);
-        for (var i = 0; i < self.scoringInputs.length; i++) {
-            // i+1 accounts for the head judge (doesn't score) in RingConfiguration
-            body["judge_" + i] = encodeURIComponent(GLOBAL_RING_CONFIG.d.judges[i+1].name);
-            body["score_" + i] = self.d["score_" + i];
+        // Spot check
+        var isValid = ("NaN" != self.d.final_score)
+            && (CMAT.isValidTimeString(self.d.time));
+
+        if (isValid) {
+            var url = "../query/save_scoring_row.php";
+            // HACK: We silently kill off all percentages (%) in names
+            var body = {};
+            body["scoring_id"] = self.d.scoring_id;
+            body["time"] = self.d.time;
+            body["merited_score"] = self.d.merited_score;
+            body["time_deduction"] = self.d.time_deduction;
+            body["other_deduction"] = self.d.other_deduction;
+            body["final_score"] = self.d.final_score;
+            body["num_judges"] = self.scoringInputs.length;
+            body["ring_leader"] = encodeURIComponent(GLOBAL_RING_CONFIG.d.ring_leader.replace("%", ""));
+            body["head_judge"] = encodeURIComponent(GLOBAL_RING_CONFIG.d.judges[0].name.replace("%", ""));
+            for (var i = 0; i < self.scoringInputs.length; i++) {
+                // i+1 accounts for the head judge (doesn't score) in RingConfiguration
+                body["judge_" + i] = encodeURIComponent(GLOBAL_RING_CONFIG.d.judges[i+1].name.replace("%", ""));
+                body["score_" + i] = self.d["score_" + i];
+            }
+            var markSaved = function () { self.setNeedsSave(false); };
+            var myAjax = new Ajax(url, {postBody: body, onComplete: markSaved});
+            myAjax.request();
+        } else {
+            alert("Bad values found. Check that score and deduction inputs are valid numbers and that the time is properly formatted.");
         }
-        var markSaved = function () { self.setNeedsSave(false); };
-        var myAjax = new Ajax(url, {postBody: body, onComplete: markSaved});
-        myAjax.request();
     };
 
     // Attach handlers
