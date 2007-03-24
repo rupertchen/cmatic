@@ -13,6 +13,7 @@ class EventSummary {
         $this->d['ring_id'] = $r['ring_id'];
         $this->d['event_order'] = $r['event_order'];
         $this->d['is_done'] = $r['is_done'];
+        $this->d['finalized_at'] = $r['finalized_at'];
     }
 
 

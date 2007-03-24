@@ -58,7 +58,7 @@
             {"name" : "<Enter Name>"},
             {"name" : "<Enter Name>"},
         ],
-        "ringLeader" : "<Enter Name>"
+        "ring_leader" : "<Enter Name>"
       };
 
 

@@ -11,9 +11,13 @@
 
     // Queries
     // Mark the event as done
-    $q0 = 'UPDATE cmat_annual.event'
+    $q0a = 'UPDATE cmat_annual.event'
         . ' SET is_done = true'
         . " WHERE event_id = $eventId";
+    $q0b = 'UPDATE cmat_annual.event'
+        . ' SET finalized_at = CURRENT_TIMESTAMP'
+        . " WHERE event_id = $eventId"
+        . ' AND finalized_at IS NULL';
     // Get scoring details for the event
     $q1 = 'SELECT s.*'
         . ' FROM cmat_annual.form_blowout fb'
@@ -29,7 +33,8 @@
     $conn = Db::connect();
 
     // Save data
-    Db::query($q0);
+    Db::query($q0a);
+    Db::query($q0b);
 
     // Query for scores
     $r = Db::query($q1);

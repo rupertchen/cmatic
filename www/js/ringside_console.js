@@ -95,7 +95,7 @@ RingConfiguration.prototype.fillDomValues = function () {
     for (var i = 0; i < RING_CONFIG.MAX_JUDGES; i++) {
         this.judges[i].value = this.d.judges[i].name;
     }
-    this.ringLeader.value = this.d.ringLeader;
+    this.ringLeader.value = this.d.ring_leader;
 };
 
 RingConfiguration.prototype.disableExtraJudges = function () {
@@ -132,7 +132,7 @@ RingConfiguration.prototype.makeDom = function () {
     tr = HTML.makeElement(tbody, "tr");
     HTML.makeText(HTML.makeElement(tr, "th", {"scope":"row"}), "Ring Leader:");
     this.ringLeader = HTML.makeInput(HTML.makeElement(tr, "td"), null, "ringLeader", null);
-    this.ringLeader.addEvent("change", function() {self.d.ringLeader = this.value});
+    this.ringLeader.addEvent("change", function() {self.d.ring_leader = this.value});
 
     tr = HTML.makeElement(tbody, "tr");
     HTML.makeText(HTML.makeElement(tr, "th", {"scope":"row"}), "Type:");
@@ -313,6 +313,14 @@ EventScoring.prototype.setData = function (data) {
 EventScoring.prototype.repaint = function () {
 };
 
+EventScoring.prototype.areAllScoresSaved = function () {
+    var areSaved = true;
+    for (var i = 0; i < this.scoring.length; i++) {
+        areSaved &= !this.scoring[i].needsSave;
+    }
+    return areSaved;
+};
+
 EventScoring.prototype.makeDom = function () {
     this.root = HTML.makeElement(null, "div");
     this.root.addClass("module");
@@ -382,7 +390,7 @@ EventScoring.prototype.makeDom = function () {
     var startButton = HTML.makeElement(buttons, "span");
     startButton.addClass("eventScoringControl");
     startButton.addClass("controlEventStart");
-    HTML.makeText(startButton, "Start");
+    HTML.makeText(startButton, "Start Event");
     var editButton = HTML.makeElement(buttons, "span");
     editButton.addClass("eventScoringControl");
     editButton.addClass("controlEventEdit");
@@ -390,7 +398,7 @@ EventScoring.prototype.makeDom = function () {
     var doneButton = HTML.makeElement(buttons, "span");
     doneButton.addClass("eventScoringControl");
     doneButton.addClass("controlEventDone");
-    HTML.makeText(doneButton, "Done");
+    HTML.makeText(doneButton, "Finalize Event & Place Competitors");
 
     var infoBox = HTML.makeElement(this.contentBox, "div");
     infoBox.addClass("eventScoringInfoBox");
@@ -418,10 +426,15 @@ EventScoring.prototype.makeDom = function () {
         self.root.toggleClass("shadedEventScoring");
     };
     var handleCloseEvent = function () {
-        // TODO: DON'T CLOSE IF EVENT IS ALL SAVED
-        var t = $(self.drawLocation);
-        t.setHTML("");
-        t.remove();
+        if (self.areAllScoresSaved()
+            && (GLOBAL_CURRENT_EVENT != self
+                || (GLOBAL_CURRENT_EVENT == self
+                    && confirm("Either this event has not been finalized or there are unsaved scores. Are you sure you want to close it instead of saving the scores and/or finalizing the event? Unsaved changes will be lost.\n\nClick \"Cancel\" to go back or \"OK\" to close anyway.")))) {
+            var t = $(self.drawLocation);
+            GLOBAL_CURRENT_EVENT = null;
+            t.setHTML("");
+            t.remove();
+        }
     };
     var handleStartEvent = function () {
         if (GLOBAL_CURRENT_EVENT) {
@@ -441,11 +454,8 @@ EventScoring.prototype.makeDom = function () {
         }
     };
     var handleDoneEvent = function () {
-        if (GLOBAL_CURRENT_EVENT == self || CMAT.convertDbBoolean(self.d.is_done)) {
-            for (var i = 0; i < self.scoring.length; i++) {
-                self.scoring[i].disableEditableInputs(true);
-            }
-
+        //if (GLOBAL_CURRENT_EVENT == self || CMAT.convertDbBoolean(self.d.is_done)) {
+        if (self.areAllScoresSaved()) {
             var url = "../query/save_event_done.php";
             var body = {};
             body["event_id"] = self.d.event_id;
@@ -455,7 +465,7 @@ EventScoring.prototype.makeDom = function () {
             GLOBAL_CURRENT_EVENT = null;
             controlCloseEvent.fireEvent("click");
         } else {
-            alert("Can't end this event. It is not in progress.");
+            alert("Can't finalize this event. There are unsaved scores (marked with red).");
         }
     };
 
@@ -487,6 +497,7 @@ function Scoring(drawLocation, data, minTime, maxTime, penaltyInterval, ringConf
     this.maxTime = maxTime;
     this.penaltyInterval = penaltyInterval;
     this.ringConfigurationId = ringConfigurationId;
+    this.needsSave = false;
 
     // DOM
     this.cells = new Array();
@@ -500,6 +511,16 @@ function Scoring(drawLocation, data, minTime, maxTime, penaltyInterval, ringConf
     // initialize data
     if (data) {
         this.setData(data);
+    }
+};
+
+Scoring.prototype.setNeedsSave = function (flag) {
+    this.needsSave = flag;
+    var css = "scoringRowNeedsSave";
+    if (flag) {
+        this.drawLocation.addClass(css);
+    } else {
+        this.drawLocation.removeClass(css);
     }
 };
 
@@ -553,7 +574,7 @@ Scoring.prototype.makeDom = function () {
         this.cells.push(td);
         initialValue = this.d["score_"+i];
         this.scoringInputs[i] = HTML.makeInput(td, inputId, inputId,
-            initialValue ? CMAT.formatFloat(initialValue, 100) : "0.0");
+            initialValue ? CMAT.formatFloat(initialValue, 100) : "0");
         this.scoringInputs[i].setAttribute("maxlength", "4");
     }
 
@@ -564,7 +585,7 @@ Scoring.prototype.makeDom = function () {
     td.addClass("routineTime");
     this.cells.push(td);
     initialValue = this.d.time;
-    this.timeInput = HTML.makeInput(td, inputId, inputId, initialValue ? CMAT.formatSeconds(CMAT.formatFloat(initialValue, 100)) : "0");
+    this.timeInput = HTML.makeInput(td, inputId, inputId, initialValue ? CMAT.formatSeconds(CMAT.formatFloat(initialValue, 100)) : "0:00");
     this.timeInput.setAttribute("maxlength", "8");
 
     // Computation
@@ -609,10 +630,11 @@ Scoring.prototype.makeDom = function () {
 
     // Submit score
     td = HTML.makeElement(null, "td");
-    td.addClass("eventScoringControl");
-    td.addClass("controlSubmitScore");
+    td.addClass("submitScore");
     this.cells.push(td);
     var controlSubmitScore = HTML.makeElement(td, "span");
+    controlSubmitScore.addClass("controlSubmitScore");
+    controlSubmitScore.addClass("eventScoringControl");
     HTML.makeText(controlSubmitScore, "\u00BB");
 
     var self = this;
@@ -629,6 +651,9 @@ Scoring.prototype.makeDom = function () {
     
 
     // Create handlers
+    var handleAnyChange = function () {
+        self.setNeedsSave(true);
+    };
     var handleMeritedScore = function () {
         // Find max and min and sum
         var minScore = 10; // Start way higher
@@ -689,12 +714,15 @@ Scoring.prototype.makeDom = function () {
         body["other_deduction"] = self.d.other_deduction;
         body["final_score"] = self.d.final_score;
         body["num_judges"] = self.scoringInputs.length;
+        body["ring_leader"] = encodeURIComponent(GLOBAL_RING_CONFIG.d.ring_leader);
+        body["head_judge"] = encodeURIComponent(GLOBAL_RING_CONFIG.d.judges[0].name);
         for (var i = 0; i < self.scoringInputs.length; i++) {
             // i+1 accounts for the head judge (doesn't score) in RingConfiguration
             body["judge_" + i] = encodeURIComponent(GLOBAL_RING_CONFIG.d.judges[i+1].name);
             body["score_" + i] = self.d["score_" + i];
         }
-        var myAjax = new Ajax(url, {postBody: body});
+        var markSaved = function () { self.setNeedsSave(false); };
+        var myAjax = new Ajax(url, {postBody: body, onComplete: markSaved});
         myAjax.request();
     };
 
@@ -702,12 +730,20 @@ Scoring.prototype.makeDom = function () {
     for (var i = 0; i < this.scoringInputs.length; i++) {
         this.scoringInputs[i].addEvent("change",
             (7 == this.ringConfigurationId) ? handleMeritedScoreNandu : handleMeritedScore);
+        this.scoringInputs[i].addEvent("change", handleAnyChange);
     }
+
     this.timeInput.addEvent("change", handleTimeDeduction);
     this.mScoreInput.addEvent("change", handleFinalScore);
     this.tDeductInput.addEvent("change", handleFinalScore);
     this.oDeductInput.addEvent("change", handleFinalScore);
     controlSubmitScore.addEvent("click", handleSubmitScore);
+
+    this.timeInput.addEvent("change", handleAnyChange);
+    this.mScoreInput.addEvent("change", handleAnyChange);
+    this.tDeductInput.addEvent("change", handleAnyChange);
+    this.oDeductInput.addEvent("change", handleAnyChange);
+    controlSubmitScore.addEvent("click", handleAnyChange);
 
     // Extra
     this.disableEditableInputs(true);

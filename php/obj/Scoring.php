@@ -35,6 +35,8 @@ class Scoring {
         $this->d['scored_at'] = $r['scored_at'];
         $this->d['picked_up_medal'] = $r['picked_up_medal'];
         $this->d['merited_score'] = $r['merited_score'];
+        $this->d['ring_leader'] = $r['ring_leader'];
+        $this->d['head_judge'] = $r['head_judge'];
     }
 
 
