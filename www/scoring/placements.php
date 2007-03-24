@@ -14,20 +14,24 @@
         Db::query($updateQuery);
     }
 
-    $q0 = 'SELECT s.scoring_id, s.competitor_id, c.first_name, c.last_name, f.name AS form_name, final_placement, s.final_score'
+    $q0 = 'SELECT s.scoring_id, s.competitor_id, c.first_name, c.last_name, f.name AS form_name, final_placement, s.final_score, picked_up_medal'
         . ' FROM cmat_annual.scoring s'
         . ' INNER JOIN cmat_annual.competitor c ON (s.competitor_id = c.competitor_id)'
         . ' INNER JOIN cmat_annual.form_blowout fb ON (s.form_blowout_id = fb.form_blowout_id)'
         . ' INNER JOIN cmat_enum.form f ON (fb.form_id = f.form_id)'
         . ' WHERE final_placement < 4'
-        . ' AND picked_up_medal = false'
         . ' ORDER BY c.last_name, c.first_name, s.form_blowout_id, s.final_placement';
 
-    $placementList = array();
+    $placementListNeed = array();
+    $placementListGot = array();
 
     $r = Db::query($q0);
     while ($row = Db::fetch_array($r)) {
-        $placementList[] = $row;
+        if ('t' == $row['picked_up_metal']) {
+            $placementListGot[] = $row;
+        } else {
+            $placementListNeed[] = $row;
+        }
     }
     Db::free_result($r);
     Db::close($conn);
@@ -44,16 +48,16 @@
     <link rel="stylesheet" type="text/css" href="../css/scoring.css"/>
   </head>
   <body>
-    <h1>Placement</h1>
+    <h1>Need medals</h1>
     <form action="placements.php" method="post">
       <input type="submit" name="save" value="Save!"/>
-      <table>
+      <table border="1" cellpadding="1" cellspacing="1">
         <thead>
           <tr><th>Competitor</th><th>Event</th><th>Final Score</th><th>Place</th><th>Medal</th></tr>
         </thead>
         <tbody>
 <?php
-foreach ($placementList as $k => $v) {
+foreach ($placementListNeed as $k => $v) {
     $trFormat = '<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td><input name="medalPickup[]" value="%s" type="checkbox"/></td></tr>' . "\n";
     echo sprintf($trFormat,
         $v['last_name'] . ', ' . $v['first_name'] . '(' . $v['competitor_id'] . ')',
@@ -67,5 +71,23 @@ foreach ($placementList as $k => $v) {
       </table>
       <input type="submit" name="save" value="Save!"/>
     </form>
+    <h1>Got Medals</h1>
+      <table border="1" cellpadding="1" cellspacing="1" style="background-color: #666">
+        <thead>
+          <tr><th>Competitor</th><th>Event</th><th>Final Score</th><th>Place</th></tr>
+        </thead>
+        <tbody>
+<?php
+foreach ($placementListNeed as $k => $v) {
+    $trFormat = '<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td></td></tr>' . "\n";
+    echo sprintf($trFormat,
+        $v['last_name'] . ', ' . $v['first_name'] . '(' . $v['competitor_id'] . ')',
+        $v['form_name'],
+        $v['final_score'],
+        $v['final_placement']);
+}
+?>
+        </tbody>
+      </table>
   </body>
 </html>
