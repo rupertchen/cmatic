@@ -103,15 +103,11 @@ CMAT = {
     formatFullName: function (first, last) {
         return last + ", " + first;
     },
-    formatFullName: function (first, last) {
-        return last + ", " + first;
-    },
 
-
-	makeEventSearchString: function (event){
-		var e = event.form_blowout[0];
+    makeEventSearchString: function (event){
+        var e = event.form_blowout[0];
 				
-		if(event.form_blowout.length==0)return "";
+	if(event.form_blowout.length==0)return "";
 		var result = [
 			event.event_code,
 			event.event_id.toString(),
@@ -123,16 +119,15 @@ CMAT = {
 		//console.debug(result);
 		//console.debug(result);
 		return result.join(" ");
-	},
+    },
 
-	makeCompetitorSearchString: function (e){
-		var result = [
-			e.first_name,
-			e.last_name
-		];
-		return result.join(" ");
-
-	}
+    makeCompetitorSearchString: function (e){
+        var result = [
+            e.first_name,
+            e.last_name
+        ];
+        return result.join(" ");
+    },
 
     getTimeLimits: function (levelId, ageGroupId, formId) {
         var ret = [null, null];
