@@ -116,8 +116,6 @@ CMAT = {
 			CMAT.formatLevelId(e.level_id), 
 			CMAT.formatFormId(e.form_id)
 			];
-		//console.debug(result);
-		//console.debug(result);
 		return result.join(" ");
     },
 
@@ -222,7 +220,7 @@ CMAT = {
         if (1 == splitTime.length) {
             seconds = splitTime[0];
         } else if (2 == splitTime.length) {
-            seconds = (splitTime[0] * 60) + splitTime[1];
+            seconds = parseInt(splitTime[0] * 60) + parseFloat(splitTime[1]);
         }
         return seconds;
     },
