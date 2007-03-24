@@ -96,6 +96,9 @@
     <h2>Unpaid registrations should not have a scoring row (usually).</h2>
 <?php TextUtils::printFailures($fail2); ?>
     <h2>All scoring rows should have a related registration entry</h2>
+<p>
+<?php print "delete from cmat_annual.scoring where scoring_id in (" . implode(", ", $scoringWithNoReg) . ")"; ?>
+</p>
 <?php TextUtils::printFailures($fail3); ?>
   </body>
 </html>
