@@ -65,9 +65,9 @@
         }
         array_multisort(
             $finalScores, SORT_DESC, SORT_NUMERIC,
-            $tb1s, SORT_DESC, SORT_NUMERIC,
+            $tb1s, SORT_ASC, SORT_NUMERIC,
             $tb2s, SORT_DESC, SORT_NUMERIC,
-            $tb3s, SORT_DESC, SORT_NUMERIC,
+            $tb3s, SORT_ASC, SORT_NUMERIC,
             $scoringIds, SORT_ASC, SORT_NUMERIC
         );
 
