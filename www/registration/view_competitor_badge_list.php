@@ -67,11 +67,15 @@
         $row[] = $v0['competitor_id'];
         $row[] = $v0['last_name'] . ', ' . $v0['first_name'];
         $row[] = $v0['gender'];
-        foreach ($individualEvents[$k0] AS $k1 => $v1) {
-            $row[] = $v1['event_code'] . ' ' . $v1['form'];
+        if ($individualEvents[$k0]) {
+            foreach ($individualEvents[$k0] AS $k1 => $v1) {
+                $row[] = $v1['event_code'] . ' ' . $v1['form'];
+            }
         }
-        foreach ($groupEvents[$k0] AS $k1 => $v1) {
-            $row[] = $v1['event_code'] . ' ' . $v1['form'];
+        if ($groupEvents[$k0]) {
+            foreach ($groupEvents[$k0] AS $k1 => $v1) {
+                $row[] = $v1['event_code'] . ' ' . $v1['form'];
+            }
         }
         $tableRows[] = $row;
     }
