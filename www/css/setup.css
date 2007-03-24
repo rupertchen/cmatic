@@ -31,6 +31,10 @@
     white-space: nowrap;
 }
 
+.eventSummaryDone {
+    background-color: #BBB;
+}
+
 .pinnedEventSummary {
     background-color: #FEE;
     border-color: #FF409F;

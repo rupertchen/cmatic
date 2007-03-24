@@ -82,6 +82,9 @@ EventOrder.prototype.makeDom = function () {
 EventOrder.prototype.makeEventSummaryDom = function (parent, eventSummaryData) {
     var tmp = HTML.makeElement(parent, "div");
     tmp.addClass("eventSummary");
+    if (CMAT.convertDbBoolean(eventSummaryData.is_done)) {
+        tmp.addClass("eventSummaryDone");
+    }
     tmp.style.height = eventSummaryData.form_blowout[0].competitor_count + "em";
     HTML.makeText(tmp, eventSummaryData.event_code + " (" + eventSummaryData.form_blowout[0].competitor_count + ")" );
 
