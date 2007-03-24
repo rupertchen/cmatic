@@ -214,8 +214,8 @@ CMAT = {
         return interval;
     },
 
-    parseSeconds : function (timeString) {
-        var splitTime = timeString.split(":");
+    parseSeconds : function (tString) {
+        var splitTime = (tString + "").split(":");
         var seconds = null;
         if (1 == splitTime.length) {
             seconds = splitTime[0];
