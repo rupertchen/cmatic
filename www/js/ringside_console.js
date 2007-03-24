@@ -682,7 +682,7 @@ Scoring.prototype.makeDom = function () {
         for (var i = 0; i < self.scoringInputs.length; i++) {
             sumScore += parseFloat(self.scoringInputs[i].value);
         }
-        self.mScoreInput.value = sumScore;
+        self.mScoreInput.value = sumScore / 2;
         self.mScoreInput.fireEvent("change");
     }
     var handleTimeDeduction = function () {
