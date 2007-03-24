@@ -14,9 +14,10 @@
         Db::query($updateQuery);
     }
 
-    $q0 = 'SELECT s.scoring_id, s.competitor_id, c.first_name, c.last_name, f.name AS form_name, final_placement, s.final_score, picked_up_medal'
+    $q0 = 'SELECT s.scoring_id, s.competitor_id, c.first_name, c.last_name, s.group_id, g.name AS group_name, f.name AS form_name, final_placement, s.final_score, picked_up_medal'
         . ' FROM cmat_annual.scoring s'
         . ' LEFT OUTER JOIN cmat_annual.competitor c ON (s.competitor_id = c.competitor_id)'
+        . ' LEFT OUTER JOIN cmat_annual."group" g ON (s.group_id = g.group_id)'
         . ' INNER JOIN cmat_annual.form_blowout fb ON (s.form_blowout_id = fb.form_blowout_id)'
         . ' INNER JOIN cmat_enum.form f ON (fb.form_id = f.form_id)'
         . ' WHERE final_placement < 4'
@@ -59,8 +60,14 @@
 <?php
 foreach ($placementListNeed as $k => $v) {
     $trFormat = '<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td><input name="medalPickup[]" value="%s" type="checkbox"/></td></tr>' . "\n";
+    $name = '';
+    if ($v['competitor_id']) {
+        $name = $v['last_name'] . ', ' . $v['first_name'] . '(' . $v['competitor_id'] . ')';
+    } else {
+        $name = $v['group_name'] . '(' . $v['group_id'] . ')';
+    }
     echo sprintf($trFormat,
-        $v['last_name'] . ', ' . $v['first_name'] . '(' . $v['competitor_id'] . ')',
+        $name,
         $v['form_name'],
         $v['final_score'],
         $v['final_placement'],
@@ -80,8 +87,14 @@ foreach ($placementListNeed as $k => $v) {
 <?php
 foreach ($placementListGot as $k => $v) {
     $trFormat = '<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td></td></tr>' . "\n";
+    $name = '';
+    if ($v['competitor_id']) {
+        $name = $v['last_name'] . ', ' . $v['first_name'] . '(' . $v['competitor_id'] . ')';
+    } else {
+        $name = $v['group_name'] . '(' . $v['group_id'] . ')';
+    }
     echo sprintf($trFormat,
-        $v['last_name'] . ', ' . $v['first_name'] . '(' . $v['competitor_id'] . ')',
+        $name,
         $v['form_name'],
         $v['final_score'],
         $v['final_placement']);
