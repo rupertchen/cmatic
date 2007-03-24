@@ -1,3 +1,27 @@
+#hideStuff {
+    position: absolute;
+    top: 0;
+    left: 0;
+    color: black;
+    height: 0.25em;
+    width: 0.25em;
+    background-color: #D26F6F;
+    border: 2px outset #D26F6F;
+    text-decoration: none;
+    overflow: hidden;
+    text-align: center;
+    vertical-align: middle;
+}
+
+#hideStuff:hover {
+    height: 1.2em;
+    width: 7em;
+}
+
+._hide {
+    display: none;
+}
+
 #consoleHeader {
     border: 5px double orange;
     height: 50px;

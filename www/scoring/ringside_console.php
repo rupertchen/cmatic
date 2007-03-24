@@ -27,6 +27,7 @@
     <link rel="stylesheet" type="text/css" href="../css/scoring.css"/>
   </head>
   <body>
+    <a id="hideStuff" href="javascript: void(0);" onclick="$('consoleHeader').toggleClass('_hide'); $('consoleSidebar').toggleClass('_hide');">Toggle View</a>
     <div id="consoleHeader">
       <h1><?php echo $pageTitle; ?></h1>
     </div>
