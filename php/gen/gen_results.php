@@ -30,8 +30,8 @@ $detailQuery = 'SELECT s.score_0, s.score_1, s.score_2, s.score_3, s.score_4, s.
 // Patterns for HTML
 $HTML_HEADER_PATTERN = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n<html><head><title>%s</title></head><body>";
 $HTML_FOOTER_PATTERN = "</body></html>\n";
-$EVENT_LIST_TR_PATTERN = '<tr><td>%s</td><td><a href="e%d.html">%s</a></td></tr>';
-$EVENT_DETAIL_TR_PATTERN = '<tr><td>%d</td><td>%s</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>';
+$EVENT_LIST_TR_PATTERN = '<tr><td>%s</td><td><a href="e%d.html" title="%s results">%s</a></td></tr>';
+$EVENT_DETAIL_TR_PATTERN = '<tr><td>%d</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>';
 
 // Results destination directory
 $RESULTS_DIR = 'results/';
@@ -74,7 +74,7 @@ $eventListBody[] = '        </tr>';
 $eventListBody[] = '      </thead>';
 $eventListBody[] = '      <tbody>';
 foreach ($eventList as $k => $v) {
-  $eventListBody[] = sprintf($EVENT_LIST_TR_PATTERN, $v['event_code'], $v['event_id'], $v['form_name']);
+  $eventListBody[] = sprintf($EVENT_LIST_TR_PATTERN, $v['event_code'], $v['event_id'], $v['event_code'], $v['form_name']);
 }
 $eventListBody[] = '      </tbody>';
 $eventListBody[] = '    </table>';
@@ -107,7 +107,7 @@ foreach($eventList as $k => $v) {
   $eventDetailBody[] = '<th scope="col">Score #5</th>';
   $eventDetailBody[] = '<th scope="col">Score #6</th>';
   $eventDetailBody[] = '<th scope="col">Merited Score</th>';
-  $eventDetailBody[] = '<th scope="col">Time (seconds)</th>';
+  $eventDetailBody[] = '<th scope="col">Time</th>';
   $eventDetailBody[] = '<th scope="col">Time Deduction</th>';
   $eventDetailBody[] = '<th scope="col">Other Deduction</th>';
   $eventDetailBody[] = '<th scope="col">Final Score</th>';
@@ -117,7 +117,27 @@ foreach($eventList as $k => $v) {
   foreach ($eventDetail[$v['event_id']] as $k1 => $v1) {
     $place = $v1['final_placement'];
     $name = (0 == strlen($v1['group_name'])) ? ($v1['competitor_first_name'] . " " . $v1['competitor_last_name']) : $v1['group_name'];
-    $eventDetailBody[] = sprintf($EVENT_DETAIL_TR_PATTERN, $place, $name);
+    $score_0 = floatval($v1['score_0']);
+    $score_1 = floatval($v1['score_1']);
+    $score_2 = floatval($v1['score_2']);
+    $score_3 = floatval($v1['score_3']);
+    $score_4 = floatval($v1['score_4']);
+    $score_5 = floatval($v1['score_5']);
+    $score_0 = (0 == $score_0) ? '--' : number_format($score_0, 2);
+    $score_1 = (0 == $score_1) ? '--' : number_format($score_1, 2);
+    $score_2 = (0 == $score_2) ? '--' : number_format($score_2, 2);
+    $score_3 = (0 == $score_3) ? '--' : number_format($score_3, 2);
+    $score_4 = (0 == $score_4) ? '--' : number_format($score_4, 2);
+    $score_5 = (0 == $score_5) ? '--' : number_format($score_5, 2);
+    $mScore = number_format(floatval($v1['merited_score']), 2);
+    $time = intval($v1['time']/60) . ':' . str_pad(intval($v1['time']%60), 2, '0', STR_PAD_LEFT);
+    $tDeduct = number_format($v1['time_deduction'], 2);
+    $oDeduct = number_format($v1['other_deduction'], 2);
+    $fScore = number_format($v1['final_score'], 2);
+
+    $eventDetailBody[] = sprintf($EVENT_DETAIL_TR_PATTERN, $place, $name,
+      $score_0, $score_1, $score_2, $score_3, $score_4, $score_5, $mScore,
+      $time, $tDeduct, $oDeduct, $fScore);
   }
   $eventDetailBody[] = '</tbody>';
   $eventDetailBody[] = '</table>';
