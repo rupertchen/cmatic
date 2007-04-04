@@ -51,7 +51,22 @@
         $tb3s = array();
         $scoringIds = array();
         foreach ($rawScores as $k => $v) {
-            $scores = array($v['score_0'], $v['score_1'], $v['score_2'], $v['score_3'], $v['score_4']);
+            if ('t' == $v['is_dropped']) {
+                // Dropped people have all 0 scores as far as placement is concerned
+                $scores = array(0);
+                $v['final_score'] = 0;
+            } else {
+                // Just include scores that aren't 0 or null
+                $scores = array();
+                $dbColumns = array('score_0', 'score_1', 'score_2', 'score_3', 'score_4');
+                foreach ($dbColumns as $k1 => $v1) {
+                    $singleScore = $v[$v1];
+                    if (0 != $singleScore) {
+                        $scores[] = $singleScore;
+                    }
+                }
+            }
+
 
             $min = min($scores);
             $max = max($scores);

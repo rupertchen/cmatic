@@ -37,6 +37,7 @@ class Scoring {
         $this->d['merited_score'] = $r['merited_score'];
         $this->d['ring_leader'] = $r['ring_leader'];
         $this->d['head_judge'] = $r['head_judge'];
+        $this->d['is_dropped'] = $r['is_dropped'];
     }
 
 

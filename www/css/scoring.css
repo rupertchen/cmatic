@@ -303,6 +303,13 @@
     width: 2em;
 }
 
+.scoringRowIsDropped .scoringCompetitorId,
+.scoringRowIsDropped .scoringCompetitorName,
+.scoringRowIsDropped .scoringGroupName {
+    font-style: italic;
+    color: gray;
+}
+
 .scoringRowNeedsSave .scoringCompetitorId,
 .scoringRowNeedsSave .scoringCompetitorName,
 .scoringRowNeedsSave .scoringGroupName {

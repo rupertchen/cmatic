@@ -24,12 +24,15 @@
 
     // Save data
     $judgesAndScoresUpdate = array();
-    $pJASU = "judge_%d = '%s', score_%d = %f";
+    $pScoreUpdate = "score_%d = %f";
     for ($i = 0; $i < $numJudges; $i++) {
-        $judgesAndScoresUpdate[] = sprintf($pJASU, $i, $judges[$i], $i, $scores[$i]);
+        // TODO: For now, we're never saving the judges info.
+        // This should change so that we don't override initial settings?
+        // Or perhaps, given certain defaults, they won't be overwritten?
+        $scoresUpdate[] = sprintf($pScoreUpdate, $i, $scores[$i]);
     }
     $p0 = 'UPDATE cmat_annual.scoring SET'
-        . ' ' . implode(', ', $judgesAndScoresUpdate)
+        . ' ' . implode(', ', $scoresUpdate)
         . ", ring_leader = '$ringLeader'"
         . ", head_judge = '$headJudge'"
         . ', time = %f'

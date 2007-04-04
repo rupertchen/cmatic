@@ -529,6 +529,15 @@ Scoring.prototype.setNeedsSave = function (flag) {
     }
 };
 
+Scoring.prototype.setIsDropped = function (flag) {
+    var css = "scoringRowIsDropped";
+    if (flag) {
+        this.drawLocation.addClass(css);
+    } else {
+        this.drawLocation.removeClass(css);
+    }
+};
+
 Scoring.prototype.setData = function (data) {
     this.d = data;
     this.makeDom();
@@ -554,7 +563,7 @@ Scoring.prototype.makeDom = function () {
     var competitorId = HTML.makeElement(td, "span");
     HTML.makeText(competitorId, (this.d.competitor_id) ? this.d.competitor_id : this.d.group_id);
 
-    // Competitior
+    // Competitor
     td = HTML.makeElement(null, "td");
     this.cells.push(td);
     var competitorName = HTML.makeElement(td, "span");
@@ -761,6 +770,7 @@ Scoring.prototype.makeDom = function () {
 
     // Extra
     this.disableEditableInputs(true);
+    this.setIsDropped(CMAT.convertDbBoolean(this.d.is_dropped));
     this.repaint();
 
     var drawDest = $(this.drawLocation);
