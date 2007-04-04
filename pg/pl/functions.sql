@@ -135,6 +135,51 @@ BEGIN
 END;
 ' LANGUAGE plpgsql;
 
+-- Quick and dirty way to fix recompute final score
+CREATE OR REPLACE FUNCTION cmat_pl.final_score(mScore numeric, tDeduct numeric, oDeduct numeric)
+RETURNS numeric
+AS $$
+DECLARE
+BEGIN
+  RETURN mScore - tDeduct - oDeduct;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Quick and dirty way to fix merited scores for rows that only have 4 scores
+CREATE OR REPLACE FUNCTION cmat_pl.merited_score_4(i0 numeric, i1 numeric, i2 numeric, i3 numeric)
+RETURNS numeric
+AS $$
+DECLARE
+  lMin numeric;
+  lMax numeric;
+BEGIN
+  lMin := i0;
+  IF i1 < lMin THEN
+    lMin := i1;
+  END IF;
+  IF i2 < lMin THEN
+    lMin := i2;
+  END IF;
+  IF i3 < lMin THEN
+    lMin := i3;
+  END IF;
+
+  lMax := i0;
+  IF i1 > lMax THEN
+    lMax := i1;
+  END IF;
+  IF i2 > lMax THEN
+    lMax := i2;
+  END IF;
+  IF i3 > lMax THEN
+    lMax := i3;
+  END IF;
+
+  RETURN (i0 + i1 + i2 + i3 - lMin - lMax) / 2;
+
+END;
+$$ LANGUAGE plpgsql;
+
 /*
 CREATE OR REPLACE FUNCTION cmat_pl.next_key(iPrefix character(3))
 RETURNS char

@@ -11,6 +11,7 @@ $listQuery = 'SELECT DISTINCT e.event_code, e.event_id, f.name AS form_name, f.f
     . ' WHERE s.cmat_year = 15'
     . ' AND fb.cmat_year = 15'
     . ' AND e.cmat_year = 15'
+    . ' AND s.is_dropped = false'
     . ' AND fb.form_id NOT IN (43, 44, 45, 46, 47, 48)'
     . ' ORDER BY e.event_code';
 
@@ -25,6 +26,7 @@ $detailQuery = 'SELECT s.score_0, s.score_1, s.score_2, s.score_3, s.score_4, s.
     . ' LEFT OUTER JOIN cmat_annual."group" g on (g.group_id = s.group_id)'
     . ' WHERE s.cmat_year = 15'
     . ' AND fb.cmat_year = 15'
+    . ' AND s.is_dropped = false'
     . ' ORDER BY s.final_placement, s.competitor_id';
 
 // Patterns for HTML
