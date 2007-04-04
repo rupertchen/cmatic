@@ -30,13 +30,14 @@ $detailQuery = 'SELECT s.score_0, s.score_1, s.score_2, s.score_3, s.score_4, s.
     . ' ORDER BY s.final_placement, s.competitor_id';
 
 // Patterns for HTML
-$HTML_HEADER_PATTERN = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n<html><head><title>%s</title></head><body>";
+$HTML_HEADER_PATTERN = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n<html><head><title>%s</title><link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\"/></head><body>";
 $HTML_FOOTER_PATTERN = "</body></html>\n";
-$EVENT_LIST_TR_PATTERN = '<tr><td>%s</td><td><a href="e%d.html" title="%s results">%s</a></td></tr>';
-$EVENT_DETAIL_TR_PATTERN = '<tr><td>%d</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>';
+$EVENT_LIST_TR_PATTERN = '<tr class="dataRow"><th scope="row" class="data eventCode">%s</th><td class="data eventName"><a href="e%d.html" title="%s results">%s</a></td></tr>';
+$EVENT_DETAIL_TR_PATTERN = '<tr class="dataRow"><td class="data placement">%d</td><td class="data">%s</td><td class="data points">%s</td><td class="data points">%s</td><td class="data points">%s</td><td class="data points">%s</td><td class="data points">%s</td><td class="data points">%s</td><td class="data points">%s</td><td class="data time">%s</td><td class="data points">%s</td><td class="data points">%s</td><td class="data points">%s</td></tr>';
 
 // Results destination directory
 $RESULTS_DIR = 'results/';
+$STYLE_CSS_FILE_NAME = 'style.css';
 $EVENT_LIST_FILE_NAME = 'index.html';
 $EVENT_DETAIL_FILE_NAME_PATTERN = 'e%d.html';
 
@@ -60,6 +61,24 @@ while ($row = Db::fetch_array($r)) {
 Db::free_result($r);
 Db::close($conn);
 
+// Write CSS
+echo "\nCreating linked resources\n";
+echo "\t$STYLE_CSS_FILE_NAME\n";
+$styleCss = array();
+$styleCss[] = 'h1 { border-bottom: 2px solid #333; font-variant: small-caps; padding-left: 25px;}';
+$styleCss[] = '.dataHeader { background-color: #333; color: #FFF; font-variant: small-caps; }';
+$styleCss[] = '.dataHeader, .dataRow td, .dataRow th { border: 1px solid #333; }';
+$styleCss[] = '.dataHeader, .data { padding: 2px 3px; }';
+$styleCss[] = '.eventCode, .points, .time { font-family: "Courier New", monospace; font-size: 80%; text-align: center;}';
+$styleCss[] = '.eventName { padding-left: 15px; }';
+$styleCss[] = '.placement { text-align: right; font-weight: bold; padding-right: 10px; }';
+$styleCss[] = 'table { border-collapse: collapse; }';
+$handle = fopen($RESULTS_DIR . $STYLE_CSS_FILE_NAME, 'w');
+foreach ($styleCss as $k => $v) {
+  fwrite($handle, $v);
+  fwrite($handle, "\n");
+}
+fclose($handle);
 
 // Write event list page
 echo "\nWriting HTML pages to $RESULTS_DIR\n";
@@ -67,11 +86,11 @@ echo "\t$EVENT_LIST_FILE_NAME\n";
 $eventListBody = array();
 $eventListBody[] = sprintf($HTML_HEADER_PATTERN, "Event List");
 $eventListBody[] = '    <h1>Results: Event List</h1>';
-$eventListBody[] = '    <table>';
+$eventListBody[] = '    <table border="0" cellpadding="0" cellspacing="0">';
 $eventListBody[] = '      <thead>';
 $eventListBody[] = '        <tr>';
-$eventListBody[] = '          <th scope="col">Event Code</th>';
-$eventListBody[] = '          <th scope="col">Event Name</th>';
+$eventListBody[] = '          <th scope="col" class="dataHeader">Event Code</th>';
+$eventListBody[] = '          <th scope="col" class="dataHeader">Event Name</th>';
 $eventListBody[] = '        </tr>';
 $eventListBody[] = '      </thead>';
 $eventListBody[] = '      <tbody>';
@@ -97,22 +116,22 @@ foreach($eventList as $k => $v) {
   $eventDetailBody = array();
   $eventDetailBody[] = sprintf($HTML_HEADER_PATTERN, $eventName);
   $eventDetailBody[] = "<h1>$eventName</h1>";
-  $eventDetailBody[] = '<table>';
+  $eventDetailBody[] = '<table border="0" cellpadding="0" cellspacing="0">';
   $eventDetailBody[] = '<thead>';
   $eventDetailBody[] = '<tr>';
-  $eventDetailBody[] = '<th scope="col">Placement</th>';
-  $eventDetailBody[] = '<th scope="col">Name</th>';
-  $eventDetailBody[] = '<th scope="col">Score #1</th>';
-  $eventDetailBody[] = '<th scope="col">Score #2</th>';
-  $eventDetailBody[] = '<th scope="col">Score #3</th>';
-  $eventDetailBody[] = '<th scope="col">Score #4</th>';
-  $eventDetailBody[] = '<th scope="col">Score #5</th>';
-  $eventDetailBody[] = '<th scope="col">Score #6</th>';
-  $eventDetailBody[] = '<th scope="col">Merited Score</th>';
-  $eventDetailBody[] = '<th scope="col">Time</th>';
-  $eventDetailBody[] = '<th scope="col">Time Deduction</th>';
-  $eventDetailBody[] = '<th scope="col">Other Deduction</th>';
-  $eventDetailBody[] = '<th scope="col">Final Score</th>';
+  $eventDetailBody[] = '<th scope="col" class="dataHeader">Placement</th>';
+  $eventDetailBody[] = '<th scope="col" class="dataHeader">Name</th>';
+  $eventDetailBody[] = '<th scope="col" class="dataHeader">Score:1</th>';
+  $eventDetailBody[] = '<th scope="col" class="dataHeader">Score:2</th>';
+  $eventDetailBody[] = '<th scope="col" class="dataHeader">Score:3</th>';
+  $eventDetailBody[] = '<th scope="col" class="dataHeader">Score:4</th>';
+  $eventDetailBody[] = '<th scope="col" class="dataHeader">Score:5</th>';
+  $eventDetailBody[] = '<th scope="col" class="dataHeader">Score:6</th>';
+  $eventDetailBody[] = '<th scope="col" class="dataHeader">Merited Score</th>';
+  $eventDetailBody[] = '<th scope="col" class="dataHeader">Time</th>';
+  $eventDetailBody[] = '<th scope="col" class="dataHeader">Time Deduction</th>';
+  $eventDetailBody[] = '<th scope="col" class="dataHeader">Other Deduction</th>';
+  $eventDetailBody[] = '<th scope="col" class="dataHeader">Final Score</th>';
   $eventDetailBody[] = '</tr>';
   $eventDetailBody[] = '</thead>';
   $eventDetailBody[] = '<tbody>';
