@@ -72,6 +72,7 @@ $styleCss[] = '.dataHeader, .data { padding: 2px 3px; }';
 $styleCss[] = '.eventCode, .points, .time { font-family: "Courier New", monospace; font-size: 80%; text-align: center;}';
 $styleCss[] = '.eventName { padding-left: 15px; }';
 $styleCss[] = '.placement { text-align: right; font-weight: bold; padding-right: 10px; }';
+$styleCss[] = '.allAroundTitle { text-align: left; font-weight: bold; padding-left: 10px; }';
 $styleCss[] = 'table { border-collapse: collapse; }';
 $handle = fopen($RESULTS_DIR . $STYLE_CSS_FILE_NAME, 'w');
 foreach ($styleCss as $k => $v) {
