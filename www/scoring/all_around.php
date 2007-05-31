@@ -27,8 +27,7 @@
         // Insert data
         foreach ($formGroupSet as $k => $formGroup) {
             if (in_array($formId, $formGroup)) {
-                // TODO: Maybe stick in values here instead of placement
-                $results[$competitorId][$k][] = array($finalPlacement, $formId);
+                $results[$competitorId][$k][] = array(getPointValue($finalPlacement), $formId);
             }
         }
     }
@@ -52,10 +51,35 @@
      */
     function sortResultGroup (&$group) {
         foreach ($group as $k => $v) {
-            $place[$k] = $v[0];
+            $points[$k] = $v[0];
             $form[$k] = $v[1];
         }
-        array_multisort($place, SORT_ASC, $form, SORT_ASC, $group);
+        array_multisort($points, SORT_DESC, $form, SORT_ASC, $group);
+    }
+
+
+    /**
+     * Pick out the highest points
+     * This isn't very smart. To work, it is assuming that the first
+     * groups are more restrictive than the latter ones and that the
+     * groups have all been sorted.
+     */
+    function pickBestPoints(&$x) {
+        $usedForms = array();
+        foreach ($x as $k0 => $eventGroup) {
+            $eventFound = false;
+            foreach ($eventGroup as $k1 => $pointEventPair) {
+                if (!in_array($pointEventPair[1], $usedForms)) {
+                    $x[$k0] = array($pointEventPair);
+                    $usedForms[] = $pointEventPair[1];
+                    $eventFound = true;
+                    break;
+                }
+            }
+            if (!$eventFound) {
+                $x[$k0] = array();
+            }
+        }
     }
 
 
@@ -64,16 +88,24 @@
      */
     function fixResults(&$x) {
         // Drop those without enough events
+        // First time to reduce the set early
         $x = array_filter($x, 'filterHasRequiredForms');
 
-        // Sort remaining event places
+        // Sort events by point-value
         foreach ($x as $k0 => $v0) {
             foreach ($v0 as $k1 => $v1) {
                 sortResultGroup($x[$k0][$k1]);
             }
         }
 
-        // Remove duplicate forms
+        // Pick out the best scores to use
+        foreach ($x as $k => $v) {
+            pickBestPoints($x[$k]);
+        }
+
+        // Drop those without enough events
+        // Second time to remove all those that don't qualify
+        $x = array_filter($x, 'filterHasRequiredForms');
     }
 
 
@@ -90,15 +122,38 @@
 
 
     /**
+     * Return the point value of a place
+     */
+    function getPointValue($place) {
+        $ret = 0;
+        switch ($place) {
+            case 1:
+                $ret = 3;
+                break;
+            case 2:
+                $ret = 2;
+                break;
+            case 3:
+                $ret = 1;
+                break;
+        }
+        return $ret;
+    }
+
+
+    /**
      * Print out table-ized results
      */
     function printTableizedResults ($results) {
         echo '<table border="1" cellpadding="1" cellspacing="1" style="border-collapse: separate;"><tbody>';
         foreach ($results as $k => $v) {
             echo '<tr><td>' . $k . '</td>';
+            $totalPoints = 0;
             foreach ($v as $k1 => $v1) {
+                $totalPoints += $v1[0][0];
                 echo '<td>'.Json::encode($v1).'</td>';
             }
+            echo '<td>'.$totalPoints.'</td>';
             echo '</tr>';
         }
         echo '</tbody></table>';
@@ -152,6 +207,7 @@
         . ' INNER JOIN cmat_annual.form_blowout fb ON (s.form_blowout_id = fb.form_blowout_id)'
         . ' WHERE s.cmat_year = 15'
         . ' AND fb.cmat_year = 15'
+        . ' AND s.is_dropped = false'
         . ' AND fb.level_id = 3';
 
     $qNandu = $qBase
