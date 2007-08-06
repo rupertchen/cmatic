@@ -27,10 +27,10 @@ define("TEST_PAGE", "Test");
 define("LISTING_OBJ_COOKIE", "Listing_Obj");
 define("LISTING_TYPE_COOKIE", "Listing_Type");
 
-require_once '../.settings';
+require_once '../.settings.php';
 
 // Set include path
-ini_set("include_path", sprintf("%s:%s", ini_get("include_path"), CODE_PATH));
+ini_set("include_path", sprintf("%s:%s", ini_get("include_path"), $conf['CODE_PATH']));
 
 
 // Imports
