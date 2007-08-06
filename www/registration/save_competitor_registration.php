@@ -23,27 +23,28 @@
     // Upsert competitor information
     $p0 = null;
     $q0 = null;
+    $CMAT_YEAR = $conf['CMAT_YEAR'];
     if ($isNew) {
         // Insert new competitor
         $p0 = 'INSERT INTO cmat_annual.competitor ('
             . 'cmat_year, first_name, last_name, birthdate, gender_id, level_id, age_group_id, email, registration_date_id, registration_type_id, submission_format_id, payment_method_id'
             . ') VALUES ('
-            . "15, '%s', '%s', '%s', %d, %d, %d, '%s', %d, %d, %d, %d"
+            . "$CMAT_YEAR, '%s', '%s', '%s', %d, %d, %d, '%s', %d, %d, %d, %d"
             . ')';
     } else {
         // Update
         $p0 = 'UPDATE cmat_annual.competitor SET'
             . " first_name = '%s', last_name='%s', birthdate='%s', gender_id=%d, level_id=%d, age_group_id=%d, email='%s', registration_date_id=%d, registration_type_id=%d, submission_format_id=%d, payment_method_id=%d"
-            . " WHERE competitor_id = '$competitorId'";
+            . " WHERE competitor_id = '$competitorId' AND cmat_year = $CMAT_YEAR";
     }
     $q0 = sprintf($p0, $_REQUEST['first_name'], $_REQUEST['last_name'], $_REQUEST['birthdate_year'].'-'.$_REQUEST['birthdate_month'].'-'.$_REQUEST['birthdate_date'], $_REQUEST['gender_id'], $_REQUEST['level_id'], $_REQUEST['age_group_id'], $_REQUEST['email'], $_REQUEST['registration_date_id'], $_REQUEST['registration_type_id'], $_REQUEST['submission_format_id'], $_REQUEST['payment_method_id']);
     Db::query($q0);
 
     if ($isNew) {
-	$q0a = "SELECT currval('cmat_annual.competitor_competitor_id_seq') AS competitor_id";
-	$r = Db::query($q0a);
-	$row = Db::fetch_array($r);
-	$competitorId = $row['competitor_id'];
+    $q0a = "SELECT currval('cmat_annual.competitor_competitor_id_seq') AS competitor_id";
+    $r = Db::query($q0a);
+    $row = Db::fetch_array($r);
+    $competitorId = $row['competitor_id'];
     }
 
     // Delete removed registrations
@@ -56,7 +57,8 @@
     $regList2 = (count($regList) > 0) ? $regList : array(-1);
     $p1 = 'DELETE FROM cmat_annual.registration'
         . ' WHERE competitor_id = %d'
-        . ' AND form_id NOT IN (%s)';
+        . ' AND form_id NOT IN (%s)'
+        . ' AND $CMAT_YEAR';
     $q1 = sprintf($p1, $competitorId, implode(',', $regList2));
     Db::query($q1);
 
@@ -66,10 +68,10 @@
         $regInsertRows = array();
         foreach ($regInsert as $k => $v) {
             $isPaidVal = ('t' == $_REQUEST['isPaid_' . $v]) ? 'TRUE' : 'FALSE';
-            $regInsertRows[] = implode(', ', array('SELECT ' . $competitorId, $v, $isPaidVal));
+            $regInsertRows[] = "SELECT $CMAT_YEAR, $competitorId, $v, $isPaidVal";
         }
-        $q2 = 'INSERT INTO cmat_annual.registration (competitor_id, form_id, is_paid) '
-            . implode(' UNION ', $regInsertRows);
+        $q2 = 'INSERT INTO cmat_annual.registration (cmat_year, competitor_id, form_id, is_paid) '
+            . implode(' UNION ALL ', $regInsertRows);
         Db::query($q2);
     }
 
@@ -87,14 +89,14 @@
         }
         // Update for paid registrations
         if (count($regUpdatePaidRows) > 0) {
-            $p3 = 'UPDATE cmat_annual.registration SET is_paid = TRUE WHERE competitor_id = %d AND form_id IN (%s)';
+            $p3 = 'UPDATE cmat_annual.registration SET is_paid = TRUE WHERE competitor_id = %d AND form_id IN (%s) AND cmat_year = $CMAT_YEAR';
             $q3 = sprintf($p3, $competitorId, implode(', ', $regUpdatePaidRows));
             Db::query($q3);
         }
 
         // Update for unpaid registrations
         if (count($regUpdateUnpaidRows) > 0) {
-            $p4 = 'UPDATE cmat_annual.registration SET is_paid = FALSE WHERE competitor_id = %d AND form_id IN (%s)';
+            $p4 = 'UPDATE cmat_annual.registration SET is_paid = FALSE WHERE competitor_id = %d AND form_id IN (%s) AND cmat_year = $CMAT_YEAR';
             $q4 = sprintf($p4, $competitorId, implode(', ', $regUpdateUnpaidRows));
             Db::query($q4);
         }
@@ -113,7 +115,7 @@
     Competitor data saved!
 <?php
     if (DEBUG_MODE) {
-	print("<h1>Debug Info</h1>\n");
+    print("<h1>Debug Info</h1>\n");
         print("<pre>\n");
         print_r($_REQUEST);
         print("Reg List");

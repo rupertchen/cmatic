@@ -15,40 +15,57 @@
     $q0 = null;
     $q1 = null;
     $q2 = null;
+    $CMAT_YEAR = $conf['CMAT_YEAR'];
     if (strlen($eventId) > 0) {
         // Get a specific event
         $q0 = 'SELECT * FROM cmat_annual.event'
-            . " WHERE event_id = $eventId";
+            . " WHERE event_id = $eventId"
+            . " AND cmat_year = $CMAT_YEAR";
         $q1 = 'SELECT fb.*, f.ring_configuration_id'
             . ' FROM cmat_annual.form_blowout fb'
             . ' INNER JOIN cmat_enum.form f ON (fb.form_id = f.form_id)'
-            . " WHERE fb.event_id = $eventId";
+            . " WHERE fb.event_id = $eventId"
+            . " AND fb.cmat_year = $CMAT_YEAR";
         $q2 = 'SELECT s.form_blowout_id, count(*)'
             . ' FROM cmat_annual.scoring s, cmat_annual.form_blowout fb'
             . ' WHERE s.form_blowout_id = fb.form_blowout_id'
             . " AND fb.event_id = $eventId"
+            . " AND fb.cmat_year = $CMAT_YEAR"
+            . ' AND fb.cmat_year = s.cmat_year'
             . ' GROUP BY s.form_blowout_id';
     } else if (strlen($ringId) > 0) {
         $q0 = 'SELECT * FROM cmat_annual.event'
-            . " WHERE ring_id = $ringId";
+            . " WHERE ring_id = $ringId"
+            . " AND cmat_year = $CMAT_YEAR";
         $q1 = 'SELECT fb.*, f.ring_configuration_id'
             . ' FROM cmat_annual.form_blowout fb, cmat_annual.event e, cmat_enum.form f'
             . ' WHERE fb.event_id = e.event_id'
             . ' AND fb.form_id = f.form_id'
-            . " AND ring_id = $ringId";
+            . " AND ring_id = $ringId"
+            . " AND fb.cmat_year = $CMAT_YEAR"
+            . ' AND fb.cmat_year = e.cmat_year';
         $q2 = 'SELECT s.form_blowout_id, count(*)'
             . ' FROM cmat_annual.scoring s, cmat_annual.form_blowout fb, cmat_annual.event e'
             . ' WHERE s.form_blowout_id = fb.form_blowout_id'
             . ' AND fb.event_id = e.event_id'
             . " AND e.ring_id = $ringId"
+            . " AND s.cmat_year = $CMAT_YEAR"
+            . ' AND s.cmat_year = fb.cmat_year'
+            . ' AND s.cmat_year = e.cmat_year'
             . ' GROUP BY s.form_blowout_id';
     } else {
         // Get all events
-        $q0 = 'SELECT * FROM cmat_annual.event';
-        $q1 = 'SELECT fb.*, f.ring_configuration_id FROM cmat_annual.form_blowout fb INNER JOIN cmat_enum.form f ON (fb.form_id = f.form_id)';
+        $q0 = 'SELECT *'
+            . ' FROM cmat_annual.event'
+            . " WHERE cmat_year = $CMAT_YEAR";
+        $q1 = 'SELECT fb.*, f.ring_configuration_id'
+            . ' FROM cmat_annual.form_blowout fb'
+            . ' INNER JOIN cmat_enum.form f ON (fb.form_id = f.form_id)'
+            . " WHERE fb.cmat_year = $CMAT_YEAR";
         $q2 = 'SELECT form_blowout_id, count(*)'
-           . ' FROM cmat_annual.scoring'
-           . ' GROUP BY form_blowout_id';
+            . ' FROM cmat_annual.scoring'
+            . " WHERE cmat_year = $CMAT_YEAR"
+            . ' GROUP BY form_blowout_id';
     }
     $eventSet = array();
     $formBlowoutSet = array();

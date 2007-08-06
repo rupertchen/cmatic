@@ -13,19 +13,30 @@
     // Fetch data
     $q0 = null;
     $q1 = null;
+    $CMAT_YEAR = $conf['CMAT_YEAR'];
     if (strlen($groupId) == 0) {
         // Get all groups
-        $q0 = 'SELECT * FROM cmat_annual."group" ORDER BY form_id, name';
-        $q1 = 'SELECT gm.*, c.first_name, c.last_name FROM cmat_annual.group_member gm, cmat_annual.competitor c WHERE gm.member_id = c.competitor_id';
-    } else {
-        // Get a specific group
-        $q0 = 'SELECT * FROM cmat_annual."group"'
-            . " WHERE group_id = $groupId"
+        $q0 = 'SELECT *'
+            . ' FROM cmat_annual."group"'
+            . " WHERE cmat_year = $CMAT_YEAR"
             . ' ORDER BY form_id, name';
         $q1 = 'SELECT gm.*, c.first_name, c.last_name'
             . ' FROM cmat_annual.group_member gm, cmat_annual.competitor c'
             . ' WHERE gm.member_id = c.competitor_id'
-            . " AND gm.group_id = $groupId";
+            . " AND gm.cmat_year = $CMAT_YEAR"
+            . ' AND gm.cmat_year = c.cmat_year';
+    } else {
+        // Get a specific group
+        $q0 = 'SELECT * FROM cmat_annual."group"'
+            . " WHERE group_id = $groupId"
+            . " AND cmat_year = $CMAT_YEAR"
+            . ' ORDER BY form_id, name';
+        $q1 = 'SELECT gm.*, c.first_name, c.last_name'
+            . ' FROM cmat_annual.group_member gm, cmat_annual.competitor c'
+            . ' WHERE gm.member_id = c.competitor_id'
+            . " AND gm.group_id = $groupId"
+            . " AND gm.cmat_year = $CMAT_YEAR"
+            . ' AND gm.cmat_year = c.cmat_year';
     }
     $groupSet = array();
     $memberList = array();

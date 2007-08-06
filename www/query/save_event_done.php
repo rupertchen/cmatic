@@ -9,23 +9,28 @@
     $eventId = intval($_REQUEST['event_id']);
     $ringConfigurationId = intval($_REQUEST['ring_configuration_id']);
 
+    $CMAT_YEAR = $conf['CMAT_YEAR'];
     // Queries
     // Mark the event as done
     $q0a = 'UPDATE cmat_annual.event'
         . ' SET is_done = true'
-        . " WHERE event_id = $eventId";
+        . " WHERE event_id = $eventId"
+        . " AND cmat_year = $CMAT_YEAR";
     $q0b = 'UPDATE cmat_annual.event'
         . ' SET finalized_at = CURRENT_TIMESTAMP'
         . " WHERE event_id = $eventId"
-        . ' AND finalized_at IS NULL';
+        . ' AND finalized_at IS NULL'
+        . " and CMAT_YEAR = $CMAT_YEAR";
     // Get scoring details for the event
     $q1 = 'SELECT s.*'
         . ' FROM cmat_annual.form_blowout fb'
-        . ' INNER JOIN cmat_annual.scoring s ON (s.form_blowout_id = fb.form_blowout_id)'
-        . " WHERE fb.event_id = $eventId";
+        . ' INNER JOIN cmat_annual.scoring s ON (s.form_blowout_id = fb.form_blowout_id AND s.cmat_year = ' . $CMAT_YEAR . ')'
+        . " WHERE fb.event_id = $eventId"
+        . " AND fb.cmat_year = $CMAT_YEAR";
     $p2 = 'UPDATE cmat_annual.scoring SET'
         . ' final_placement = %d'
-        . ' WHERE scoring_id = %d';
+        . ' WHERE scoring_id = %d'
+        . " AND cmat_year = $CMAT_YEAR";
 
     $rawScores = array();
     $finalPlacements = array();

@@ -31,6 +31,7 @@
         // Or perhaps, given certain defaults, they won't be overwritten?
         $scoresUpdate[] = sprintf($pScoreUpdate, $i, $scores[$i]);
     }
+    $CMAT_YEAR = $conf['CMAT_YEAR'];
     $p0 = 'UPDATE cmat_annual.scoring SET'
         . ' ' . implode(', ', $scoresUpdate)
         . ", ring_leader = '$ringLeader'"
@@ -40,11 +41,13 @@
         . ', time_deduction = %f'
         . ', other_deduction = %f'
         . ', final_score = %f'
-        . ' WHERE scoring_id = %d';
+        . ' WHERE scoring_id = %d'
+        . " AND cmat_year = $CMAT_YEAR";
     $p1 = 'UPDATE cmat_annual.scoring SET'
         . ' scored_at = CURRENT_TIMESTAMP'
         . ' WHERE scoring_id = %d'
-        . ' AND scored_at IS NULL';
+        . ' AND scored_at IS NULL'
+        . " AND cmat_year = $CMAT_YEAR";
     $conn = Db::connect();
     $updateQuery = sprintf($p0, $time, $meritedScore, $timeDeduct, $otherDeduct, $finalScore, $scoringId);
     Db::query($updateQuery);

@@ -3,26 +3,30 @@
 
     require_once 'util/Db.php';
 
+    $CMAT_YEAR = $conf['CMAT_YEAR'];
     // Basic competitor info
     $q0 = 'SELECT c.competitor_id, c.first_name, c.last_name, g.comment AS gender'
         . ' FROM  cmat_annual.competitor c'
-        . ' INNER JOIN cmat_enum.gender g ON (c.gender_id = g.gender_id)';
+        . ' INNER JOIN cmat_enum.gender g ON (c.gender_id = g.gender_id)'
+        . " AND c.cmat_year = $CMAT_YEAR";
     // Individual events for a competitor
     $q1 = 'SELECT s.competitor_id, e.event_code, f.name AS form'
         . ' FROM cmat_annual.scoring s'
-        . ' INNER JOIN cmat_annual.form_blowout fb ON (s.form_blowout_id = fb.form_blowout_id)'
-        . ' INNER JOIN cmat_annual.event e ON (fb.event_id = e.event_id)'
+        . ' INNER JOIN cmat_annual.form_blowout fb ON (s.form_blowout_id = fb.form_blowout_id AND s.cmat_year = fb.cmat_year)'
+        . ' INNER JOIN cmat_annual.event e ON (fb.event_id = e.event_id AND fb.cmat_year = e.cmat_year)'
         . ' INNER JOIN cmat_enum.form f ON (fb.form_id = f.form_id)'
         . ' WHERE s.competitor_id IS NOT NULL'
+        . " AND s.cmat_year = $CMAT_YEAR"
         . ' ORDER BY s.competitor_id, e.event_code';
     // Group events for a compoetitor
     $q2 = 'SELECT gm.member_id AS competitor_id, e.event_code, f.name AS form'
         . ' FROM cmat_annual.scoring s'
-        . ' INNER JOIN cmat_annual.form_blowout fb ON (s.form_blowout_id = fb.form_blowout_id)'
-        . ' INNER JOIN cmat_annual.event e ON (fb.event_id = e.event_id)'
-        . ' INNER JOIN cmat_annual.group_member gm ON (s.group_id = gm.group_id)'
+        . ' INNER JOIN cmat_annual.form_blowout fb ON (s.form_blowout_id = fb.form_blowout_id AND s.cmat_year = fb.cmat_year)'
+        . ' INNER JOIN cmat_annual.event e ON (fb.event_id = e.event_id AND fb.cmat_year = e.cmat_year)'
+        . ' INNER JOIN cmat_annual.group_member gm ON (s.group_id = gm.group_id AND s.cmat_year = gm.cmat_year)'
         . ' INNER JOIN cmat_enum.form f ON (fb.form_id = f.form_id)'
         . ' WHERE s.group_id IS NOT NULL'
+        . " AND s.cmat_year = $CMAT_YEAR"
         . ' ORDER BY s.group_id, e.event_code';
 
     $conn = Db::connect();

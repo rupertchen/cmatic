@@ -6,19 +6,22 @@
     $recipient = $_REQUEST['r'];
     $competitorId = $_REQUEST['c'];
 
+    $CMAT_YEAR = $conf['CMAT_YEAR'];
     // Competitor info
     $p0 = 'SELECT c.*, g.comment AS gender, l.comment AS level, ag.comment AS age_group'
         . ' FROM cmat_annual.competitor c, cmat_enum.gender g, cmat_enum.level l, cmat_enum.age_group ag'
         . ' WHERE c.competitor_id = %d'
         . ' AND c.gender_id = g.gender_id'
         . ' AND c.level_id = l.level_id'
-        . ' AND c.age_group_id = ag.age_group_id';
+        . ' AND c.age_group_id = ag.age_group_id'
+        . " AND c.cmat_year = $CMAT_YEAR";
 
     // Registration info
     $p1 = 'SELECT r.*, f.name AS form'
         . ' FROM cmat_annual.registration r, cmat_enum.form f'
         . ' WHERE r.competitor_id = %d'
-        . ' AND r.form_id = f.form_id';
+        . ' AND r.form_id = f.form_id'
+        . " AND r.cmat_year = $CMAT_YEAR";
 
     // DB
     $cInfo = null;
