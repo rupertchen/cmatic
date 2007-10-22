@@ -1,0 +1,13 @@
+.errorBox {
+    border: 3px double red;
+    margin: 0.2em auto;
+    padding: 5px 10px;
+    width: 250px;
+}
+
+.errorMessage {
+    color: red;
+    font-weight: bold;
+    display: block;
+    margin: 0.2em auto;
+}

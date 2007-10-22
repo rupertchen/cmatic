@@ -1,8 +1,8 @@
  /**
  * Age group
  */
-DROP TABLE /*installer_prefix*/config_age_group;
-CREATE TABLE /*installer_prefix*/config_age_group (
+DROP TABLE cmatic_config_age_group;
+CREATE TABLE cmatic_config_age_group (
     age_group_id serial PRIMARY KEY,
     created timestamp NOT NULL DEFAULT now(),
     last_mod timestamp NOT NULL DEFAULT now(),
@@ -13,8 +13,8 @@ CREATE TABLE /*installer_prefix*/config_age_group (
 /**
  * Division (skill level)
  */
-DROP TABLE /*installer_prefix*/config_division;
-CREATE TABLE /*installer_prefix*/config_division (
+DROP TABLE cmatic_config_division;
+CREATE TABLE cmatic_config_division (
     division_id serial PRIMARY KEY,
     created timestamp NOT NULL DEFAULT now(),
     last_mod timestamp NOT NULL DEFAULT now(),
@@ -25,8 +25,8 @@ CREATE TABLE /*installer_prefix*/config_division (
 /**
  * Sex
  */
-DROP TABLE /*installer_prefix*/config_sex;
-CREATE TABLE /*installer_prefix*/config_sex (
+DROP TABLE cmatic_config_sex;
+CREATE TABLE cmatic_config_sex (
     sex_id serial PRIMARY KEY,
     created timestamp NOT NULL DEFAULT now(),
     last_mod timestamp NOT NULL DEFAULT now(),
@@ -37,8 +37,8 @@ CREATE TABLE /*installer_prefix*/config_sex (
 /**
  * Form
  */
-DROP TABLE /*installer_prefix*/config_form;
-CREATE TABLE /*installer_prefix*/config_form (
+DROP TABLE cmatic_config_form;
+CREATE TABLE cmatic_config_form (
     form_id serial PRIMARY KEY,
     created timestamp NOT NULL DEFAULT now(),
     last_mod timestamp NOT NULL DEFAULT now(),
@@ -49,8 +49,8 @@ CREATE TABLE /*installer_prefix*/config_form (
 /**
  * Event
  */
-DROP TABLE /*installer_prefix*/config_event;
-CREATE TABLE /*installer_prefix*/config_event (
+DROP TABLE cmatic_config_event;
+CREATE TABLE cmatic_config_event (
     event_id serial PRIMARY KEY,
     created timestamp NOT NULL DEFAULT now(),
     last_mod timestamp NOT NULL DEFAULT now(),
@@ -64,22 +64,22 @@ CREATE TABLE /*installer_prefix*/config_event (
 /**
  * Competitor
  */
-DROP TABLE /*installer_prefix*/reg_competitor;
-CREATE TABLE /*installer_prefix*/reg_competitor (
+DROP TABLE cmatic_reg_competitor;
+CREATE TABLE cmatic_reg_competitor (
 );
 
 /**
  * Group
  */
-DROP TABLE /*installer_prefix*/reg_group;
-CREATE TABLE /*installer_prefix*/reg_group (
+DROP TABLE cmatic_reg_group;
+CREATE TABLE cmatic_reg_group (
 );
 
 /**
  * Group Member
  */
-DROP TABLE /*installer_prefix*/reg_group_member;
-CREATE TABLE /*installer_prefix*/reg_group_member (
+DROP TABLE cmatic_reg_group_member;
+CREATE TABLE cmatic_reg_group_member (
 );
 
 /**
@@ -87,8 +87,8 @@ CREATE TABLE /*installer_prefix*/reg_group_member (
  *
  * This is what the whole tournament is about.
  */
-DROP TABLE /*installer_prefix*/result_scoring;
-CREATE TABLE /*installer_prefix*/result_scoring (
+DROP TABLE cmatic_result_scoring;
+CREATE TABLE cmatic_result_scoring (
 );
 
 /**
@@ -97,5 +97,5 @@ CREATE TABLE /*installer_prefix*/result_scoring (
  * Intended to be a way to double check a competitor's registration and
  * perhaps a way to make badges?
  */
---CREATE TABLE /*installer_prefix*/result_registration (
+--CREATE TABLE cmatic_result_registration (
 --);

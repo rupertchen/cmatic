@@ -1,32 +1,68 @@
 <?php
+// TODO Make a version that can wrap PDO
 
-class Db {
 
-  function connect() {
-    $ret = pg_connect("host=localhost"
-                      . " dbname=calwushu user=calwushu"
-                      . " password=coolbeans")
-      or die('Could not connect: ' . pg_last_error());
-    return $ret;
-  }
+/**
+ * Required Options:
+ * host
+ * db
+ * user
+ * password
+ */
+interface DbConnection {
+    public function connect();
+    public function close();
+    public function query($query);
+    public function fetch_array($resultSet);
+    public function free_result($resultSet);
+}
 
-  function query($q) {
-    $ret = pg_query($q) or die('Query failed: ' . pg_last_error() . "::$q");
-    return $ret;
-  }
+class PostgresDbConnection implements DbConnection {
 
-  function fetch_array($result) {
-    return pg_fetch_array($result, null, PGSQL_ASSOC);
-  }
+    private $_options = null;
+    private $_connection = null;
 
-  function free_result($result) {
-    pg_free_result($result);
-  }
+    function __construct($options = array()) {
+        $this->_options = $options;
+    }
 
-  function close($conn) {
-    pg_close($conn);
-  }
+    function __destruct() {
+        $this->close();
+    }
 
+    public function connect() {
+        $this->_connection = pg_connect(sprintf('host=%s dbname=%s user=%s password=%s',
+            $this->_options['host'], $this->_options['db'], $this->_options['user'], $this->_options['password']))
+            or die('Could not connect: ' . pg_last_error());
+    }
+
+    public function query($q) {
+        $ret = pg_query($q) or die('Query failed: ' . pg_last_error() . "::$q");
+        return $ret;
+    }
+
+    public function fetch_array($r) {
+        return pg_fetch_array($r, null, PGSQL_ASSOC);
+    }
+
+    public function free_result($result) {
+        pg_free_result($result);
+    }
+
+    public function close() {
+        if (!is_null($this->_connection)) {
+            pg_close($this->_connection);
+        }
+    }
+}
+
+/**
+ * Convenience methods for using PDO.
+ */
+class PdoHelper {
+    public static function getPgsqlDsn($host, $port, $dbName) {
+        return sprintf('pgsql:host=%s port=%s dbname=%s', addslashes($host), addslashes($port), addslashes($dbName));
+    }
 }
 
 ?>

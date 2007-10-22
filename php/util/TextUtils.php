@@ -1,23 +1,39 @@
 <?php
 
 class TextUtils {
+    /**
+     * Many PHP installations will have magic quotes turned on. Normalize
+     * the parameters of interest and return a new array with only those
+     * entries.
+     */
+    public static function undoMagicQuotes($src, $params = false) {
+        $needed = get_magic_quotes_gpc();
+        if (!$params) {
+            $params = array_keys($src);
+        }
+        $ret = array();
+        foreach($params as $key) {
+            $ret[$key] = $needed ? stripslashes($src[$key]) : $src[$key];
+        }
+        return $ret;
+    }
 
-  function cleanTextForSql($text) {
+  public static function cleanTextForSql($text) {
     return addslashes(trim($text));
   }
 
 
-  function cleanEmail($email) {
+  public static function cleanEmail($email) {
     return strtolower(trim($email));
   }
 
 
-  function htmlize($str) {
+  public static function htmlize($str) {
     return htmlentities($str, ENT_QUOTES, 'UTF-8');
   }
 
 
-  function bitsToArray($str) {
+  public static function bitsToArray($str) {
     $l = strlen($str);
     $ret = array();
     for ($i = 0; $i < $l; $i++) {
@@ -183,15 +199,15 @@ class TextUtils {
      */
     function convertAgeGroupIdToChar($id) {
         $m = array(
-	    0 => 'N',
-  	    1 => 'Y',
-	    2 => 'C',
-	    3 => 'T',
-	    4 => 'A',
-	    5 => 'A',
-	    6 => 'S',
-	    7 => 'S');
-  	return $m[$id];
+        0 => 'N',
+          1 => 'Y',
+        2 => 'C',
+        3 => 'T',
+        4 => 'A',
+        5 => 'A',
+        6 => 'S',
+        7 => 'S');
+      return $m[$id];
     }
 
     /**
@@ -207,13 +223,13 @@ class TextUtils {
      */
     function makeEventCode($divisions, $genders, $ageGroups, $forms) {
         sort($divisions);
-	sort($genders);
-	sort($ageGroups);
-	sort($forms);
+    sort($genders);
+    sort($ageGroups);
+    sort($forms);
         $cDivisions = array_map(array('TextUtils', 'convertDivisionIdToChar'), $divisions);
-	$cGenders = array_map(array('TextUtils', 'convertGenderIdToChar'), $genders);
-	$cAgeGroups = array_map(array('TextUtils', 'convertAgeGroupIdToChar'), $ageGroups);
-	$cForms = array_map(array('TextUtils', 'convertFormIdToChar'), $forms);
+    $cGenders = array_map(array('TextUtils', 'convertGenderIdToChar'), $genders);
+    $cAgeGroups = array_map(array('TextUtils', 'convertAgeGroupIdToChar'), $ageGroups);
+    $cForms = array_map(array('TextUtils', 'convertFormIdToChar'), $forms);
         // If more than one gender, it must be combined
         if (count($cGenders) > 1) {
             $cGenders = array(convertGenderIdToChar(3));
