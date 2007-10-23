@@ -123,8 +123,8 @@ if ($doInstall) {
         if (empty($requestParams['tablePrefix'])) {
             // This isn't strictly necessary, but will be enforced for now.
             $errorMessages[] = 'The table prefix must be supplied.';
-        } else if (!preg_match('/^[a-zA-Z][_a-zA-Z]*$/', $requestParams['tablePrefix'])) {
-            $errorMessages[] = 'The table prefix must start with a letter and may only contain letters and underscores';
+        } else if (!preg_match('/^[a-zA-Z][_a-zA-Z0-9]*$/', $requestParams['tablePrefix'])) {
+            $errorMessages[] = 'The table prefix must start with a letter and may only contain letters, numbers, and underscores';
         }
 
         if (count($errorMessages) > 0) {
@@ -133,32 +133,41 @@ if ($doInstall) {
 
         try {
             // TODO: Probably should refactor this logic out into a function
+
+            // Create the schema in the DB
+            // Open the file, replace the table prefix, strip comments
+            $schemaFile = 'schema/postgres8.sql';
+            $sql = fread(fopen($schemaFile, 'r'), filesize($schemaFile));
+            $sql = preg_replace('/cmatic_/', $requestParams['tablePrefix'], $sql);
+            // Strip away inline comments beginning with "--" or "//"
+            $sql = PdoHelper::removeComments($sql);
+
             $db = new PDO(PdoHelper::getPgsqlDsn($requestParams['host'], $requestParams['port'], $requestParams['db']),
                     $requestParams['user'], $requestParams['password']);
             // The squeaky wheel gets the oil, make it known when things went wrong.
             $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-            // REMOVE: This is only here so we make some sort of query to test the db
-            var_dump($db->query('SELECT now() AS time')->fetch(PDO::FETCH_ASSOC));
-            // REMOVE: end.
-
-            // Create the schema in the DB
-            // Open the file, replace the
-            $schemaFile = 'schema/postgres8.sql';
-            $sqlStatements = fread(fopen($schemaFile, 'r'), filesize($schemaFile));
-            // TODO: Perform prefix substitution
-            $sqlStatements = preg_replace('/cmatic_/', $requestParams['tablePrefix'], $sqlStatements);
-            // TODO: Strip comments and return individual queries
-            // TODO: Start transaction
-            // TODO: Execute query, on failure stop and report the error
-            // TODO: Commit transaction
+            $db->beginTransaction();
+            try {
+                foreach ($sql as $singleSql) {
+                    $singleSql = trim($singleSql);
+                    if (!empty($singleSql)) {
+                        $db->exec($singleSql);
+                    }
+                }
+                $db->commit();
+            } catch (Exception $e) {
+                // Roll back the transaction and then re-throw the exception
+                $db->rollBack();
+                throw $e;
+            }
+            // This should be in a "finally" block, but PHP doesn't have such a thing?!
+            $db = null;
 
             // Create the configuration file
 
             // Save it if possible, otherwise display it.
 
 
-            $db = null;
 
             step2Body();
         } catch (PDOException $e) {

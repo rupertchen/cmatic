@@ -1,0 +1,9 @@
+DROP TABLE cmatic_config_age_group;
+DROP TABLE cmatic_config_division;
+DROP TABLE cmatic_config_sex;
+DROP TABLE cmatic_config_form;
+DROP TABLE cmatic_config_event;
+DROP TABLE cmatic_reg_competitor;
+DROP TABLE cmatic_reg_group;
+DROP TABLE cmatic_reg_group_member;
+DROP TABLE cmatic_result_scoring;

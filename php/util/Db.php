@@ -58,10 +58,21 @@ class PostgresDbConnection implements DbConnection {
 
 /**
  * Convenience methods for using PDO.
+ * TODO:Consider renaming this class
  */
 class PdoHelper {
     public static function getPgsqlDsn($host, $port, $dbName) {
         return sprintf('pgsql:host=%s port=%s dbname=%s', addslashes($host), addslashes($port), addslashes($dbName));
+    }
+
+    public static function removeComments($sql) {
+        // Strip away inline comments beginning with "--" or "//"
+        $sql = preg_replace('/(--|\/\/).*$/m', '', $sql);
+        // Strip away new lines (and other extra whitespaces while we're at it)
+        $sql = preg_replace('/\s+/', ' ', $sql);
+        // Strip away block comments beginning with "/*" and ending with "*/"
+        $sql = preg_replace('/\/\*.*\*\//U', ' ', $sql);
+        return split(';', $sql);
     }
 }
 
