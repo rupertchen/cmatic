@@ -1,5 +1,6 @@
 <?php
 // TODO Make a version that can wrap PDO
+require_once '../.cmatic_conf.php';
 
 
 /**
@@ -73,6 +74,14 @@ class PdoHelper {
         // Strip away block comments beginning with "/*" and ending with "*/"
         $sql = preg_replace('/\/\*.*\*\//U', ' ', $sql);
         return split(';', $sql);
+    }
+
+    public static function getPdo() {
+        global $CONF;
+        $pdo = new PDO(PdoHelper::getPgsqlDsn($CONF['db']['host'], $CONF['db']['port'], $CONF['db']['db']),
+                $CONF['db']['user'], $CONF['db']['password']);
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        return $pdo;
     }
 }
 
