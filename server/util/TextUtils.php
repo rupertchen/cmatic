@@ -2,9 +2,11 @@
 
 class TextUtils {
     /**
-     * Many PHP installations will have magic quotes turned on. Normalize
-     * the parameters of interest and return a new array with only those
-     * entries.
+     * Many PHP installations will have magic quotes turned on.
+     *
+     * Normalize the parameters of interest and return a new
+     * array with only those entries. If no specific parameters
+     * of interest are given, all will be handled.
      */
     public static function undoMagicQuotes($src, $params = false) {
         $needed = get_magic_quotes_gpc();
@@ -16,6 +18,10 @@ class TextUtils {
             $ret[$key] = $needed ? stripslashes($src[$key]) : $src[$key];
         }
         return $ret;
+    }
+
+    public static function slashForPhpStringLiteral($s) {
+        return addcslashes($s, '\'\\');
     }
 
   public static function cleanTextForSql($text) {
