@@ -1,9 +1,8 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <?php
-ini_set('include_path', sprintf('%s:%s', ini_get('include_path'), '/home/serka/eclipse-workspace/cmat-o-matic/php'));
 
-require_once 'util/Db.php';
-require_once 'util/TextUtils.php';
+require_once '../util/Db.php';
+require_once '../util/TextUtils.php';
 
 
 /**
