@@ -11,7 +11,7 @@ require_once '../util/TextUtils.php';
 
 $requestParams = TextUtils::undoMagicQuotes($_REQUEST);
 
-$table = CmaticSchema::getDbName($requestParams['type']);
+$table = CmaticSchema::getTypeDbTable($requestParams['type']);
 if (is_null($table)) {
     // TODO: Should probably catch this
     throw new CmaticApiException('Unrecognized type: ' . $requestParams['type']);

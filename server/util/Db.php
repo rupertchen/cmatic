@@ -34,20 +34,73 @@ class PdoHelper {
 }
 
 
-$CMATIC['apiNameToDbTableMap'] = array(
-    'ageGroup' => $CMATIC['conf']['app']['tablePrefix'] . 'config_age_group'
+$CMATIC['typeApiNameToDbTableMap'] = array(
+    'ageGroup' => $CMATIC['conf']['app']['tablePrefix'] . 'config_age_group',
+    'division' => $CMATIC['conf']['app']['tablePrefix'] . 'config_division',
+    'event' => $CMATIC['conf']['app']['tablePrefix'] . 'config_event',
+    'form' => $CMATIC['conf']['app']['tablePrefix'] . 'config_form',
+    'sex' => $CMATIC['conf']['app']['tablePrefix'] . 'config_sex',
+    'competitor' => $CMATIC['conf']['app']['tablePrefix'] . 'reg_competitor',
+    'group' => $CMATIC['conf']['app']['tablePrefix'] . 'reg_group',
+    'groupMember' => $CMATIC['conf']['app']['tablePrefix'] . 'reg_group_member',
+    'scoring' => $CMATIC['conf']['app']['tablePrefix'] . 'result_scoring',
+);
+
+$CMATIC['fieldApiNameToDbColumnMap'] = array (
+    'ageGroup' => array(
+        'id' => 'age_group_id',
+        'shortName' => 'short_name',
+        'longName' => 'long_name'
+    ),
+    'division' => array(
+        'id' => 'division_id',
+        'shortName' => 'short_name',
+        'longName' => 'long_name'
+    ),
+    'event' => array(
+        'id' => 'event_id',
+        'division' => 'division_id',
+        'sex' => 'sex_id',
+        'ageGroup' => 'age_group_id',
+        'form' => 'form_id',
+        'code' => 'event_code'
+    ),
+    'form' => array(
+        'id' => 'form_id',
+        'shortName' => 'short_name',
+        'longName' => 'long_name'
+    ),
+    'sex' => array(
+        'id' => 'sex_id',
+        'shortName' => 'short_name',
+        'longName' => 'long_name'
+    ),
+    'competitor' => array(),
+    'group' => array(),
+    'groupMember' => array(),
+    'scoring' =>array()
 );
 
 // TODO: Maybe these classes should all be merged into one class filled with statics
 class CmaticSchema {
 
     /**
-     * Retrieve the DB table name given the API name of the object
+     * Retrieve the DB table name given the name of the API type
      */
-    public static function getDbName($apiName) {
+    public static function getTypeDbTable($apiName) {
         // TODO: Throw an exception if null
         global $CMATIC;
-        return $CMATIC['apiNameToDbTableMap'][$apiName];
+        return $CMATIC['typeApiNameToDbTableMap'][$apiName];
+    }
+
+
+    /**
+     * Retrieve the DB column name given the names of the API type and field
+     */
+    public static function getFieldDbColumn($type, $field) {
+        // TODO: Throw an exception if null at any point
+        global $CMATIC;
+        return $CMATIC['fieldApiNameToDbColumnMap'][$type][$field];
     }
 }
 

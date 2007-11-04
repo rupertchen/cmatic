@@ -164,6 +164,8 @@ if ($doInstall) {
             } catch (Exception $e) {
                 // Roll back the transaction and then re-throw the exception
                 $db->rollBack();
+                // This should be in a "finally" block, but PHP doesn't have such a thing?!
+                $db = null;
                 throw $e;
             }
 
