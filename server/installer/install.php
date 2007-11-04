@@ -2,6 +2,7 @@
 <?php
 
 require_once '../util/Db.php';
+require_once '../util/Ex.php';
 require_once '../util/TextUtils.php';
 
 
@@ -91,18 +92,6 @@ function step2Body($confData = false) {
 <?php
 }
 
-class InstallerException extends Exception {
-    private $_errorMessages;
-
-    function __construct($errorMessages) {
-        parent::__construct('Errors during installation');
-        $this->_errorMessages = $errorMessages;
-    }
-
-    final function getErrorMessages() {
-        return $this->_errorMessages;
-    }
-}
 
 ?>
 <html>
@@ -143,7 +132,7 @@ if ($doInstall) {
         }
 
         if (count($errorMessages) > 0) {
-            throw new InstallerException($errorMessages);
+            throw new CmaticInstallerException($errorMessages);
         }
 
         try {
@@ -207,10 +196,10 @@ if ($doInstall) {
                 step2Body();
             }
         } catch (PDOException $e) {
-            throw new InstallerException(array('Problem during install: ' . $e->getMessage()));
+            throw new CmaticInstallerException(array('Problem during install: ' . $e->getMessage()));
         }
 
-    } catch (InstallerException $e) {
+    } catch (CmaticInstallerException $e) {
         // TODO: This is a poor way to get the errormessages.
         // Make a new exception type and pass the message in there.
         step1Body($requestParams, $e->getErrorMessages());
