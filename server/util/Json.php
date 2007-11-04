@@ -8,7 +8,7 @@ class Json {
      * be equal to the keys of its keys, but an associative array's
      * keys will not.
      */
-    function isAssociative($a) {
+    private static function isAssociative($a) {
         if (!is_array($a) || empty($a)) {
             // We consider empty arrays to be sequential arrays
             return false;
@@ -22,7 +22,7 @@ class Json {
     /**
      * Alias for isAssociative()
      */
-    function isObject($o) {
+    private static function isObject($o) {
         return Json::isAssociative($o);
     }
 
@@ -30,7 +30,7 @@ class Json {
     /**
      * Encode the object in JSON.
      */
-    function encode($o) {
+    public static function encode($o) {
         $json = '';
         if (is_null($o)) {
             $json = 'null';
@@ -55,7 +55,7 @@ class Json {
     /**
      * Encode a string as a string in JSON.
      */
-    function _encodeString($s) {
+    private static function _encodeString($s) {
         $t = array(
             "\"" => "\\\"",
             "\\" => "\\\\",
@@ -71,7 +71,7 @@ class Json {
     /**
      * Encode a sequential aray as an array in JSON.
      */
-    function _encodeArray($a) {
+    private static function _encodeArray($a) {
         return '[' . implode(', ', array_map(array('Json', 'encode'), $a)) . ']';
     }
 
@@ -79,7 +79,7 @@ class Json {
     /**
      * Encode an associative array as an object in JSON.
      */
-    function _encodeObject($o) {
+    private static function _encodeObject($o) {
         $pairs = array();
         foreach ($o as $k => $v) {
             $pairs[] = Json::encode($k) . ':' . Json::encode($v);

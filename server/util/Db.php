@@ -1,61 +1,8 @@
 <?php
-// TODO Make a version that can wrap PDO
+// This is a global variable (yes, shame on me) that contains all
+// other globals for the app. It is the *ONLY* global variable.
+$CMATIC = array();
 require_once '../.cmatic_conf.php';
-
-
-/**
- * Required Options:
- * host
- * db
- * user
- * password
- */
-interface DbConnection {
-    public function connect();
-    public function close();
-    public function query($query);
-    public function fetch_array($resultSet);
-    public function free_result($resultSet);
-}
-
-class PostgresDbConnection implements DbConnection {
-
-    private $_options = null;
-    private $_connection = null;
-
-    function __construct($options = array()) {
-        $this->_options = $options;
-    }
-
-    function __destruct() {
-        $this->close();
-    }
-
-    public function connect() {
-        $this->_connection = pg_connect(sprintf('host=%s dbname=%s user=%s password=%s',
-            $this->_options['host'], $this->_options['db'], $this->_options['user'], $this->_options['password']))
-            or die('Could not connect: ' . pg_last_error());
-    }
-
-    public function query($q) {
-        $ret = pg_query($q) or die('Query failed: ' . pg_last_error() . "::$q");
-        return $ret;
-    }
-
-    public function fetch_array($r) {
-        return pg_fetch_array($r, null, PGSQL_ASSOC);
-    }
-
-    public function free_result($result) {
-        pg_free_result($result);
-    }
-
-    public function close() {
-        if (!is_null($this->_connection)) {
-            pg_close($this->_connection);
-        }
-    }
-}
 
 /**
  * Convenience methods for using PDO.
@@ -77,12 +24,32 @@ class PdoHelper {
     }
 
     public static function getPdo() {
-        global $CONF;
-        $pdo = new PDO(PdoHelper::getPgsqlDsn($CONF['db']['host'], $CONF['db']['port'], $CONF['db']['db']),
-                $CONF['db']['user'], $CONF['db']['password']);
+        global $CMATIC;
+        $conf = $CMATIC['conf'];
+        $pdo = new PDO(PdoHelper::getPgsqlDsn($conf['db']['host'], $conf['db']['port'], $conf['db']['db']),
+                $conf['db']['user'], $conf['db']['password']);
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         return $pdo;
     }
 }
+
+
+$CMATIC['apiNameToDbTableMap'] = array(
+    'ageGroup' => $CMATIC['conf']['app']['tablePrefix'] . 'config_age_group'
+);
+
+// TODO: Maybe these classes should all be merged into one class filled with statics
+class CmaticSchema {
+
+    /**
+     * Retrieve the DB table name given the API name of the object
+     */
+    public static function getDbName($apiName) {
+        // TODO: Throw an exception if null
+        global $CMATIC;
+        return $CMATIC['apiNameToDbTableMap'][$apiName];
+    }
+}
+
 
 ?>
