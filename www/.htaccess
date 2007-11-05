@@ -1,6 +1,0 @@
-AuthUserFile /home/calwushu/.htpasswd_cmat
-AuthName CMAT15
-AuthType Basic
-
-require valid-user
-

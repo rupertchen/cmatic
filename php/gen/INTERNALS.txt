@@ -1,3 +1,0 @@
-================================================================================
-These scripts generate "large amounts" of static files and output them to the
-filesystem.
