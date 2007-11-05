@@ -1,3 +1,0 @@
-================================================================================
-These are used by the "Contact DB" portion of CMAT-o-MATIC. The contact DB has
-been deprecated and should no longer be used.

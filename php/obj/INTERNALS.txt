@@ -1,4 +1,0 @@
-================================================================================
-Classes in this directory exist to make it easy to convert data retrieved from
-the database into objects to be maniuplated by PHP and then serialized for
-transport over the net.
