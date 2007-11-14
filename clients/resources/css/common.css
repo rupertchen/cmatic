@@ -1,0 +1,25 @@
+/**
+ * Initial page loading styles
+ *
+ * The loading mask covers everything up and has a "really high"
+ * z-index. The loading image is just on top of that.
+ */
+#loading-mask {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 20000;
+    background-color: white;
+}
+
+#loading {
+    position: absolute;
+    top: 45%;
+    left: 48%;
+    z-index: 20001;
+    background-image: url(../ext-2.0-rc1/resources/images/default/shared/large-loading.gif);
+    width: 32px;
+    height: 32px;
+}
