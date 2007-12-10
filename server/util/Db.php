@@ -102,6 +102,16 @@ class CmaticSchema {
         global $CMATIC;
         return $CMATIC['fieldApiNameToDbColumnMap'][$type][$field];
     }
+
+
+    /**
+     * Retrieve the fields exposed in the API
+     */
+    public static function getAllFieldsForType($type) {
+        global $CMATIC;
+        return $CMATIC['fieldApiNameToDbColumnMap'][$type];
+    }
+
 }
 
 
