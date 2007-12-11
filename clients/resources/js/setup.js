@@ -1,6 +1,15 @@
+
+/**
+ * Namespace for all setup-related code
+ */
 Ext.namespace('cmatic.setup');
 
-cmatic.setup.stuff = function () {
+
+/**
+ * cmatic.setup.eventParameter
+ * Namespace for all things related to event parameter types
+ */
+cmatic.setup.eventParameter = function () {
     var columnModel;
     var eventParameterGetProxy;
     var eventParameterReader;
@@ -20,13 +29,13 @@ cmatic.setup.stuff = function () {
                         width: 60
                     },
                     {
-                        header: 'Short Name',
+                        header: 'Shorthand',
                         sortable: true,
                         dataIndex: 'shortName',
                         width: 100
                     },
                     {
-                        header: 'Long Name',
+                        header: 'Description',
                         sortable: true,
                         dataIndex: 'longName'
                     }
@@ -76,13 +85,13 @@ cmatic.setup.stuff = function () {
  * config
  *  - cmaticType
  */
-cmatic.setup.EventParameterPanel = function (config) {
-    cmatic.setup.EventParameterPanel.superclass.constructor.call(this);
+cmatic.setup.eventParameter.EventParameterPanel = function (config) {
+    cmatic.setup.eventParameter.EventParameterPanel.superclass.constructor.call(this);
 
     var ds = new Ext.data.Store({
-        proxy: cmatic.setup.stuff.getEventParameterGetProxy(),
+        proxy: cmatic.setup.eventParameter.getEventParameterGetProxy(),
         baseParams: {type: config.cmaticType},
-        reader: cmatic.setup.stuff.getEventParameterReader()
+        reader: cmatic.setup.eventParameter.getEventParameterReader()
     });
 
     ds.load();
@@ -90,12 +99,12 @@ cmatic.setup.EventParameterPanel = function (config) {
     Ext.apply(this, config, {
         closable: true,
         autoHeight: true,
-        colModel: cmatic.setup.stuff.getEventParameterColumnModel(),
+        colModel: cmatic.setup.eventParameter.getEventParameterColumnModel(),
         store: ds
     });
 }
 
-Ext.extend(cmatic.setup.EventParameterPanel, Ext.grid.GridPanel);
+Ext.extend(cmatic.setup.eventParameter.EventParameterPanel, Ext.grid.GridPanel);
 
 
 cmatic.setup.app = function () {
@@ -141,7 +150,7 @@ cmatic.setup.app = function () {
                             // TODO: Can the event parameter stuff be cleaned up anymore?
                             var editor = cmatic.setup.app.getTab('divisionEditor');
                             if (!editor) {
-                                editor = new cmatic.setup.EventParameterPanel({
+                                editor = new cmatic.setup.eventParameter.EventParameterPanel({
                                     id: 'divisionEditor',
                                     title: 'Divisions',
                                     cmaticType: 'division'
@@ -156,7 +165,7 @@ cmatic.setup.app = function () {
                         doAction: function () {
                             var editor = cmatic.setup.app.getTab('sexEditor');
                             if (!editor) {
-                                editor = new cmatic.setup.EventParameterPanel({
+                                editor = new cmatic.setup.eventParameter.EventParameterPanel({
                                     id: 'sexEditor',
                                     title: 'Sexes',
                                     cmaticType: 'sex'
@@ -171,7 +180,7 @@ cmatic.setup.app = function () {
                         doAction: function () {
                             var editor = cmatic.setup.app.getTab('ageGroupEditor');
                             if (!editor) {
-                                editor = new cmatic.setup.EventParameterPanel({
+                                editor = new cmatic.setup.eventParameter.EventParameterPanel({
                                     id: 'ageGroupEditor',
                                     title: 'Age Groups',
                                     cmaticType: 'ageGroup'
