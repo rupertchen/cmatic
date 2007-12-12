@@ -10,7 +10,6 @@ Ext.namespace('cmatic.setup');
  * Namespace for all things related to event parameter types
  */
 cmatic.setup.eventParameter = function () {
-    var columnModel;
     // TODO: Is there any problem with sharing the proxy?
     var eventParameterGetProxy;
     var eventParameterReader;
@@ -19,39 +18,34 @@ cmatic.setup.eventParameter = function () {
     return {
         /**
          * All of the event parameter types have the same fields at the moment,
-         * so they can all share this column model.
+         * so they can all have the same ColumnModel config.
+         *
+         * DON'T SHARE because they can't share the editors!
          */
-        getEventParameterColumnModel: function () {
-            if (!columnModel) {
-                columnModel = new Ext.grid.ColumnModel([
-                    {
-                        header: 'Record Id',
-                        sortable: true,
-                        dataIndex: 'id',
-                        width: 60
-                    },
-                    {
-                        header: 'Shorthand',
-                        sortable: true,
-                        dataIndex: 'shortName',
-                        width: 100,
-                        editor: new Ext.form.TextField({
-                            allowBlank: false,
-                            maxLength: 1,
-                            maxLengthText: 'This field can only be 1 character long'
-                        })
-                    },
-                    {
-                        header: 'Description',
-                        sortable: true,
-                        dataIndex: 'longName',
-                        editor: new Ext.form.TextField({
-                            allowBlank: false
-                        })
-                    }
-                ]);
-            }
-            return columnModel;
+        getColumnModelConfig: function () {
+            return [{
+                header: 'Record Id',
+                sortable: true,
+                dataIndex: 'id',
+                width: 100
+            }, {
+                header: 'Shorthand',
+                sortable: true,
+                dataIndex: 'shortName',
+                width: 100,
+                editor: new Ext.form.TextField({
+                    allowBlank: false,
+                    maxLength: 1,
+                    maxLengthText: 'This field can only be 1 character long'
+                })
+            }, {
+                header: 'Description',
+                sortable: true,
+                dataIndex: 'longName',
+                editor: new Ext.form.TextField({
+                    allowBlank: false
+                })
+            }]
         },
 
 
@@ -129,7 +123,7 @@ cmatic.setup.eventParameter.EventParameterPanel = function (config) {
         enableColumnMove: false,
         autoExpandColumn: 2,
         autoScroll: true,
-        colModel: cmatic.setup.eventParameter.getEventParameterColumnModel(),
+        colModel: new Ext.grid.ColumnModel(cmatic.setup.eventParameter.getColumnModelConfig()),
         store: ds,
         tbar: [{
             text: 'Reload',
@@ -219,10 +213,25 @@ cmatic.setup.eventParameter.EventParameterPanel = function (config) {
                     });
                 }
             }
+        }, {
+            text: 'Cancel',
+            handler: function () {
+                ds.rejectChanges();
+            }
         }]
     });
 
     cmatic.setup.eventParameter.EventParameterPanel.superclass.constructor.call(this);
+
+    cmatic.setup.app.getMainPanel().on('beforeRemove', function (mainPanel, tab) {
+        if (_grid == tab) {
+            var unsaved = ds.getModifiedRecords();
+            if (unsaved.length > 0) {
+                Ext.Msg.alert('Warning', 'There are unsaved changes. Cannot close. To continue, either save or cancel the changes.');
+                return false;
+            }
+        }
+    });
 }
 
 Ext.extend(cmatic.setup.eventParameter.EventParameterPanel, Ext.grid.EditorGridPanel);
@@ -406,6 +415,14 @@ cmatic.setup.app = function () {
         addTab: function (panel) {
             mainPanel.add(panel);
             mainPanel.setActiveTab(panel);
+        },
+
+
+        /**
+         * Getter for the main panel
+         */
+        getMainPanel: function () {
+            return mainPanel;
         }
     };
 }();
