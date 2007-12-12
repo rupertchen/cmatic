@@ -11,8 +11,10 @@ Ext.namespace('cmatic.setup');
  */
 cmatic.setup.eventParameter = function () {
     var columnModel;
+    // TODO: Is there any problem with sharing the proxy?
     var eventParameterGetProxy;
     var eventParameterReader;
+    var recordConstructor;
 
     return {
         /**
@@ -32,12 +34,20 @@ cmatic.setup.eventParameter = function () {
                         header: 'Shorthand',
                         sortable: true,
                         dataIndex: 'shortName',
-                        width: 100
+                        width: 100,
+                        editor: new Ext.form.TextField({
+                            allowBlank: false,
+                            maxLength: 1,
+                            maxLengthText: 'This field can only be 1 character long'
+                        })
                     },
                     {
                         header: 'Description',
                         sortable: true,
-                        dataIndex: 'longName'
+                        dataIndex: 'longName',
+                        editor: new Ext.form.TextField({
+                            allowBlank: false
+                        })
                     }
                 ]);
             }
@@ -67,13 +77,24 @@ cmatic.setup.eventParameter = function () {
                 eventParameterReader = new Ext.data.JsonReader({
                     root: 'records',
                     id: 'id'
-                }, Ext.data.Record.create([
+                }, cmatic.setup.eventParameter.getRecordConstructor());
+            }
+            return eventParameterReader;
+        },
+
+
+        /**
+         * Expose record constructor so we can create them dynamically.
+         */
+        getRecordConstructor: function () {
+            if (!recordConstructor) {
+                recordConstructor = Ext.data.Record.create([
                     {name: 'id'},
                     {name: 'shortName'},
                     {name: 'longName'}
-                ]));
+                ]);
             }
-            return eventParameterReader;
+            return recordConstructor;
         }
     };
 }();
@@ -84,27 +105,127 @@ cmatic.setup.eventParameter = function () {
  * subclass of Ext.grid.GridPanel
  * config
  *  - cmaticType
+ *  - id
+ *  - title
  */
 cmatic.setup.eventParameter.EventParameterPanel = function (config) {
-    cmatic.setup.eventParameter.EventParameterPanel.superclass.constructor.call(this);
 
     var ds = new Ext.data.Store({
         proxy: cmatic.setup.eventParameter.getEventParameterGetProxy(),
         baseParams: {type: config.cmaticType},
-        reader: cmatic.setup.eventParameter.getEventParameterReader()
+        reader: cmatic.setup.eventParameter.getEventParameterReader(),
+        // Sort by ID by default
+        sortInfo: {
+            field: 'id',
+            direction: 'ASC'
+        }
     });
 
     ds.load();
-
+    var _grid = this;
     Ext.apply(this, config, {
         closable: true,
-        autoHeight: true,
+        layout: 'anchor',
+        enableColumnMove: false,
+        autoExpandColumn: 2,
+        autoScroll: true,
         colModel: cmatic.setup.eventParameter.getEventParameterColumnModel(),
-        store: ds
+        store: ds,
+        tbar: [{
+            text: 'Reload',
+            handler: function () { ds.reload();}
+        }, {
+            text: 'Add',
+            handler: function () {
+                var r = new (cmatic.setup.eventParameter.getRecordConstructor())({
+                    id: '', // new records have no id
+                    shortName: '-',
+                    longName: '-'
+                });
+                _grid.stopEditing();
+                ds.insert(0, r);
+                _grid.startEditing(0, 1);
+
+            }
+        }, {
+            text: 'Save',
+            handler: function () {
+                var modifiedRecords = ds.getModifiedRecords();
+                var addedRecs = new Array();
+                var addedBody = new Array();
+                var updatedRecs = new Array();
+                var updateBody = new Array();
+                for (var i = 0; i < modifiedRecords.length; i++) {
+                    var rec = modifiedRecords[i];
+                    if ('' == rec.get('id')) {
+                        addedRecs.push(rec);
+                        var r = {};
+                        // We grab everything for the initial insert
+                        Ext.apply(r, rec.data);
+                        // But now we also have to delete the id
+                        delete r.id;
+                        addedBody.push(r);
+                    } else {
+                        updatedRecs.push(rec);
+                        var r = {};
+                        Ext.apply(r, rec.getChanges());
+                        r['id'] = rec.get('id');
+                        updateBody.push(r);
+                    }
+                }
+
+                // Handle updates
+                if (updatedRecs.length > 0) {
+                    Ext.Ajax.request({
+                        url: '../cms/api/set.php',
+                        success: function (response) {
+                            if ('' == response.responseText.trim()) {
+                                Ext.each(updatedRecs, function (r) { r.commit(); });
+                            } else {
+                                Ext.Msg.alert('Error', 'Problem during update. Changes were not saved.');
+                            }
+                        },
+                        failure: function () {
+                            Ext.Msg.alert('Error', 'Problem during update. Changes were not saved.');
+                        },
+                        params: {
+                            op: 'edit',
+                            type: config.cmaticType,
+                            records: Ext.util.JSON.encode(updateBody)
+                        }
+                    });
+                }
+
+                // Handle inserts
+                if (addedRecs.length > 0) {
+                    Ext.Ajax.request({
+                        url: '../cms/api/set.php',
+                        success: function (response) {
+                            if ('' == response.responseText.trim()) {
+                                Ext.each(addedRecs, function (r) { r.commit(); });
+                                ds.reload();
+                            } else {
+                                Ext.Msg.alert('Error', 'Problem during insert. Changes were not saved.');
+                            }
+                        },
+                        failure: function () {
+                            Ext.Msg.alert('Error', 'Problem during insert. Changes were not saved.');
+                        },
+                        params: {
+                            op: 'new',
+                            type: config.cmaticType,
+                            records: Ext.util.JSON.encode(addedBody)
+                        }
+                    });
+                }
+            }
+        }]
     });
+
+    cmatic.setup.eventParameter.EventParameterPanel.superclass.constructor.call(this);
 }
 
-Ext.extend(cmatic.setup.eventParameter.EventParameterPanel, Ext.grid.GridPanel);
+Ext.extend(cmatic.setup.eventParameter.EventParameterPanel, Ext.grid.EditorGridPanel);
 
 
 cmatic.setup.app = function () {
@@ -243,7 +364,7 @@ cmatic.setup.app = function () {
                 }
             });
 
-            setTimeout(this.removeLoadingMask, 250);
+            setTimeout(this.removeLoadingMask, 1000);
         },
 
 
