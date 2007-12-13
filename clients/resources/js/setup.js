@@ -10,73 +10,9 @@ Ext.namespace('cmatic.setup');
  * Namespace for all things related to event parameter types
  */
 cmatic.setup.eventParameter = function () {
-    // TODO: Is there any problem with sharing the proxy?
-    var eventParameterGetProxy;
-    var eventParameterReader;
     var recordConstructor;
 
     return {
-        /**
-         * All of the event parameter types have the same fields at the moment,
-         * so they can all have the same ColumnModel config.
-         *
-         * DON'T SHARE because they can't share the editors!
-         */
-        getColumnModelConfig: function () {
-            return [{
-                header: 'Record Id',
-                sortable: true,
-                dataIndex: 'id',
-                width: 100
-            }, {
-                header: 'Shorthand',
-                sortable: true,
-                dataIndex: 'shortName',
-                width: 100,
-                editor: new Ext.form.TextField({
-                    allowBlank: false,
-                    maxLength: 1,
-                    maxLengthText: 'This field can only be 1 character long'
-                })
-            }, {
-                header: 'Description',
-                sortable: true,
-                dataIndex: 'longName',
-                editor: new Ext.form.TextField({
-                    allowBlank: false
-                })
-            }]
-        },
-
-
-        /**
-         * Singleton Proxy object for the API get
-         */
-        getEventParameterGetProxy: function () {
-            if (!eventParameterGetProxy) {
-                eventParameterGetProxy = new Ext.data.HttpProxy({
-                    url: '../cms/api/get.php',
-                    method: 'POST'
-                });
-            }
-            return eventParameterGetProxy;
-        },
-
-
-        /**
-         * Singleton Reader object
-         */
-        getEventParameterReader: function () {
-            if (!eventParameterReader) {
-                eventParameterReader = new Ext.data.JsonReader({
-                    root: 'records',
-                    id: 'id'
-                }, cmatic.setup.eventParameter.getRecordConstructor());
-            }
-            return eventParameterReader;
-        },
-
-
         /**
          * Expose record constructor so we can create them dynamically.
          */
@@ -96,26 +32,17 @@ cmatic.setup.eventParameter = function () {
 
 /**
  * TODO: Comment this
- * subclass of Ext.grid.GridPanel
+ * subclass of Ext.grid.EditorGridPanel
  * config
- *  - cmaticType
  *  - id
  *  - title
+ *  - cmaticType
+ *  - maxShorthandLength
  */
 cmatic.setup.eventParameter.EventParameterPanel = function (config) {
+    var ds = cmatic.setup.app.getDataStore(config.cmaticType);
 
-    var ds = new Ext.data.Store({
-        proxy: cmatic.setup.eventParameter.getEventParameterGetProxy(),
-        baseParams: {type: config.cmaticType},
-        reader: cmatic.setup.eventParameter.getEventParameterReader(),
-        // Sort by ID by default
-        sortInfo: {
-            field: 'id',
-            direction: 'ASC'
-        }
-    });
-
-    ds.load();
+    // Save a reference to the grid (this)
     var _grid = this;
     Ext.apply(this, config, {
         closable: true,
@@ -123,7 +50,7 @@ cmatic.setup.eventParameter.EventParameterPanel = function (config) {
         enableColumnMove: false,
         autoExpandColumn: 2,
         autoScroll: true,
-        colModel: new Ext.grid.ColumnModel(cmatic.setup.eventParameter.getColumnModelConfig()),
+        colModel: new Ext.grid.ColumnModel(this.getColumnModelConfig(config)),
         store: ds,
         tbar: [{
             text: 'Reload',
@@ -232,15 +159,163 @@ cmatic.setup.eventParameter.EventParameterPanel = function (config) {
             }
         }
     });
-}
-
+};
 Ext.extend(cmatic.setup.eventParameter.EventParameterPanel, Ext.grid.EditorGridPanel);
 
 
+/**
+ * Event parameters all have very similar column configurations.
+ * The only difference at the moment is the maximum length of the short name field.
+ */
+cmatic.setup.eventParameter.EventParameterPanel.prototype.getColumnModelConfig = function (panelConfig) {
+    return [{
+        header: 'Record Id',
+        sortable: true,
+        dataIndex: 'id',
+        width: 100
+    }, {
+        header: 'Shorthand',
+        sortable: true,
+        dataIndex: 'shortName',
+        width: 100,
+        editor: new Ext.form.TextField({
+            allowBlank: false,
+            maxLength: panelConfig.maxShorthandLength,
+            maxLengthText: 'This field can only be ' + panelConfig.maxShorthandLength + ' character long'
+        })
+    }, {
+        header: 'Description',
+        sortable: true,
+        dataIndex: 'longName',
+        editor: new Ext.form.TextField({
+            allowBlank: false
+        })
+    }]
+};
+
+
+/**
+ * Event Panel
+ */
+cmatic.setup.event = function () {
+    return {
+        // TODO: Fill this in, or is nothing needed?
+    };
+}();
+
+
+/**
+ * TODO: Comment this
+ * subclass of Ext.grid.GridPanel
+ */
+cmatic.setup.event.EventPanel = function (config) {
+
+    var eventDs = new Ext.data.Store({
+        proxy: new Ext.data.HttpProxy({
+            url: '../cms/api/get.php',
+            method: 'POST'
+        }),
+        baseParams: { type: 'event' },
+        reader: new Ext.data.JsonReader({
+            root: 'records',
+            id: 'id'
+        }, Ext.data.Record.create([
+            {name: 'id'},
+            {name: 'code'},
+            {name: 'divisionId'},
+            {name: 'sexId'},
+            {name: 'ageGroupId'},
+            {name: 'formId'}
+        ])),
+        sortInfo: {
+            field: 'code',
+            directions: 'ASC'
+        }
+    });
+    Ext.StoreMgr.add('event', eventDs);
+    eventDs.load();
+
+    Ext.apply(this, config, {
+        closable: true,
+        layout: 'anchor',
+        enableColumnMove: false,
+        autoScroll: true,
+        store: eventDs,
+        colModel: new Ext.grid.ColumnModel([{
+            header: 'Record Id',
+            sortable: true,
+            dataIndex: 'id',
+            width: 100
+        }, {
+            header: 'Event Code',
+            sortable: true,
+            dataIndex: 'code',
+            width: 100
+        }, {
+            header: 'Division',
+            dataIndex: 'divisionId',
+            renderer: this.getParameterRenderer('division')
+        }, {
+            header: 'Sex',
+            dataIndex: 'sexId',
+            renderer: this.getParameterRenderer('sex')
+        }, {
+            header: 'Age Group',
+            dataIndex: 'ageGroupId',
+            renderer: this.getParameterRenderer('ageGroup')
+        }, {
+            header: 'Form',
+            dataIndex: 'formId',
+            renderer: this.getParameterRenderer('form')
+        }]),
+        tbar: [ {
+            text: 'Reload',
+            handler: function () { eventDs.reload(); }
+        }]
+    });
+
+    cmatic.setup.event.EventPanel.superclass.constructor.call(this);
+};
+Ext.extend(cmatic.setup.event.EventPanel, Ext.grid.EditorGridPanel);
+
+
+/**
+ * Build a renderer for event parameters. The renderer will use the
+ * longName associated to the id of the type it is given. If a data
+ * store or matching id is not found, the raw data is returned.
+ *
+ * @param {String} type The name of the cmatic type
+ */
+cmatic.setup.event.EventPanel.prototype.getParameterRenderer = function (type) {
+    return function (data) {
+        var s = cmatic.setup.app.getDataStore(type);
+        if (s) {
+            var r = s.getById(data);
+            if (r) {
+                return r.get('longName');
+            }
+        }
+        return data;
+    };
+};
+
+
+/**
+ * Setup Client
+ */
 cmatic.setup.app = function () {
 
     // ****************************************
     // private vars
+    // "constants"
+    var DIVISION_TAB_ID = 'divisionTab';
+    var SEX_TAB_ID = 'sexTab';
+    var AGE_GROUP_TAB_ID  ='ageGroupTab';
+    var FORM_TAB_ID = 'formTab';
+    var EVENT_TAB_ID = 'eventTab';
+    var SCHEDULE_TAB_ID = 'scheduleTab';
+
+    // member variables
     var headerPanel;
     var navTreePanel;
     var mainPanel;
@@ -252,7 +327,7 @@ cmatic.setup.app = function () {
     /**
      * Build the standard panels that will be used by the viewport
      */
-    var buildPanels = function () {
+    function buildPanels () {
         headerPanel =  new Ext.Panel({
             contentEl: 'header',
             region: 'north'
@@ -277,13 +352,13 @@ cmatic.setup.app = function () {
                         text: 'Division',
                         leaf: true,
                         doAction: function () {
-                            // TODO: Can the event parameter stuff be cleaned up anymore?
-                            var editor = cmatic.setup.app.getTab('divisionEditor');
+                            var editor = cmatic.setup.app.getTab(DIVISION_TAB_ID);
                             if (!editor) {
                                 editor = new cmatic.setup.eventParameter.EventParameterPanel({
-                                    id: 'divisionEditor',
+                                    id: DIVISION_TAB_ID,
                                     title: 'Divisions',
-                                    cmaticType: 'division'
+                                    cmaticType: 'division',
+                                    maxShorthandLength: 1
                                 });
                             }
                             cmatic.setup.app.addTab(editor);
@@ -293,12 +368,13 @@ cmatic.setup.app = function () {
                         text: 'Sex',
                         leaf: true,
                         doAction: function () {
-                            var editor = cmatic.setup.app.getTab('sexEditor');
+                            var editor = cmatic.setup.app.getTab(SEX_TAB_ID);
                             if (!editor) {
                                 editor = new cmatic.setup.eventParameter.EventParameterPanel({
-                                    id: 'sexEditor',
+                                    id: SEX_TAB_ID,
                                     title: 'Sexes',
-                                    cmaticType: 'sex'
+                                    cmaticType: 'sex',
+                                    maxShorthandLength: 1
                                 });
                             }
                             cmatic.setup.app.addTab(editor);
@@ -308,12 +384,29 @@ cmatic.setup.app = function () {
                         text: 'Age Groups',
                         leaf: true,
                         doAction: function () {
-                            var editor = cmatic.setup.app.getTab('ageGroupEditor');
+                            var editor = cmatic.setup.app.getTab(AGE_GROUP_TAB_ID);
                             if (!editor) {
                                 editor = new cmatic.setup.eventParameter.EventParameterPanel({
-                                    id: 'ageGroupEditor',
+                                    id: AGE_GROUP_TAB_ID,
                                     title: 'Age Groups',
-                                    cmaticType: 'ageGroup'
+                                    cmaticType: 'ageGroup',
+                                    maxShorthandLength: 1
+                                });
+                            }
+                            cmatic.setup.app.addTab(editor);
+                        }
+                    }, {
+                        id: '1.3',
+                        text: 'Forms',
+                        leaf: true,
+                        doAction: function () {
+                            var editor = cmatic.setup.app.getTab(FORM_TAB_ID);
+                            if (!editor) {
+                                editor = new cmatic.setup.eventParameter.EventParameterPanel({
+                                    id: FORM_TAB_ID,
+                                    title: 'Forms',
+                                    cmaticType: 'form',
+                                    maxShorthandLength: 3
                                 });
                             }
                             cmatic.setup.app.addTab(editor);
@@ -327,7 +420,14 @@ cmatic.setup.app = function () {
                         text: 'Available Events',
                         leaf: true,
                         doAction: function () {
-                            Ext.Msg.alert('To Do', 'This should open an event editor');
+                            var editor = cmatic.setup.app.getTab(EVENT_TAB_ID);
+                            if (!editor) {
+                                editor = new cmatic.setup.event.EventPanel({
+                                    id: EVENT_TAB_ID,
+                                    title: 'Events'
+                                });
+                            }
+                            cmatic.setup.app.addTab(editor);
                         }
                     }, {
                         id: '2.1',
@@ -335,16 +435,28 @@ cmatic.setup.app = function () {
                         leaf: true,
                         doAction: function () {
                             Ext.Msg.alert('To Do', 'This should open the event schedule');
+                            var editor = cmatic.setup.app.getTab(SCHEDULE_TAB_ID);
+                            if (editor) cmatic.setup.app.addTab(editor);
                         }
                     }]
                 }]
             })
         });
 
+        // Wire up the navigation nodes
+        navTreePanel.on('click', function (node, e) {
+            if (node.isLeaf()) {
+                e.stopEvent();
+                // doAction is a custom attribute that was passed into
+                // every leaf node as it was created
+                node.attributes.doAction();
+            }
+        });
+
         mainPanel = new Ext.TabPanel({
             region: 'center',
             id: 'mainPanel',
-            title: 'Foo',
+            title: 'Main',
             defaults: {autoScroll: true},
             activeItem: 0,
             items: [{
@@ -353,41 +465,48 @@ cmatic.setup.app = function () {
                 contentEl: 'faq'
             }]
         });
-
     };
+
+
+    /**
+     * Prime the event parameter data stores.
+     * This should be done early as they're needed (for nice labels)
+     * on the Event Management pages. Don't bother priming the event
+     * store as it may be big.
+     */
+    function primeDataStores () {
+        cmatic.setup.app.getDataStore('division');
+        cmatic.setup.app.getDataStore('sex');
+        cmatic.setup.app.getDataStore('ageGroup');
+        cmatic.setup.app.getDataStore('form');
+    }
+
+
+
+    /**
+     * Build the Setup viewport
+     */
+    function buildViewport () {
+        buildPanels();
+
+        return new Ext.Viewport({
+            layout: 'border',
+            items: [headerPanel, navTreePanel, mainPanel]
+        });
+    }
 
 
     // ****************************************
     // public space
     return {
         init: function () {
+            // Prime the data stores early
+            primeDataStores();
+
             Ext.QuickTips.init();
-            this.buildViewport();
-
-
-            navTreePanel.on('click', function (node, e) {
-                if (node.isLeaf()) {
-                    e.stopEvent();
-                    // doAction is a custom attribute
-                    node.attributes.doAction();
-                }
-            });
+            buildViewport();
 
             setTimeout(this.removeLoadingMask, 1000);
-        },
-
-
-        /**
-         * Build the Setup viewport
-         */
-        buildViewport: function () {
-            buildPanels();
-            var viewport = new Ext.Viewport({
-                layout: 'border',
-                items: [headerPanel, navTreePanel, mainPanel]
-            });
-
-            return viewport;
         },
 
 
@@ -423,6 +542,61 @@ cmatic.setup.app = function () {
          */
         getMainPanel: function () {
             return mainPanel;
+        },
+
+
+        /**
+         * Getter for data stores
+         * @param {String} cmaticType The api name of a type
+         *
+         * TODO: Need to figure out a good way to switch on all the types
+         * But it shouldn't be so bad, because there's really only events
+         * and everything else.
+         */
+        getDataStore: function (cmaticType) {
+            var s = Ext.StoreMgr.get(cmaticType);
+            if (!s) {
+                // Pick a record constructor
+                // We're taking a shortcut because we happen to know
+                // that only the "event" type is different
+                var rc;
+                var sortByField;
+                if ('event' == cmaticType) {
+                    rc = Ext.data.Record.create([
+                        {name: 'id'},
+                        {name: 'code'},
+                        {name: 'divisionId'},
+                        {name: 'sexId'},
+                        {name: 'ageGroupId'},
+                        {name: 'formId'}
+                    ]);
+                    sortByField = 'code';
+                } else {
+                    rc = cmatic.setup.eventParameter.getRecordConstructor();
+                    sortbyField = 'id';
+                }
+
+
+                // Make the new store
+                s = new Ext.data.Store({
+                    proxy: new Ext.data.HttpProxy({
+                        url: '../cms/api/get.php',
+                        method: 'POST'
+                    }),
+                    baseParams: { type: cmaticType },
+                    reader: new Ext.data.JsonReader({
+                        root: 'records',
+                        id: 'id'
+                    }, rc),
+                    sortInfo: {
+                        field: sortbyField,
+                        direction: 'ASC'
+                    }
+                });
+                Ext.StoreMgr.add(cmaticType, s);
+                s.load();
+            }
+            return s;
         }
     };
 }();
