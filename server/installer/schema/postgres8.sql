@@ -49,10 +49,10 @@ CREATE TABLE cmatic_config_event (
     event_id serial PRIMARY KEY,
     created timestamp NOT NULL DEFAULT now(),
     last_mod timestamp NOT NULL DEFAULT now(),
-    division_id integer REFERENCES cmatic_config_division,
-    sex_id integer REFERENCES cmatic_config_sex,
-    age_group_id integer REFERENCES cmatic_config_age_group,
-    form_id integer REFERENCES cmatic_config_form,
+    division_id integer NOT NULL REFERENCES cmatic_config_division,
+    sex_id integer NOT NULL REFERENCES cmatic_config_sex,
+    age_group_id integer NOT NULL REFERENCES cmatic_config_age_group,
+    form_id integer NOT NULL REFERENCES cmatic_config_form,
     event_code text UNIQUE
 );
 
