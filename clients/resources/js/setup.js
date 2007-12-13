@@ -53,10 +53,10 @@ cmatic.setup.eventParameter.EventParameterPanel = function (config) {
         colModel: new Ext.grid.ColumnModel(this.getColumnModelConfig(config)),
         store: ds,
         tbar: [{
-            text: 'Reload',
+            text: cmatic.labels.button.reload,
             handler: function () { ds.reload();}
         }, {
-            text: 'Add',
+            text: cmatic.labels.button.add,
             handler: function () {
                 var r = new (cmatic.setup.eventParameter.getRecordConstructor())({
                     id: '', // new records have no id
@@ -69,7 +69,7 @@ cmatic.setup.eventParameter.EventParameterPanel = function (config) {
 
             }
         }, {
-            text: 'Save',
+            text: cmatic.labels.button.save,
             handler: function () {
                 var modifiedRecords = ds.getModifiedRecords();
                 var addedRecs = new Array();
@@ -103,11 +103,11 @@ cmatic.setup.eventParameter.EventParameterPanel = function (config) {
                             if ('' == response.responseText.trim()) {
                                 Ext.each(updatedRecs, function (r) { r.commit(); });
                             } else {
-                                Ext.Msg.alert('Error', 'Problem during update. Changes were not saved.');
+                                Ext.Msg.alert(cmatic.labels.message.error + ':101', cmatic.labels.message.changesNotSaved);
                             }
                         },
                         failure: function () {
-                            Ext.Msg.alert('Error', 'Problem during update. Changes were not saved.');
+                            Ext.Msg.alert(cmatic.labels.message.error + ':102', cmatic.labels.message.changesNotSaved);
                         },
                         params: {
                             op: 'edit',
@@ -126,11 +126,11 @@ cmatic.setup.eventParameter.EventParameterPanel = function (config) {
                                 Ext.each(addedRecs, function (r) { r.commit(); });
                                 ds.reload();
                             } else {
-                                Ext.Msg.alert('Error', 'Problem during insert. Changes were not saved.');
+                                Ext.Msg.alert(cmatic.labels.message.error + ':103', cmatic.labels.message.changesNotSaved);
                             }
                         },
                         failure: function () {
-                            Ext.Msg.alert('Error', 'Problem during insert. Changes were not saved.');
+                            Ext.Msg.alert(cmatic.labels.message.error + ':104', cmatic.labels.message.changesNotSaved);
                         },
                         params: {
                             op: 'new',
@@ -141,7 +141,7 @@ cmatic.setup.eventParameter.EventParameterPanel = function (config) {
                 }
             }
         }, {
-            text: 'Cancel',
+            text: cmatic.labels.button.cancel,
             handler: function () {
                 ds.rejectChanges();
             }
@@ -154,7 +154,7 @@ cmatic.setup.eventParameter.EventParameterPanel = function (config) {
         if (_grid == tab) {
             var unsaved = ds.getModifiedRecords();
             if (unsaved.length > 0) {
-                Ext.Msg.alert('Warning', 'There are unsaved changes. Cannot close. To continue, either save or cancel the changes.');
+                Ext.Msg.alert(cmatic.labels.message.warning, cmatic.labels.message.cantCloseWithUnsavedChanges);
                 return false;
             }
         }
@@ -169,22 +169,21 @@ Ext.extend(cmatic.setup.eventParameter.EventParameterPanel, Ext.grid.EditorGridP
  */
 cmatic.setup.eventParameter.EventParameterPanel.prototype.getColumnModelConfig = function (panelConfig) {
     return [{
-        header: 'Record Id',
+        header: cmatic.labels.setup.internalId,
         sortable: true,
         dataIndex: 'id',
         width: 100
     }, {
-        header: 'Shorthand',
+        header: cmatic.labels['type_'+panelConfig.cmaticType].shortName,
         sortable: true,
         dataIndex: 'shortName',
         width: 100,
         editor: new Ext.form.TextField({
             allowBlank: false,
-            maxLength: panelConfig.maxShorthandLength,
-            maxLengthText: 'This field can only be ' + panelConfig.maxShorthandLength + ' character long'
+            maxLength: panelConfig.maxShorthandLength
         })
     }, {
-        header: 'Description',
+        header: cmatic.labels['type_'+panelConfig.cmaticType].longName,
         sortable: true,
         dataIndex: 'longName',
         editor: new Ext.form.TextField({
@@ -242,34 +241,34 @@ cmatic.setup.event.EventPanel = function (config) {
         autoScroll: true,
         store: eventDs,
         colModel: new Ext.grid.ColumnModel([{
-            header: 'Record Id',
+            header: cmatic.labels.setup.internalId,
             sortable: true,
             dataIndex: 'id',
             width: 100
         }, {
-            header: 'Event Code',
+            header: cmatic.labels.type_event.code,
             sortable: true,
             dataIndex: 'code',
             width: 100
         }, {
-            header: 'Division',
+            header: cmatic.labels.type_event.divisionId,
             dataIndex: 'divisionId',
             renderer: this.getParameterRenderer('division')
         }, {
-            header: 'Sex',
+            header: cmatic.labels.type_event.sexId,
             dataIndex: 'sexId',
             renderer: this.getParameterRenderer('sex')
         }, {
-            header: 'Age Group',
+            header: cmatic.labels.type_event.ageGroupId,
             dataIndex: 'ageGroupId',
             renderer: this.getParameterRenderer('ageGroup')
         }, {
-            header: 'Form',
+            header: cmatic.labels.type_event.formId,
             dataIndex: 'formId',
             renderer: this.getParameterRenderer('form')
         }]),
         tbar: [ {
-            text: 'Reload',
+            text: cmatic.labels.button.reload,
             handler: function () { eventDs.reload(); }
         }]
     });
@@ -346,17 +345,17 @@ cmatic.setup.app = function () {
                 text: 'root',
                 children: [{
                     id: '1',
-                    text: 'Event Parameters',
+                    text: cmatic.labels.navTree.eventParameters,
                     children: [{
                         id: '1.0',
-                        text: 'Division',
+                        text: cmatic.labels.navTree.divisions,
                         leaf: true,
                         doAction: function () {
                             var editor = cmatic.setup.app.getTab(DIVISION_TAB_ID);
                             if (!editor) {
                                 editor = new cmatic.setup.eventParameter.EventParameterPanel({
                                     id: DIVISION_TAB_ID,
-                                    title: 'Divisions',
+                                    title: cmatic.labels.navTree.divisions,
                                     cmaticType: 'division',
                                     maxShorthandLength: 1
                                 });
@@ -365,14 +364,14 @@ cmatic.setup.app = function () {
                         }
                     }, {
                         id: '1.1',
-                        text: 'Sex',
+                        text: cmatic.labels.navTree.sexes,
                         leaf: true,
                         doAction: function () {
                             var editor = cmatic.setup.app.getTab(SEX_TAB_ID);
                             if (!editor) {
                                 editor = new cmatic.setup.eventParameter.EventParameterPanel({
                                     id: SEX_TAB_ID,
-                                    title: 'Sexes',
+                                    title: cmatic.labels.navTree.sexes,
                                     cmaticType: 'sex',
                                     maxShorthandLength: 1
                                 });
@@ -381,14 +380,14 @@ cmatic.setup.app = function () {
                         }
                     }, {
                         id: '1.2',
-                        text: 'Age Groups',
+                        text: cmatic.labels.navTree.ageGroups,
                         leaf: true,
                         doAction: function () {
                             var editor = cmatic.setup.app.getTab(AGE_GROUP_TAB_ID);
                             if (!editor) {
                                 editor = new cmatic.setup.eventParameter.EventParameterPanel({
                                     id: AGE_GROUP_TAB_ID,
-                                    title: 'Age Groups',
+                                    title: cmatic.labels.navTree.ageGroups,
                                     cmaticType: 'ageGroup',
                                     maxShorthandLength: 1
                                 });
@@ -397,14 +396,14 @@ cmatic.setup.app = function () {
                         }
                     }, {
                         id: '1.3',
-                        text: 'Forms',
+                        text: cmatic.labels.navTree.forms,
                         leaf: true,
                         doAction: function () {
                             var editor = cmatic.setup.app.getTab(FORM_TAB_ID);
                             if (!editor) {
                                 editor = new cmatic.setup.eventParameter.EventParameterPanel({
                                     id: FORM_TAB_ID,
-                                    title: 'Forms',
+                                    title: cmatic.labels.navTree.forms,
                                     cmaticType: 'form',
                                     maxShorthandLength: 3
                                 });
@@ -414,24 +413,24 @@ cmatic.setup.app = function () {
                     }]
                 },{
                     id: '2',
-                    text: 'Event Management',
+                    text: cmatic.labels.navTree.eventManagement,
                     children: [{
                         id: '2.0',
-                        text: 'Available Events',
+                        text: cmatic.labels.navTree.events,
                         leaf: true,
                         doAction: function () {
                             var editor = cmatic.setup.app.getTab(EVENT_TAB_ID);
                             if (!editor) {
                                 editor = new cmatic.setup.event.EventPanel({
                                     id: EVENT_TAB_ID,
-                                    title: 'Events'
+                                    title: cmatic.labels.navTree.events
                                 });
                             }
                             cmatic.setup.app.addTab(editor);
                         }
                     }, {
                         id: '2.1',
-                        text: 'Event Schedule',
+                        text: cmatic.labels.navTree.schedule,
                         leaf: true,
                         doAction: function () {
                             Ext.Msg.alert('To Do', 'This should open the event schedule');
