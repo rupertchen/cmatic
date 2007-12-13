@@ -239,6 +239,7 @@ cmatic.setup.event.EventPanel = function (config) {
         layout: 'anchor',
         enableColumnMove: false,
         autoScroll: true,
+        autoExpandColumn: 5,
         store: eventDs,
         colModel: new Ext.grid.ColumnModel([{
             header: cmatic.labels.setup.internalId,
