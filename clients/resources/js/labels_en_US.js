@@ -94,3 +94,9 @@ cmatic.labels.navTree = {
     events: 'Available Events',
     schedule: 'Event Schedule'
 };
+
+// Event management
+cmatic.labels.eventManagement = {
+    addingEvents: 'Adding events ...',
+    massAddTitle: 'Mass Add Events'
+};

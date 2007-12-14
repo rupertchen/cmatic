@@ -234,6 +234,25 @@ cmatic.setup.event.EventPanel = function (config) {
     Ext.StoreMgr.add('event', eventDs);
     eventDs.load();
 
+
+    /**
+     * Fill a field set for the Mass Add Event form.
+     * @param {String} type API name of the type
+     * @param {Ext.form.FieldSet} fieldSet The FieldSet to add to
+     *
+     * TODO: Refactor this as a method of a subclass of FieldSet, then
+     * we can get rid of some things.
+     */
+    function fillMassAddFormFieldSet (type, fieldSet) {
+        var records = cmatic.setup.app.getDataStore(type).getRange();
+        for (var i = 0; i < records.length; i++) {
+            fieldSet.add(new Ext.form.Checkbox({
+                boxLabel: records[i].get('longName'),
+                inputValue: records[i].get('id')
+            }));
+        }
+    }
+
     Ext.apply(this, config, {
         closable: true,
         layout: 'anchor',
@@ -253,24 +272,92 @@ cmatic.setup.event.EventPanel = function (config) {
             width: 100
         }, {
             header: cmatic.labels.type_event.divisionId,
+            sortable: true,
             dataIndex: 'divisionId',
             renderer: this.getParameterRenderer('division')
         }, {
             header: cmatic.labels.type_event.sexId,
+            sortable: true,
             dataIndex: 'sexId',
             renderer: this.getParameterRenderer('sex')
         }, {
             header: cmatic.labels.type_event.ageGroupId,
+            sortable: true,
             dataIndex: 'ageGroupId',
             renderer: this.getParameterRenderer('ageGroup')
         }, {
             header: cmatic.labels.type_event.formId,
+            sortable: true,
             dataIndex: 'formId',
             renderer: this.getParameterRenderer('form')
         }]),
-        tbar: [ {
+        tbar: [{
             text: cmatic.labels.button.reload,
             handler: function () { eventDs.reload(); }
+        }, {
+            text: cmatic.labels.button.add,
+            handler: function () {
+                // Build the window and form
+
+                var divisionSet = new Ext.form.FieldSet({
+                    title: cmatic.labels.navTree.divisions,
+                    defaults: { name: 'divisions[]', hideLabel: true }
+                });
+                fillMassAddFormFieldSet('division', divisionSet);
+
+                var sexSet = new Ext.form.FieldSet({
+                    title: cmatic.labels.navTree.sexes,
+                    defaults: { name: 'sexes[]', hideLabel: true }
+                });
+                fillMassAddFormFieldSet('sex', sexSet);
+
+                var ageGroupSet = new Ext.form.FieldSet({
+                    title: cmatic.labels.navTree.ageGroups,
+                    defaults: { name: 'ageGroups[]', hideLabel: true }
+                });
+                fillMassAddFormFieldSet('ageGroup', ageGroupSet);
+
+                var formSet = new Ext.form.FieldSet({
+                    title: cmatic.labels.navTree.forms,
+                    defaults: { name: 'forms[]', hideLabel: true }
+                });
+                fillMassAddFormFieldSet('form', formSet);
+
+                var formPanel = new Ext.form.FormPanel({
+                    autoHeight: true,
+                    defaultType: 'textfield',
+                    waitMsgTarget: true,
+                    items: [
+                        new Ext.Panel({
+                            layout: 'column',
+                            defaults: { columnWidth: .25, autoScroll: true, height: 200 },
+                            items: [divisionSet, sexSet, ageGroupSet, formSet]
+                        })
+                    ]
+                });
+
+                var win = new Ext.Window({
+                    title: cmatic.labels.eventManagement.massAddTitle,
+                    constrain: true,
+                    resizable: false,
+                    width: 650,
+                    items: [formPanel]
+                });
+
+                // Defining these here rather than in the config because it's
+                // convenient to reference the form and window components
+                formPanel.addButton(cmatic.labels.button.save,
+                    function () {
+                        formPanel.getForm().submit({
+                            url: '../cms/api/massAddEvents.php',
+                            waitMsg: cmatic.labels.eventManagement.addingEvents,
+                            success: function () { win.close(); },
+                            failure: function (form, action) { Ext.Msg.alert(cmatic.labels.message.error + ':105', cmatic.labels.message.changesNotSaved); }
+                    })});
+                formPanel.addButton(cmatic.labels.button.cancel, function () { win.close(); });
+
+                win.show();
+            }
         }]
     });
 
