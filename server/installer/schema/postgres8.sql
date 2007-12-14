@@ -38,7 +38,7 @@ CREATE TABLE cmatic_config_form (
     form_id serial PRIMARY KEY,
     created timestamp NOT NULL DEFAULT now(),
     last_mod timestamp NOT NULL DEFAULT now(),
-    short_name char(1) NOT NULL,
+    short_name char(3) NOT NULL,
     long_name text NOT NULL
 );
 
@@ -53,7 +53,8 @@ CREATE TABLE cmatic_config_event (
     sex_id integer NOT NULL REFERENCES cmatic_config_sex,
     age_group_id integer NOT NULL REFERENCES cmatic_config_age_group,
     form_id integer NOT NULL REFERENCES cmatic_config_form,
-    event_code text UNIQUE
+    event_code text,
+    UNIQUE (division_id, sex_id, age_group_id, form_id)
 );
 
 /**
