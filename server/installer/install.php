@@ -23,6 +23,12 @@ function step1Body($inputs, $errorMessages = false) {
         }
         echo '</div>';
     }
+    if (empty($inputs['host'])) {
+        $inputs['host'] = 'localhost';
+    }
+    if (empty($inputs['port'])) {
+        $inputs['port'] = '5432';
+    }
 ?>
         <form method="POST">
             <fieldset>
