@@ -112,6 +112,34 @@ class CmaticSchema {
         return $CMATIC['fieldApiNameToDbColumnMap'][$type];
     }
 
+    /**
+     * Updates all event codes
+     * TODO: Put this into CmaticSchema?
+     * @param $c {PDO Connection}
+     * @param $onlyNulls {boolean} True to only update if the code is currently NULL
+     */
+    public static function updateEventCodes($c, $onlyNulls) {
+        // This snippet of SQL is intended to be run within an update where the
+        // event db table is available.
+        // This could be better, but in Postgres 8.0, we can't alias the update
+        // table. This looks to be changed in 8.2.
+        $eventDbTable = CmaticSchema::getTypeDbTable('event');
+        $selectEventSql = sprintf('select d.short_name || s.short_name || a.short_name || f.short_name as "event_code"'
+            . ' from %s d, %s s, %s a, %s f'
+            . ' where %s.division_id = d.division_id'
+            . ' and %s.sex_id = s.sex_id'
+            . ' and %s.age_group_id = a.age_group_id'
+            . ' and %s.form_id = f.form_id',
+            CmaticSchema::getTypeDbTable('division'),
+            CmaticSchema::getTypeDbTable('sex'),
+            CmaticSchema::getTypeDbTable('ageGroup'),
+            CmaticSchema::getTypeDbTable('form'),
+            $eventDbTable, $eventDbTable, $eventDbTable, $eventDbTable
+            );
+        $whereClause = $onlyNulls ? ' where event_code is null' : '';
+        $c->query(sprintf('update %s set event_code = (%s)%s', CmaticSchema::getTypeDbTable('event'), $selectEventSql, $whereClause));
+        return true;
+    }
 }
 
 

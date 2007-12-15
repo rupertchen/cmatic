@@ -57,7 +57,8 @@ cmatic.labels.button = {
     reload: 'Reload',
     add: 'Add',
     save: 'Save',
-    cancel: 'Cancel'
+    cancel: 'Cancel',
+    updateEventCodes: 'Update Event Codes'
 };
 
 

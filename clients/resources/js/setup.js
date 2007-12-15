@@ -1,3 +1,4 @@
+Ext.BLANK_IMAGE_URL = '/~serka/cmc/resources/ext-2.0/resources/images/default/s.gif';
 
 /**
  * Namespace for all setup-related code
@@ -46,10 +47,11 @@ cmatic.setup.eventParameter.EventParameterPanel = function (config) {
     var _grid = this;
     Ext.apply(this, config, {
         closable: true,
-        layout: 'anchor',
+        layout: 'fit',
         enableColumnMove: false,
         autoExpandColumn: 2,
         autoScroll: true,
+        stripeRows: true,
         colModel: new Ext.grid.ColumnModel(this.getColumnModelConfig(config)),
         store: ds,
         tbar: [{
@@ -255,10 +257,11 @@ cmatic.setup.event.EventPanel = function (config) {
 
     Ext.apply(this, config, {
         closable: true,
-        layout: 'anchor',
+        layout: 'fit',
         enableColumnMove: false,
         autoScroll: true,
         autoExpandColumn: 5,
+        stripeRows: true,
         store: eventDs,
         colModel: new Ext.grid.ColumnModel([{
             header: cmatic.labels.setup.internalId,
@@ -351,12 +354,31 @@ cmatic.setup.event.EventPanel = function (config) {
                         formPanel.getForm().submit({
                             url: '../cms/api/massAddEvents.php',
                             waitMsg: cmatic.labels.eventManagement.addingEvents,
-                            success: function () { win.close(); },
+                            success: function () {
+                                cmatic.setup.app.getDataStore('event').reload();
+                                win.close();
+                            },
                             failure: function (form, action) { Ext.Msg.alert(cmatic.labels.message.error + ':105', cmatic.labels.message.changesNotSaved); }
                     })});
                 formPanel.addButton(cmatic.labels.button.cancel, function () { win.close(); });
 
                 win.show();
+            }
+        }, {
+            text: cmatic.labels.button.updateEventCodes,
+            handler: function () {
+                Ext.Ajax.request({
+                    url: '../cms/api/massUpdateEventCodes.php',
+                    success: function () {
+                        // TODO: This just means a successful HTTP request,
+                        // the call itself may have had errors, but we'll
+                        // pretend that never happens for now
+                        cmatic.setup.app.getDataStore('event').reload();
+                    },
+                    failure: function () {
+                        Ext.Msg.alert(cmatic.labels.message.error + ':106', cmatic.labels.message.changesNotSaved);
+                    }
+                });
             }
         }]
     });

@@ -21,33 +21,17 @@ require_once '../util/TextUtils.php';
 
 
 /**
- * Updates all event codes
- * TODO: Put this into CmaticSchema?
- * @param $c {PDO Connection}
- * @param $onlyNulls {boolean} True to only update if the code is currently NULL
+ * Hash the event row to a unique string.
+ * Use a concatenation of the division, sex, age, and
+ * form ids joined by a '-'. This will be unique as a
+ * '-' can never appear as part of and id.
+ *
+ * @param {assoc. array} $r Represents the event row from the database
  */
-function updateEventCodes($c, $onlyNulls) {
-    // This snippet of SQL is intended to be run within an update where the
-    // event db table is available.
-    // This could be better, but in Postgres 8.0, we can't alias the update
-    // table. This looks to be changed in 8.2.
-    $eventDbTable = CmaticSchema::getTypeDbTable('event');
-    $selectEventSql = sprintf('select d.short_name || s.short_name || a.short_name || f.short_name as "event_code"'
-        . ' from %s d, %s s, %s a, %s f'
-        . ' where %s.division_id = d.division_id'
-        . ' and %s.sex_id = s.sex_id'
-        . ' and %s.age_group_id = a.age_group_id'
-        . ' and %s.form_id = f.form_id',
-        CmaticSchema::getTypeDbTable('division'),
-        CmaticSchema::getTypeDbTable('sex'),
-        CmaticSchema::getTypeDbTable('ageGroup'),
-        CmaticSchema::getTypeDbTable('form'),
-        $eventDbTable, $eventDbTable, $eventDbTable, $eventDbTable
-        );
-    $whereClause = $onlyNulls ? '' : ' where event_code is null';
-    $c->query(sprintf('update %s set event_code = (%s)%s', CmaticSchema::getTypeDbTable('event'), $selectEventSql, $whereClause));
-    return true;
+function hashEvent($d, $s, $a, $f) {
+    return $d . '-' . $s . '-' . $a . '-' . $f;
 }
+
 
 $isSuccessful = false;
 
@@ -70,26 +54,49 @@ try {
     if (empty($forms)) {
         throw new CmaticApiException('Input "forms[]" cannot be empty.');
     }
+    // TODO: Consider checking for dupes in each parameter as well.
 
 
-    // Obtain all of the existing events
+    // Obtain all of the existing events and build up a map for
+    // simple dupe checking.
+    $eventDbTable = CmaticSchema::getTypeDbTable('event');
     $conn = PdoHelper::getPdo();
-    $r = $conn->query(sprintf('select division_id, sex_id, age_group_id, form_id from %s', CmaticSchema::getTypeDbTable('event')));
-    $existingEvents = $r->fetchAll(PDO::FETCH_ASSOC);
-    // TODO: code
+    $r = $conn->query(sprintf('select division_id, sex_id, age_group_id, form_id from %s', $eventDbTable));
+    $resultSet = $r->fetchAll(PDO::FETCH_ASSOC);
+    $existingEvents = array();
+    foreach ($resultSet as $row) {
+        $existingEvents[hashEvent($row['division_id'], $row['sex_id'], $row['age_group_id'], $row['form_id'])] = true;
+    }
 
     // Create a cross-product of all 4 inputs
     // Filtering out those that already exist
-    $bar = Array("DUMMY"); // TODO: Throw something in here for now so it's not empty
+    $newEvents = array();
+    foreach ($divisions as $d) {
+        foreach ($sexes as $s) {
+            foreach ($ageGroups as $a) {
+                foreach ($forms as $f) {
+                    if (!$existingEvents[hashEvent($d, $s, $a, $f)]) {
+                        $newEvents[] = array('d'=>$d, 's'=>$s, 'a'=>$a, 'f'=>$f);
+                    }
+                }
+            }
+        }
+    }
 
     // Do the mass update if there is something to do
-    if (!empty($bar)) {
+    if (!empty($newEvents)) {
         $conn->beginTransaction();
         try {
+            foreach ($newEvents as $e) {
+                // TODO: Consider using binds instead
+                $conn->query(sprintf('insert into %s (division_id, sex_id, age_group_id, form_id) values(%d, %d, %d, %d)',
+                    $eventDbTable, $e['d'], $e['s'], $e['a'], $e['f']));
+            }
+
             // Update all event codes that are NULL
             // This will include all the newly added ones and any that were
             // somehow missed before.
-            if (!updateEventCodes($conn, true)) {
+            if (!CmaticSchema::updateEventCodes($conn, true)) {
                 // TODO: Throw cmatic exception about the failed update
                 throw new CmaticApiException('Arg, update failed');
             }
@@ -103,6 +110,10 @@ try {
             $conn = null;
             throw $e;
         }
+    } else {
+        // Got here because we had nothing to do.
+        // We'll consider that a success.
+        $isSuccessful = true;
     }
     $conn = null;
 } catch (Exception $e) {
@@ -112,5 +123,6 @@ try {
     }
 }
 
+// TODO: need to have a standard response for all API calls
 ?>
 {success: <?php echo ($isSuccessful ? 'true' : 'false'); ?>}

@@ -1,6 +1,24 @@
 <?php
 
 class TextUtils {
+
+    /**
+     * A wrapper to stripslashes that can recursively handle
+     * nested arrays of strings.
+     */
+    private static function stripSlashesHandleArrays($src) {
+        if (is_array($src)) {
+            $ret = array();
+            foreach ($src as $key => $val) {
+                $ret[$key] = TextUtils::stripSlashesHandleArrays($val);
+            }
+            return $ret;
+        } else {
+            return stripslashes($src);
+        }
+    }
+
+
     /**
      * Many PHP installations will have magic quotes turned on.
      *
@@ -15,7 +33,7 @@ class TextUtils {
         }
         $ret = array();
         foreach($params as $key) {
-            $ret[$key] = $needed ? stripslashes($src[$key]) : $src[$key];
+            $ret[$key] = $needed ? TextUtils::stripSlashesHandleArrays($src[$key]) : $src[$key];
         }
         return $ret;
     }
