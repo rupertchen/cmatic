@@ -1,3 +1,4 @@
+// TODO: This is probably going to be wrong. Change this
 Ext.BLANK_IMAGE_URL = '/~serka/cmc/resources/ext-2.0/resources/images/default/s.gif';
 
 /**
@@ -210,32 +211,7 @@ cmatic.setup.event = function () {
  * subclass of Ext.grid.GridPanel
  */
 cmatic.setup.event.EventPanel = function (config) {
-
-    var eventDs = new Ext.data.Store({
-        proxy: new Ext.data.HttpProxy({
-            url: '../cms/api/get.php',
-            method: 'POST'
-        }),
-        baseParams: { type: 'event' },
-        reader: new Ext.data.JsonReader({
-            root: 'records',
-            id: 'id'
-        }, Ext.data.Record.create([
-            {name: 'id'},
-            {name: 'code'},
-            {name: 'divisionId'},
-            {name: 'sexId'},
-            {name: 'ageGroupId'},
-            {name: 'formId'}
-        ])),
-        sortInfo: {
-            field: 'code',
-            directions: 'ASC'
-        }
-    });
-    Ext.StoreMgr.add('event', eventDs);
-    eventDs.load();
-
+    var eventDs = cmatic.setup.app.getDataStore('event');
 
     /**
      * Fill a field set for the Mass Add Event form.
@@ -355,7 +331,7 @@ cmatic.setup.event.EventPanel = function (config) {
                             url: '../cms/api/massAddEvents.php',
                             waitMsg: cmatic.labels.eventManagement.addingEvents,
                             success: function () {
-                                cmatic.setup.app.getDataStore('event').reload();
+                                eventDs.reload();
                                 win.close();
                             },
                             failure: function (form, action) { Ext.Msg.alert(cmatic.labels.message.error + ':105', cmatic.labels.message.changesNotSaved); }
@@ -373,7 +349,7 @@ cmatic.setup.event.EventPanel = function (config) {
                         // TODO: This just means a successful HTTP request,
                         // the call itself may have had errors, but we'll
                         // pretend that never happens for now
-                        cmatic.setup.app.getDataStore('event').reload();
+                        eventDs.reload();
                     },
                     failure: function () {
                         Ext.Msg.alert(cmatic.labels.message.error + ':106', cmatic.labels.message.changesNotSaved);
@@ -384,7 +360,15 @@ cmatic.setup.event.EventPanel = function (config) {
     });
 
     cmatic.setup.event.EventPanel.superclass.constructor.call(this);
-};
+
+    // This element also relies on the event parameter data stores for
+    // rendering. As such, redo the layout if they change.
+    var gridView = this.getView();
+    cmatic.setup.app.getDataStore('division').on('update', function () { gridView.refresh(); });
+    cmatic.setup.app.getDataStore('sex').on('update', function () { gridView.refresh(); });
+    cmatic.setup.app.getDataStore('ageGroup').on('update', function () { gridView.refresh(); });
+    cmatic.setup.app.getDataStore('form').on('update', function () { gridView.refresh(); });
+}
 Ext.extend(cmatic.setup.event.EventPanel, Ext.grid.EditorGridPanel);
 
 
