@@ -63,7 +63,9 @@ $CMATIC['fieldApiNameToDbColumnMap'] = array (
         'sexId' => 'sex_id',
         'ageGroupId' => 'age_group_id',
         'formId' => 'form_id',
-        'code' => 'event_code'
+        'code' => 'event_code',
+        'ringId' => 'ring_id',
+        'order' => 'ring_order'
     ),
     'form' => array(
         'id' => 'form_id',
