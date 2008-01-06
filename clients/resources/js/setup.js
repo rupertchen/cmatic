@@ -394,6 +394,120 @@ cmatic.setup.event.EventPanel.prototype.getParameterRenderer = function (type) {
 
 
 /**
+ * TODO: Comment this
+ * The event schedule
+ */
+cmatic.setup.event.EventSchedule = Ext.extend(Ext.Panel, {
+    layout: 'column',
+    autoScroll: true,
+    closable: true,
+    cls: 'x-event-schedule',
+    defaultType: 'competitionring',
+
+    initEvents : function() {
+        cmatic.setup.event.EventSchedule.superclass.initEvents.call(this);
+        this.dd = new cmatic.setup.event.EventSchedule.DropZone(this, this.dropConfig);
+    }
+});
+Ext.reg('eventschedule', cmatic.setup.event.EventSchedule);
+
+/**
+ * TODO: Comment this
+ * The drop target of the schedule
+ */
+cmatic.setup.event.EventSchedule.DropZone = function(schedule, cfg){
+    // scroll manager stuff here?
+    this.schedule = schedule;
+    cmatic.setup.event.EventSchedule.DropZone.superclass.constructor.call(this, schedule.bwrap.dom, cfg);
+};
+
+Ext.extend(cmatic.setup.event.EventSchedule.DropZone, Ext.dd.DropTarget,{
+    // ddScrollConfig here?
+    notifyOver : function(dd, e, data) {
+        if (!this.rings) {
+            this.rings = this.getRings();
+        }
+
+        // handle case when scrollbar change the layout
+        // TODO: code this
+
+        // change proxy's width as necessary
+        dd.proxy.getProxy().setWidth('auto');
+
+        // pick a ring
+        var ringNumber = 0;
+        var matched = false;
+        var xy = e.getXY();
+        for (var len = this.rings.length; ringNumber < len; ringNumber++) {
+            if (xy[0] < (this.rings[ringNumber].x + this.rings[ringNumber].w)) {
+                matched = true;
+                break;
+            }
+        }
+
+        // if we didn't find any suitable ring, just say no
+        if (!matched) {
+            return;
+        }
+
+        // find the order
+
+        var r = this.schedule.items.itemAt(ringNumber);
+//        if (p) {
+
+//        } else {
+            dd.proxy.moveProxy(r.el.dom, null);
+//        }
+
+        this.lastPos = {ring: r};
+
+        return this.dropAllowed;
+    },
+
+    notifyOut: function () {
+        delete this.rings;
+    },
+
+    notifyDrop: function (dd, e, data) {
+        // TODO: this needs to handle events moving in the same ring as well as other positions.
+        this.lastPos.ring.add(dd.panel);
+        this.lastPos.ring.doLayout();
+    },
+
+    getRings : function () {
+        var rings = [];
+        this.schedule.items.each(function(r){
+            rings.push({x: r.el.getX(), w: r.el.getWidth()});
+        });
+        return rings;
+    }
+});
+
+
+/**
+ * TODO: Comment this
+ */
+cmatic.setup.event.CompetitionRing = Ext.extend(Ext.Container, {
+    layout: 'anchor',
+    autoEl: 'div',
+    defaultType: 'slatedevent',
+    cls: 'x-competition-ring'
+});
+Ext.reg('competitionring', cmatic.setup.event.CompetitionRing);
+
+/**
+ * TODO: Comment this
+ */
+cmatic.setup.event.SlatedEvent = Ext.extend(Ext.Panel, {
+    anchor: '100%',
+    draggable: true,
+    cls: 'x-slated-event'
+});
+Ext.reg('slatedevent', cmatic.setup.event.SlatedEvent);
+
+
+
+/**
  * Setup Client
  */
 cmatic.setup.app = function () {
@@ -527,9 +641,75 @@ cmatic.setup.app = function () {
                         text: cmatic.labels.navTree.schedule,
                         leaf: true,
                         doAction: function () {
-                            Ext.Msg.alert('To Do', 'This should open the event schedule');
                             var editor = cmatic.setup.app.getTab(SCHEDULE_TAB_ID);
-                            if (editor) cmatic.setup.app.addTab(editor);
+                            if (!editor) {
+                                editor = new cmatic.setup.event.EventSchedule({
+                                    id: SCHEDULE_TAB_ID,
+                                    title: cmatic.labels.navTree.schedule,
+                                    items: [{
+                                        columnWidth: .125,
+                                        style:'padding:10px 2px',
+                                        items: [{
+                                            title: '1-1'
+                                        }, {
+                                            title: '1-2',
+                                            html: 'foobar 1-2'
+                                        }]
+                                    }, {
+                                        columnWidth: .125,
+                                        style:'padding:10px 2px',
+                                        items: [{
+                                            title: '2-1',
+                                            html: 'foobar 2-1'
+                                        }]
+                                    }, {
+                                        columnWidth: .125,
+                                        style:'padding:10px 2px',
+                                        items: [{
+                                            title: '3-1',
+                                            html: 'foobar 3-1'
+                                        }]
+                                    }, {
+                                        columnWidth: .125,
+                                        style:'padding:10px 2px',
+                                        items: [{
+                                            title: '4-1',
+                                            html: 'foobar 4-1'
+                                        }]
+                                    }, {
+                                        columnWidth: .125,
+                                        style:'padding:10px 2px',
+                                        items: [{
+                                            title: '5-1'
+                                        }, {
+                                            title: '5-2',
+                                            html: 'foobar 5-2'
+                                        }]
+                                    }, {
+                                        columnWidth: .125,
+                                        style:'padding:10px 2px',
+                                        items: [{
+                                            title: '6-1',
+                                            html: 'foobar 6-1'
+                                        }]
+                                    }, {
+                                        columnWidth: .125,
+                                        style:'padding:10px 2px',
+                                        items: [{
+                                            title: '7-1',
+                                            html: 'foobar 7-1'
+                                        }]
+                                    }, {
+                                        columnWidth: .125,
+                                        style:'padding:10px 2px',
+                                        items: [{
+                                            title: '8-1',
+                                            html: 'foobar 8-1'
+                                        }]
+                                    }]
+                                });
+                            }
+                            cmatic.setup.app.addTab(editor);
                         }
                     }]
                 }]
