@@ -239,6 +239,7 @@ cmatic.setup.event.EventPanel = function (config) {
         autoExpandColumn: 5,
         stripeRows: true,
         store: eventDs,
+        // TODO: expose ring/order here as well?
         colModel: new Ext.grid.ColumnModel([{
             header: cmatic.labels.setup.internalId,
             sortable: true,
@@ -417,12 +418,13 @@ Ext.reg('eventschedule', cmatic.setup.event.EventSchedule);
  */
 cmatic.setup.event.EventSchedule.DropZone = function(schedule, cfg){
     // scroll manager stuff here?
+    // when necessary, check out how they did this for the Portal example
     this.schedule = schedule;
     cmatic.setup.event.EventSchedule.DropZone.superclass.constructor.call(this, schedule.bwrap.dom, cfg);
 };
 
 Ext.extend(cmatic.setup.event.EventSchedule.DropZone, Ext.dd.DropTarget,{
-    // ddScrollConfig here?
+    // TODO: ddScrollConfig here?
     notifyOver : function(dd, e, data) {
         if (!this.rings) {
             this.rings = this.getRings();
@@ -436,30 +438,40 @@ Ext.extend(cmatic.setup.event.EventSchedule.DropZone, Ext.dd.DropTarget,{
 
         // pick a ring
         var ringNumber = 0;
-        var matched = false;
+        var matchedRing = false;
         var xy = e.getXY();
         for (var len = this.rings.length; ringNumber < len; ringNumber++) {
             if (xy[0] < (this.rings[ringNumber].x + this.rings[ringNumber].w)) {
-                matched = true;
+                matchedRing = true;
+                break;
+            }
+        }
+        // if we didn't find any suitable ring, just quit
+        if (!matchedRing) {
+            return;
+        }
+        var targetRing = this.schedule.items.itemAt(ringNumber);
+
+        // find the order
+        var order = 0;
+        var matchedOrder = false;
+        var ringEvents = targetRing.items.items;
+        var previousEvent = null;
+        for (var len = ringEvents.length; order < len; order++) {
+            previousEvent = ringEvents[order];
+            var h = previousEvent.el.getHeight();
+            // if the dragged event has been dragged more than halfway passed this element,
+            // then it belongs after it
+            if (h !== 0 && (previousEvent.el.getY() + (h/2)) > xy[1]) {
+                matchedOrder = true;
                 break;
             }
         }
 
-        // if we didn't find any suitable ring, just say no
-        if (!matched) {
-            return;
-        }
+        // move proxy
+        dd.proxy.moveProxy(targetRing.el.dom, (previousEvent && matchedOrder) ? previousEvent.el.dom : null);
 
-        // find the order
-
-        var r = this.schedule.items.itemAt(ringNumber);
-//        if (p) {
-
-//        } else {
-            dd.proxy.moveProxy(r.el.dom, null);
-//        }
-
-        this.lastPos = {ring: r};
+        this.lastPos = {ring: targetRing, order: order};
 
         return this.dropAllowed;
     },
@@ -469,9 +481,16 @@ Ext.extend(cmatic.setup.event.EventSchedule.DropZone, Ext.dd.DropTarget,{
     },
 
     notifyDrop: function (dd, e, data) {
-        // TODO: this needs to handle events moving in the same ring as well as other positions.
-        this.lastPos.ring.add(dd.panel);
-        this.lastPos.ring.doLayout();
+        var order = this.lastPos.order;
+        var ring = this.lastPos.ring;
+        if (order) {
+            // Insert ring where specified
+            ring.insert(order, dd.panel);
+        } else {
+            // Add ring to the end by default
+            ring.add(dd.panel);
+        }
+        ring.doLayout();
     },
 
     getRings : function () {
