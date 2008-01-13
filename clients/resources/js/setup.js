@@ -236,20 +236,30 @@ cmatic.setup.event.EventPanel = function (config) {
         layout: 'fit',
         enableColumnMove: false,
         autoScroll: true,
-        autoExpandColumn: 5,
+        autoExpandColumn: 7,
         stripeRows: true,
         store: eventDs,
-        // TODO: expose ring/order here as well?
         colModel: new Ext.grid.ColumnModel([{
             header: cmatic.labels.setup.internalId,
             sortable: true,
             dataIndex: 'id',
             width: 100
         }, {
+            header: cmatic.labels.type_event.ringId,
+            sortable: true,
+            dataIndex: 'ringId',
+            width: 50
+        }, {
+            header: cmatic.labels.type_event.order,
+            sortable: true,
+            dataIndex: 'order',
+            width: 50
+        }, {
             header: cmatic.labels.type_event.code,
             sortable: true,
             dataIndex: 'code',
-            width: 100
+            width: 100,
+            renderer: this.eventCodeRenderer
         }, {
             header: cmatic.labels.type_event.divisionId,
             sortable: true,
@@ -391,6 +401,17 @@ cmatic.setup.event.EventPanel.prototype.getParameterRenderer = function (type) {
         }
         return data;
     };
+};
+
+/**
+ * Render the event codes
+ * TODO: consider getting rid of this and having all formatting of the event
+ * code done during insert to the database.
+ *
+ * @param {String} data The event code as text
+ */
+cmatic.setup.event.EventPanel.prototype.eventCodeRenderer = function (data) {
+    return data.toUpperCase();
 };
 
 
@@ -665,6 +686,10 @@ cmatic.setup.app = function () {
                                 editor = new cmatic.setup.event.EventSchedule({
                                     id: SCHEDULE_TAB_ID,
                                     title: cmatic.labels.navTree.schedule,
+                                    tbar: [{
+                                        text: cmatic.labels.button.reload,
+                                        handler: function () { alert('reload');}
+                                    }],
                                     items: [{
                                         columnWidth: .125,
                                         style:'padding:10px 2px',
@@ -860,7 +885,9 @@ cmatic.setup.app = function () {
                         {name: 'divisionId'},
                         {name: 'sexId'},
                         {name: 'ageGroupId'},
-                        {name: 'formId'}
+                        {name: 'formId'},
+                        {name: 'ringId'},
+                        {name: 'order'}
                     ]);
                     sortByField = 'code';
                 } else {

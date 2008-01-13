@@ -46,7 +46,9 @@ cmatic.labels.type_event = {
     divisionId: cmatic.labels.type_division._name,
     sexId: cmatic.labels.type_sex._name,
     ageGroupId: cmatic.labels.type_ageGroup._name,
-    formId: cmatic.labels.type_form._name
+    formId: cmatic.labels.type_form._name,
+    ringId: 'Ring',
+    order: 'Order'
 };
 
 
