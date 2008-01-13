@@ -426,9 +426,48 @@ cmatic.setup.event.EventSchedule = Ext.extend(Ext.Panel, {
     cls: 'x-event-schedule',
     defaultType: 'competitionring',
 
+
+    // private
+    initComponent : function(){
+        cmatic.setup.event.EventSchedule.superclass.initComponent.call(this);
+        this.store = cmatic.setup.app.getDataStore('event');
+    },
+
+
+    // private
     initEvents : function() {
         cmatic.setup.event.EventSchedule.superclass.initEvents.call(this);
         this.dd = new cmatic.setup.event.EventSchedule.DropZone(this, this.dropConfig);
+    },
+
+
+    // private
+    onRender : function(ct, position){
+        cmatic.setup.event.EventSchedule.superclass.onRender.apply(this, arguments);
+        // TODO: MVC Would say we have a *View that we call render on.
+        // I'm being lazy for now and just dropping in the render code into this object directly
+        this.renderUi();
+    },
+
+
+    // private
+    renderUi : function () {
+        // TODO: There is a bug here where the datastore must have been
+        // completely loaded before this point for this to work. Oh well,
+        // I'll come back and revisit this when I have time.
+        // A good solution would be to use Templates and create my own DD
+        // proxy and div instead of using the rather heavyweight Panel.
+        var rawSchedule = [[], [], [], [], [], [], [], []];
+        this.store.each(function (data) { rawSchedule[data.get('ringId') - 1].push(data.get('code')); });
+        console.debug('raw schedule: %o', rawSchedule);
+        for (var i = 0; i < rawSchedule.length; i++) {
+            var competitionRing = new cmatic.setup.event.CompetitionRing();
+            for (var j = 0; j < rawSchedule[i].length; j++) {
+                // TODO: Build the event here
+                competitionRing.add({title: rawSchedule[i][j]});
+            }
+            this.add(competitionRing);
+        }
     }
 });
 Ext.reg('eventschedule', cmatic.setup.event.EventSchedule);
@@ -438,21 +477,33 @@ Ext.reg('eventschedule', cmatic.setup.event.EventSchedule);
  * The drop target of the schedule
  */
 cmatic.setup.event.EventSchedule.DropZone = function(schedule, cfg){
-    // scroll manager stuff here?
-    // when necessary, check out how they did this for the Portal example
     this.schedule = schedule;
+    Ext.dd.ScrollManager.register(schedule.body);
     cmatic.setup.event.EventSchedule.DropZone.superclass.constructor.call(this, schedule.bwrap.dom, cfg);
 };
 
 Ext.extend(cmatic.setup.event.EventSchedule.DropZone, Ext.dd.DropTarget,{
-    // TODO: ddScrollConfig here?
+    ddScrollConfig : {
+        vthresh: 50,
+        hthresh: -1,
+        animate: true,
+        increment: 200
+    },
+
     notifyOver : function(dd, e, data) {
         if (!this.rings) {
             this.rings = this.getRings();
         }
 
-        // handle case when scrollbar change the layout
-        // TODO: code this
+        // handle case when scrollbars change the layout
+        var clientWidth = this.schedule.body.dom.clientWidth;
+        if (!this.lastClientWidth) {
+            this.lastClientWidth = clientWidth;
+        } else if (this.lastClientWidth != clientWidth) {
+            this.lastClientWidth = clientWidth;
+            schedule.doLayout();
+            this.rings = this.getRings();
+        }
 
         // change proxy's width as necessary
         dd.proxy.getProxy().setWidth('auto');
@@ -492,7 +543,7 @@ Ext.extend(cmatic.setup.event.EventSchedule.DropZone, Ext.dd.DropTarget,{
         // move proxy
         dd.proxy.moveProxy(targetRing.el.dom, (previousEvent && matchedOrder) ? previousEvent.el.dom : null);
 
-        this.lastPos = {ring: targetRing, order: order};
+        this.lastPos = {ring: targetRing, order: matchedOrder ? order : false};
 
         return this.dropAllowed;
     },
@@ -504,7 +555,9 @@ Ext.extend(cmatic.setup.event.EventSchedule.DropZone, Ext.dd.DropTarget,{
     notifyDrop: function (dd, e, data) {
         var order = this.lastPos.order;
         var ring = this.lastPos.ring;
-        if (order) {
+
+        dd.panel.el.dom.parentNode.removeChild(dd.panel.el.dom);
+        if (order !== false) {
             // Insert ring where specified
             ring.insert(order, dd.panel);
         } else {
@@ -531,7 +584,9 @@ cmatic.setup.event.CompetitionRing = Ext.extend(Ext.Container, {
     layout: 'anchor',
     autoEl: 'div',
     defaultType: 'slatedevent',
-    cls: 'x-competition-ring'
+    cls: 'x-competition-ring',
+    columnWidth: .125,
+    style: 'padding: 10px 2px'
 });
 Ext.reg('competitionring', cmatic.setup.event.CompetitionRing);
 
@@ -689,67 +744,6 @@ cmatic.setup.app = function () {
                                     tbar: [{
                                         text: cmatic.labels.button.reload,
                                         handler: function () { alert('reload');}
-                                    }],
-                                    items: [{
-                                        columnWidth: .125,
-                                        style:'padding:10px 2px',
-                                        items: [{
-                                            title: '1-1'
-                                        }, {
-                                            title: '1-2',
-                                            html: 'foobar 1-2'
-                                        }]
-                                    }, {
-                                        columnWidth: .125,
-                                        style:'padding:10px 2px',
-                                        items: [{
-                                            title: '2-1',
-                                            html: 'foobar 2-1'
-                                        }]
-                                    }, {
-                                        columnWidth: .125,
-                                        style:'padding:10px 2px',
-                                        items: [{
-                                            title: '3-1',
-                                            html: 'foobar 3-1'
-                                        }]
-                                    }, {
-                                        columnWidth: .125,
-                                        style:'padding:10px 2px',
-                                        items: [{
-                                            title: '4-1',
-                                            html: 'foobar 4-1'
-                                        }]
-                                    }, {
-                                        columnWidth: .125,
-                                        style:'padding:10px 2px',
-                                        items: [{
-                                            title: '5-1'
-                                        }, {
-                                            title: '5-2',
-                                            html: 'foobar 5-2'
-                                        }]
-                                    }, {
-                                        columnWidth: .125,
-                                        style:'padding:10px 2px',
-                                        items: [{
-                                            title: '6-1',
-                                            html: 'foobar 6-1'
-                                        }]
-                                    }, {
-                                        columnWidth: .125,
-                                        style:'padding:10px 2px',
-                                        items: [{
-                                            title: '7-1',
-                                            html: 'foobar 7-1'
-                                        }]
-                                    }, {
-                                        columnWidth: .125,
-                                        style:'padding:10px 2px',
-                                        items: [{
-                                            title: '8-1',
-                                            html: 'foobar 8-1'
-                                        }]
                                     }]
                                 });
                             }
