@@ -360,6 +360,7 @@ cmatic.setup.event.EventPanel = function (config) {
                         // TODO: This just means a successful HTTP request,
                         // the call itself may have had errors, but we'll
                         // pretend that never happens for now
+                        Ext.Msg.alert(cmatic.labels.message.success, cmatic.labels.message.changesSaved);
                         eventDs.reload();
                     },
                     failure: function () {
@@ -458,13 +459,19 @@ cmatic.setup.event.EventSchedule = Ext.extend(Ext.Panel, {
         // A good solution would be to use Templates and create my own DD
         // proxy and div instead of using the rather heavyweight Panel.
         var rawSchedule = [[], [], [], [], [], [], [], []];
-        this.store.each(function (data) { rawSchedule[data.get('ringId') - 1].push(data.get('code')); });
-        console.debug('raw schedule: %o', rawSchedule);
+        this.store.each(function (data) {
+            rawSchedule[data.get('ringId') - 1].push({
+                eventId: data.get('id'),
+                code: data.get('code')
+                // TODO: this is where size would be entered
+            });
+        });
+
         for (var i = 0; i < rawSchedule.length; i++) {
             var competitionRing = new cmatic.setup.event.CompetitionRing();
             for (var j = 0; j < rawSchedule[i].length; j++) {
-                // TODO: Build the event here
-                competitionRing.add({title: rawSchedule[i][j]});
+                var e = rawSchedule[i][j];
+                competitionRing.add({title: e.code, eventId: e.eventId});
             }
             this.add(competitionRing);
         }
@@ -550,6 +557,7 @@ Ext.extend(cmatic.setup.event.EventSchedule.DropZone, Ext.dd.DropTarget,{
 
     notifyOut: function () {
         delete this.rings;
+        delete this.lastPos;
     },
 
     notifyDrop: function (dd, e, data) {
@@ -596,7 +604,11 @@ Ext.reg('competitionring', cmatic.setup.event.CompetitionRing);
 cmatic.setup.event.SlatedEvent = Ext.extend(Ext.Panel, {
     anchor: '100%',
     draggable: true,
-    cls: 'x-slated-event'
+    cls: 'x-slated-event',
+    /**
+     * eventId (required)
+     * TODO: Comment this
+     */
 });
 Ext.reg('slatedevent', cmatic.setup.event.SlatedEvent);
 
@@ -743,7 +755,44 @@ cmatic.setup.app = function () {
                                     title: cmatic.labels.navTree.schedule,
                                     tbar: [{
                                         text: cmatic.labels.button.reload,
-                                        handler: function () { alert('reload');}
+                                        handler: function () { Ext.Msg.alert('Todo', 'Not implemented yet.'); }
+                                    }, {
+                                        text: cmatic.labels.button.save,
+                                        handler: function () {
+                                            // TODO: It's ugly that the save code is sitting in the nav tree, but
+                                            // for now, it will work. This should be addressed when the schedule is
+                                            // reimplemented without using panels.
+
+                                            // Walk through the schedule (DOM) collecting ids, rings, and orders
+                                            var updateOrders = [];
+                                            var rings = editor.items.items;
+                                            for (var i = 0; i < rings.length; i++) {
+                                                var ringEvents = rings[i].items.items;
+                                                for (var j = 0; j < ringEvents.length; j++) {
+                                                    updateOrders.push({id: ringEvents[j].eventId, ringId: (i + 1), order: j});
+                                                }
+                                            }
+
+                                            Ext.Ajax.request({
+                                                url: '../cms/api/set.php',
+                                                success: function (response) {
+                                                    if ('' == response.responseText.trim()) {
+                                                        Ext.Msg.alert(cmatic.labels.message.success, cmatic.labels.message.changesSaved);
+                                                        editor.store.reload();
+                                                    } else {
+                                                        Ext.Msg.alert(cmatic.labels.message.error + ':107', cmatic.labels.message.changesNotSaved);
+                                                    }
+                                                },
+                                                failure: function (response) {
+                                                    Ext.Msg.alert(cmatic.labels.message.error + ':108', cmatic.labels.message.changesNotSaved);
+                                                },
+                                                params: {
+                                                    op: 'edit',
+                                                    type: 'event',
+                                                    records: Ext.util.JSON.encode(updateOrders)
+                                                }
+                                            });
+                                        }
                                     }]
                                 });
                             }

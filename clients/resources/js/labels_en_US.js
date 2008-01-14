@@ -39,7 +39,8 @@ cmatic.labels.type_sex = {
     longName: cmatic.labels.type_ageGroup.longName
 };
 
-// Event, must come after the event parameter labels
+// Event
+// must come after the event parameter labels
 cmatic.labels.type_event = {
     _name: 'Event',
     code: 'Event Code',
@@ -70,7 +71,9 @@ cmatic.labels.button = {
 cmatic.labels.message = {
     warning: 'Warning',
     error: 'Error',
+    success: 'Success',
     changesNotSaved: 'Changes were not saved.',
+    changesSaved: 'Change saved.',
     cantCloseWithUnsavedChanges: 'There are unsaved changes. To continue, either save or cancel the changes first.'
 };
 
