@@ -23,3 +23,17 @@
     width: 32px;
     height: 32px;
 }
+
+#faq h2 {
+    font-size: 110%;
+    padding-top: 1em;
+}
+
+#faq h3 {
+    font-size: 105%;
+    padding-top: 1em;
+}
+
+#faq p {
+    padding: 0 5px;
+}
