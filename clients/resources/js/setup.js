@@ -604,7 +604,7 @@ Ext.reg('competitionring', cmatic.setup.event.CompetitionRing);
 cmatic.setup.event.SlatedEvent = Ext.extend(Ext.Panel, {
     anchor: '100%',
     draggable: true,
-    cls: 'x-slated-event',
+    cls: 'x-slated-event'
     /**
      * eventId (required)
      * TODO: Comment this
