@@ -77,9 +77,26 @@ $CMATIC['fieldApiNameToDbColumnMap'] = array (
         'shortName' => 'short_name',
         'longName' => 'long_name'
     ),
-    'competitor' => array(),
-    'group' => array(),
-    'groupMember' => array(),
+    'competitor' => array(
+        'id' => 'competitor_id',
+        'firstName' => 'first_name',
+        'lastName' => 'last_name',
+        'email' => 'email',
+        'phone1' => 'phone_1',
+        'phone2' => 'phone_2',
+        'emergencyContactName' => 'emergency_contact_name',
+        'emergencyContactRelation' => 'emergency_contact_relation',
+        'emergencyContactPhone' => 'emergency_contact_phone'
+    ),
+    'group' => array(
+        'id' => 'group_id',
+        'name' => 'name'
+    ),
+    'groupMember' => array(
+        'id' => 'group_member_id',
+        'groupId' => 'group_id',
+        'competitorId' => 'competitor_id'
+    ),
     'scoring' =>array()
 );
 
