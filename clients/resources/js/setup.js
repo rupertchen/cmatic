@@ -1,6 +1,3 @@
-// TODO: This is probably going to be wrong. Change this
-Ext.BLANK_IMAGE_URL = '/~serka/cmc/resources/ext-2.0/resources/images/default/s.gif';
-
 /**
  * Namespace for all setup-related code
  */
@@ -866,17 +863,8 @@ cmatic.setup.app = function () {
             Ext.QuickTips.init();
             buildViewport();
 
-            setTimeout(this.removeLoadingMask, 1000);
-        },
-
-
-        /**
-         * Remove the loading mask
-         * TODO: Move this to some common area
-         */
-        removeLoadingMask: function () {
-            Ext.get('loading').remove();
-            Ext.get('loading-mask').fadeOut({duration: .25, remove: true});
+            // Wait a moment before doing this
+            setTimeout(cmatic.removeLoadingMask, 1000);
         },
 
 
