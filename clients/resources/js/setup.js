@@ -330,6 +330,7 @@ cmatic.setup.event.EventPanel = function (config) {
                     constrain: true,
                     resizable: false,
                     width: 650,
+                    modal: true,
                     items: [formPanel]
                 });
 
