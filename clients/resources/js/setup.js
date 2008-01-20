@@ -98,7 +98,7 @@ cmatic.setup.eventParameter.EventParameterPanel = function (config) {
                 // Handle updates
                 if (updatedRecs.length > 0) {
                     Ext.Ajax.request({
-                        url: '../cms/api/set.php',
+                        url: cmatic.url.set,
                         success: function (response) {
                             var r = Ext.util.JSON.decode(response.responseText);
                             if (r.success) {
@@ -121,7 +121,7 @@ cmatic.setup.eventParameter.EventParameterPanel = function (config) {
                 // Handle inserts
                 if (addedRecs.length > 0) {
                     Ext.Ajax.request({
-                        url: '../cms/api/set.php',
+                        url: cmatic.url.set,
                         success: function (response) {
                             var r = Ext.util.JSON.decode(response.responseText);
                             if (r.success) {
@@ -339,7 +339,7 @@ cmatic.setup.event.EventPanel = function (config) {
                 formPanel.addButton(cmatic.labels.button.save,
                     function () {
                         formPanel.getForm().submit({
-                            url: '../cms/api/massAddEvents.php',
+                            url: cmatic.url.massAddEvents,
                             waitMsg: cmatic.labels.eventManagement.addingEvents,
                             success: function () {
                                 eventDs.reload();
@@ -357,7 +357,7 @@ cmatic.setup.event.EventPanel = function (config) {
             text: cmatic.labels.button.updateEventCodes,
             handler: function () {
                 Ext.Ajax.request({
-                    url: '../cms/api/massUpdateEventCodes.php',
+                    url: cmatic.url.massUpdateEventCodes,
                     success: function () {
                         // TODO: This just means a successful HTTP request,
                         // the call itself may have had errors, but we'll
@@ -776,7 +776,7 @@ cmatic.setup.app = function () {
                                             }
 
                                             Ext.Ajax.request({
-                                                url: '../cms/api/set.php',
+                                                url: cmatic.url.set,
                                                 success: function (response) {
                                                     var r = Ext.util.JSON.decode(response.responseText);
                                                     if (r.success) {
@@ -936,7 +936,7 @@ cmatic.setup.app = function () {
                 // Make the new store
                 s = new Ext.data.Store({
                     proxy: new Ext.data.HttpProxy({
-                        url: '../cms/api/get.php',
+                        url: cmatic.url.get,
                         method: 'POST'
                     }),
                     baseParams: { type: cmaticType },

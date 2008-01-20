@@ -27,7 +27,7 @@ cmatic.registration.competitorList = function () {
 
                 s = new Ext.data.Store({
                     proxy: new Ext.data.HttpProxy({
-                        url: '../cms/api/get.php',
+                        url: cmatic.url.get,
                         method: 'POST'
                     }),
                     baseParams: {
@@ -127,7 +127,7 @@ cmatic.registration.competitorList = function () {
                         formPanel.addButton(cmatic.labels.button.save,
                             function () {
                                 Ext.Ajax.request({
-                                    url: '../cms/api/set.php',
+                                    url: cmatic.url.set,
                                     success: function (response) {
                                         var r = Ext.util.JSON.decode(response.responseText);
                                         if (r.success) {
@@ -229,7 +229,7 @@ cmatic.registration.competitorList = function () {
                             });
                             details.addButton(cmatic.labels.button.save, function () {
                                 Ext.Ajax.request({
-                                    url: '../cms/api/set.php',
+                                    url: cmatic.url.set,
                                     success: function (response) {
                                         var r = Ext.util.JSON.decode(response.responseText);
                                         if (r.success) {
