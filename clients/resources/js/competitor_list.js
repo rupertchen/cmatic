@@ -3,6 +3,10 @@
  */
 Ext.namespace('cmatic.registration');
 
+cmatic.registration.competitorIdRenderer = function (numberId) {
+    return 'CMAT' + (16000 + numberId);
+};
+
 cmatic.registration.competitorList = function () {
     return {
         init: function () {
@@ -15,7 +19,10 @@ cmatic.registration.competitorList = function () {
                     {name: 'lastName'},
                     {name: 'email'},
                     {name: 'phone1'},
-                    {name: 'phone2'}
+                    {name: 'phone2'},
+                    {name: 'emergencyContactName'},
+                    {name: 'emergencyContactRelation'},
+                    {name: 'emergencyContactPhone'}
                 ]);
 
                 s = new Ext.data.Store({
@@ -47,20 +54,19 @@ cmatic.registration.competitorList = function () {
                     header: cmatic.labels.type_competitor.id,
                     sortable: true,
                     width: 50,
-                    // TODO: factor this renderer out to a common area
-                    renderer: function (x) { return 'CMAT' + (16000 + x); }
+                    renderer: cmatic.registration.competitorIdRenderer
                 }, {
                     id: 'lastName',
                     dataIndex: 'lastName',
                     header: cmatic.labels.type_competitor.lastName,
                     sortable: true,
-                    width: 75,
+                    width: 50
                 }, {
                     id: 'firstName',
                     dataIndex: 'firstName',
                     header: cmatic.labels.type_competitor.firstName,
                     sortable: true,
-                    width: 75
+                    width: 50
                 }, {
                     id: 'email',
                     dataIndex: 'email',
@@ -71,17 +77,19 @@ cmatic.registration.competitorList = function () {
                     dataIndex: 'phone1',
                     header: cmatic.labels.type_competitor.phone1,
                     sortable: true,
-                    width: 75
+                    width: 50
                 }, {
                     id: 'phone2',
                     dataIndex: 'phone2',
                     header: cmatic.labels.type_competitor.phone2,
                     sortable: true,
-                    width: 75
+                    width: 50
                 }],
                 viewConfig: { forceFit: true },
                 autoHeight: true,
+                sm: new Ext.grid.RowSelectionModel({singleSelect:true}),
                 title: cmatic.labels.registration.competitorList,
+                autoScroll: true,
                 stripeRows: true,
                 enableColumnMove: false,
                 autoExpandColumn: 3,
@@ -108,27 +116,32 @@ cmatic.registration.competitorList = function () {
                         });
 
                         var win = new Ext.Window({
-                            title: 'add a competitor',
+                            title: cmatic.labels.registration.addNewCompetitor,
                             constrain: true,
-                            resizabel: false,
+                            resizable: false,
                             width: 300,
+                            modal: true,
                             items: [formPanel]
                         });
 
                         formPanel.addButton(cmatic.labels.button.save,
                             function () {
-                                var form = formPanel.getForm();
-                                form.submit({
+                                Ext.Ajax.request({
                                     url: '../cms/api/set.php',
-                                    waitMsg: '__',
-                                    success: function () {
-                                        s.reload();
-                                        win.close();
+                                    success: function (response) {
+                                        var r = Ext.util.JSON.decode(response.responseText);
+                                        if (r.success) {
+                                            s.reload();
+                                            win.close();
+                                        } else {
+                                            Ext.Msg.alert(cmatic.labels.message.error, cmatic.labels.message.changesNotSaved);
+                                        }
                                     },
+                                    failure: function () { Ext.Msg.alert('failed', 'failed'); },
                                     params: {
                                         op: 'new',
                                         type: 'competitor',
-                                        records: '[' + Ext.util.JSON.encode(form.getValues(false)) + ']'
+                                        records: '[' + Ext.util.JSON.encode(formPanel.getForm().getValues(false)) + ']'
                                     }
                                 });
                             }
@@ -136,6 +149,116 @@ cmatic.registration.competitorList = function () {
                         formPanel.addButton(cmatic.labels.button.cancel, function () { win.close(); })
 
                         win.show();
+                    }
+                }, {
+                    text: cmatic.labels.registration.viewCompetitorDetails,
+                    handler: function () {
+                        var c = g.getSelectionModel().getSelected();
+                        if (c) {
+                            var details = new Ext.FormPanel({
+                                labelWidth: 100,
+                                url: 'none.php',
+                                items: [{
+                                    xtype: 'fieldset',
+                                    title: cmatic.labels.type_competitor.subcategoryPersonal,
+                                    autoHeight: true,
+                                    defaults: {width: 220},
+                                    defaultType: 'textfield',
+                                    items: [{
+                                        xtype: 'hidden',
+                                        name: 'id',
+                                        value: c.get('id')
+                                    }, {
+                                        fieldLabel: cmatic.labels.type_competitor.lastName,
+                                        name: 'lastName',
+                                        value: c.get('lastName')
+                                    }, {
+                                        fieldLabel: cmatic.labels.type_competitor.firstName,
+                                        name: 'firstName',
+                                        value: c.get('firstName')
+                                    }]
+                                }, {
+                                    xtype: 'fieldset',
+                                    title: cmatic.labels.type_competitor.subcategoryContact,
+                                    autoHeight: true,
+                                    defaults: {width: 220},
+                                    defaultType: 'textfield',
+                                    items: [{
+                                        fieldLabel: cmatic.labels.type_competitor.email,
+                                        name: 'email',
+                                        value: c.get('email')
+                                    }, {
+                                        fieldLabel: cmatic.labels.type_competitor.phone1,
+                                        name: 'phone1',
+                                        value: c.get('phone1')
+                                    }, {
+                                        fieldLabel: cmatic.labels.type_competitor.phone2,
+                                        name: 'phone2',
+                                        value: c.get('phone2')
+                                    }]
+                                }, {
+                                    xtype: 'fieldset',
+                                    title: cmatic.labels.type_competitor.subcategoryEmergency,
+                                    autoHeight: true,
+                                    defaults: {width: 220},
+                                    defaultType: 'textfield',
+                                    items: [{
+                                        fieldLabel: cmatic.labels.type_competitor.emergencyContactName,
+                                        name: 'emergencyContactName',
+                                        value: c.get('emergencyContactName')
+                                    }, {
+                                        fieldLabel: cmatic.labels.type_competitor.emergencyContactRelation,
+                                        name: 'emergencyContactRelation',
+                                        value: c.get('emergencyContactRelation')
+                                    }, {
+                                        fieldLabel: cmatic.labels.type_competitor.emergencyContactPhone,
+                                        name: 'emergencyContactPhone',
+                                        value: c.get('emergencyContactPhone')
+                                    }]
+                                }]
+                            });
+                            var win = new Ext.Window({
+                                title: String.format(cmatic.labels.registration.competitorDetails,
+                                    cmatic.registration.competitorIdRenderer(c.get('id')), c.get('lastName'), c.get('firstName')
+                                ),
+                                constrain: true,
+                                resizable: false,
+                                modal: true,
+                                width: 400,
+                                items: [details]
+                            });
+                            details.addButton(cmatic.labels.button.save, function () {
+                                Ext.Ajax.request({
+                                    url: '../cms/api/set.php',
+                                    success: function (response) {
+                                        var r = Ext.util.JSON.decode(response.responseText);
+                                        if (r.success) {
+                                            s.reload();
+                                            win.close();
+                                        } else {
+                                            Ext.Msg.alert(cmatic.labels.message.error, cmatic.labels.message.changesNotSaved);
+                                        }
+                                    },
+                                    failure: function () { Ext.Msg.alert('failed', 'failed')},
+                                    params: {
+                                        type: 'competitor',
+                                        op: 'edit',
+                                        records: '[' + Ext.util.JSON.encode(details.getForm().getValues(false)) + ']'
+                                    }
+                                });
+                            });
+                            details.addButton(cmatic.labels.button.cancel, function () { win.close(); });
+
+                            win.show();
+                        } else {
+                            Ext.Msg.alert(cmatic.labels.message.warning, cmatic.labels.message.noCompetitorSelected);
+                        }
+                    }
+                }, {
+                    text: cmatic.labels.registration.manageGroups,
+                    handler: function () {
+                        // TODO: add this here or create a separate page?
+                        Ext.Msg.alert('Todo', 'Manage groups here.');
                     }
                 }]
             });

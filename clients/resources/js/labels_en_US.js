@@ -55,12 +55,18 @@ cmatic.labels.type_event = {
 // Registration
 cmatic.labels.type_competitor = {
     _name: 'Competitor',
+    subcategoryPersonal: 'Personal',
+    subcategoryContact: 'Contact',
+    subcategoryEmergency: 'Emergency Contact',
     id: 'Competitor Id',
     firstName: 'First Name',
     lastName: 'Last Name',
     email: 'E-mail',
     phone1: 'Primary Phone',
-    phone2: 'Seconary Phone'
+    phone2: 'Seconary Phone',
+    emergencyContactName: 'Emergency Contact Name',
+    emergencyContactRelation: 'Emergency Contact Relation',
+    emergencyContactPhone: 'Emergency Contact Phone'
 };
 
 /**
@@ -84,7 +90,8 @@ cmatic.labels.message = {
     success: 'Success',
     changesNotSaved: 'Changes were not saved.',
     changesSaved: 'Change saved.',
-    cantCloseWithUnsavedChanges: 'There are unsaved changes. To continue, either save or cancel the changes first.'
+    cantCloseWithUnsavedChanges: 'There are unsaved changes. To continue, either save or cancel the changes first.',
+    noCompetitorSelected: 'No competitor was selected.'
 };
 
 
@@ -122,5 +129,10 @@ cmatic.labels.eventManagement = {
  * Registration clients labels
  */
 cmatic.labels.registration = {
-    competitorList: 'Competitor List'
+    competitorList: 'Competitor List',
+    addNewCompetitor: 'Add a Competitor',
+    viewCompetitorDetails: 'View Competitor Details',
+    // id, last name, first name
+    competitorDetails: '[{0}] {1}, {2}',
+    manageGroups: 'Manage Groups'
 };
