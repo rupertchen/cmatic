@@ -72,6 +72,7 @@ cmatic.registration.competitorList = function () {
                     dataIndex: 'email',
                     header: cmatic.labels.type_competitor.email,
                     sortable: true,
+                    width: 75
                 }, {
                     id: 'phone1',
                     dataIndex: 'phone1',
@@ -84,6 +85,27 @@ cmatic.registration.competitorList = function () {
                     header: cmatic.labels.type_competitor.phone2,
                     sortable: true,
                     width: 50
+                }, {
+                    id: 'emergencyContactName',
+                    dataIndex: 'emergencyContactName',
+                    header: cmatic.labels.type_competitor.emergencyContactName,
+                    sortable: true,
+                    width: 50,
+                    hidden: true
+                }, {
+                    id: 'emergencyContactRelation',
+                    dataIndex: 'emergencyContactRelation',
+                    header: cmatic.labels.type_competitor.emergencyContactRelation,
+                    sortable: true,
+                    width: 50,
+                    hidden: true
+                }, {
+                    id: 'emergencyContactPhone',
+                    dataIndex: 'emergencyContactPhone',
+                    header: cmatic.labels.type_competitor.emergencyContactPhone,
+                    sortable: true,
+                    width: 50,
+                    hidden: true,
                 }],
                 viewConfig: { forceFit: true },
                 autoHeight: true,
@@ -91,8 +113,6 @@ cmatic.registration.competitorList = function () {
                 title: cmatic.labels.registration.competitorList,
                 autoScroll: true,
                 stripeRows: true,
-                enableColumnMove: false,
-                autoExpandColumn: 3,
                 renderTo: 'competitorList',
                 tbar: [{
                     text: cmatic.labels.button.reload,
