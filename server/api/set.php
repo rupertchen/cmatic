@@ -91,3 +91,4 @@ $conn = null;
 
 // What should the response be on a successful set-request?
 ?>
+{success: 'true'}

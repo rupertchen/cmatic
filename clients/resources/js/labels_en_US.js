@@ -52,6 +52,16 @@ cmatic.labels.type_event = {
     order: 'Order'
 };
 
+// Registration
+cmatic.labels.type_competitor = {
+    _name: 'Competitor',
+    id: 'Competitor Id',
+    firstName: 'First Name',
+    lastName: 'Last Name',
+    email: 'E-mail',
+    phone1: 'Primary Phone',
+    phone2: 'Seconary Phone'
+};
 
 /**
  * Generic buttons
@@ -105,4 +115,12 @@ cmatic.labels.navTree = {
 cmatic.labels.eventManagement = {
     addingEvents: 'Adding events ...',
     massAddTitle: 'Mass Add Events'
+};
+
+
+/**
+ * Registration clients labels
+ */
+cmatic.labels.registration = {
+    competitorList: 'Competitor List'
 };

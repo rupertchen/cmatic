@@ -100,7 +100,8 @@ cmatic.setup.eventParameter.EventParameterPanel = function (config) {
                     Ext.Ajax.request({
                         url: '../cms/api/set.php',
                         success: function (response) {
-                            if ('' == response.responseText.trim()) {
+                            var r = Ext.util.JSON.decode(response.responseText);
+                            if (r.success) {
                                 Ext.each(updatedRecs, function (r) { r.commit(); });
                             } else {
                                 Ext.Msg.alert(cmatic.labels.message.error + ':101', cmatic.labels.message.changesNotSaved);
@@ -122,7 +123,8 @@ cmatic.setup.eventParameter.EventParameterPanel = function (config) {
                     Ext.Ajax.request({
                         url: '../cms/api/set.php',
                         success: function (response) {
-                            if ('' == response.responseText.trim()) {
+                            var r = Ext.util.JSON.decode(response.responseText);
+                            if (r.success) {
                                 Ext.each(addedRecs, function (r) { r.commit(); });
                                 ds.reload();
                             } else {
@@ -343,7 +345,9 @@ cmatic.setup.event.EventPanel = function (config) {
                                 win.close();
                             },
                             failure: function (form, action) { Ext.Msg.alert(cmatic.labels.message.error + ':105', cmatic.labels.message.changesNotSaved); }
-                    })});
+                        })
+                    }
+                );
                 formPanel.addButton(cmatic.labels.button.cancel, function () { win.close(); });
 
                 win.show();
@@ -773,7 +777,8 @@ cmatic.setup.app = function () {
                                             Ext.Ajax.request({
                                                 url: '../cms/api/set.php',
                                                 success: function (response) {
-                                                    if ('' == response.responseText.trim()) {
+                                                    var r = Ext.util.JSON.decode(response.responseText);
+                                                    if (r.success) {
                                                         Ext.Msg.alert(cmatic.labels.message.success, cmatic.labels.message.changesSaved);
                                                         editor.store.reload();
                                                     } else {
