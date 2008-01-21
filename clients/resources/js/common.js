@@ -15,6 +15,7 @@ cmatic.base = {
  * URLs
  */
 cmatic.url = {
+    blank: cmatic.base.clientUrl + 'blank.html',
     get: cmatic.base.serverApiUrl + 'get.php',
     set: cmatic.base.serverApiUrl + 'set.php',
     massAddEvents: cmatic.base.serverApiUrl + 'massAddEvents.php',

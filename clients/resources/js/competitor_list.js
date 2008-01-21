@@ -171,13 +171,14 @@ cmatic.registration.competitorList = function () {
                         win.show();
                     }
                 }, {
-                    text: cmatic.labels.registration.viewCompetitorDetails,
+                    text: cmatic.labels.registration.editCompetitorDetails,
                     handler: function () {
                         var c = g.getSelectionModel().getSelected();
                         if (c) {
                             var details = new Ext.FormPanel({
                                 labelWidth: 100,
-                                url: 'none.php',
+                                url: cmatic.url.blank,
+                                autoHeight: true,
                                 items: [{
                                     xtype: 'fieldset',
                                     title: cmatic.labels.type_competitor.subcategoryPersonal,
@@ -237,6 +238,36 @@ cmatic.registration.competitorList = function () {
                                     }]
                                 }]
                             });
+
+                            var individualEvents = new Ext.FormPanel({
+                                title: '__individual events',
+                                url: cmatic.url.blank,
+                                layout: 'fit',
+                                // TODO: Perhaps this should simply be a grid?
+                                items: [{
+                                    title: 'asdf',
+                                    html: 'foobar'
+                                }, {
+                                    fieldLabel: 'some thing',
+                                    name: 'blah',
+                                    value: 'theeventid',
+                                    checked: true,
+                                    xtype: 'checkbox'
+                                }]
+                            });
+
+                            var groupEvents = new Ext.FormPanel({
+                                title: '__group events',
+                                url: cmatic.url.blank,
+                                items: [{
+                                    fieldLabel: 'some group event',
+                                    name: 'blegh',
+                                    value: 'another event id',
+                                    checked: true,
+                                    xtype: 'checkbox'
+                                }]
+                            });
+
                             var win = new Ext.Window({
                                 title: String.format(cmatic.labels.registration.competitorDetails,
                                     cmatic.registration.competitorIdRenderer(c.get('id')), c.get('lastName'), c.get('firstName')
@@ -245,6 +276,7 @@ cmatic.registration.competitorList = function () {
                                 resizable: false,
                                 modal: true,
                                 width: 400,
+                                autoHeight: true,
                                 items: [details]
                             });
                             details.addButton(cmatic.labels.button.save, function () {

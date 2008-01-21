@@ -131,7 +131,7 @@ cmatic.labels.eventManagement = {
 cmatic.labels.registration = {
     competitorList: 'Competitor List',
     addNewCompetitor: 'Add a Competitor',
-    viewCompetitorDetails: 'View Competitor Details',
+    editCompetitorDetails: 'Edit Competitor Details',
     // id, last name, first name
     competitorDetails: '[{0}] {1}, {2}',
     manageGroups: 'Manage Groups'
