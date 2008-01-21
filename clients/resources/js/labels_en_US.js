@@ -77,7 +77,12 @@ cmatic.labels.button = {
     add: 'Add',
     save: 'Save',
     cancel: 'Cancel',
-    updateEventCodes: 'Update Event Codes'
+    updateEventCodes: 'Update Event Codes',
+    addNewCompetitor: 'Add a Competitor',
+    editCompetitorDetails: 'Edit Competitor Details',
+    manageGroups: 'Manage Groups',
+    editIndividualEvents: 'Edit Individual Events',
+    editGroupEvents: 'Edit Group Events'
 };
 
 
@@ -130,9 +135,8 @@ cmatic.labels.eventManagement = {
  */
 cmatic.labels.registration = {
     competitorList: 'Competitor List',
-    addNewCompetitor: 'Add a Competitor',
-    editCompetitorDetails: 'Edit Competitor Details',
     // id, last name, first name
-    competitorDetails: '[{0}] {1}, {2}',
-    manageGroups: 'Manage Groups'
+    competitorDetails: '[{0}] {1}, {2} - Details',
+    individualEvents: '[{0}] {1}, {2} - Individual Events',
+    groupEvents: '[{0}] {1}, {2} - Group Events'
 };

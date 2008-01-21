@@ -118,6 +118,8 @@ cmatic.registration.competitorList = function () {
                     text: cmatic.labels.button.reload,
                     handler: function () { s.reload(); }
                 }, {
+                    xtype: 'tbseparator'
+                }, {
                     text: cmatic.labels.button.add,
                     handler: function () {
                         var formPanel = new Ext.form.FormPanel({
@@ -171,7 +173,15 @@ cmatic.registration.competitorList = function () {
                         win.show();
                     }
                 }, {
-                    text: cmatic.labels.registration.editCompetitorDetails,
+                    text: cmatic.labels.button.manageGroups,
+                    handler: function () {
+                        // TODO: add this here or create a separate page?
+                        Ext.Msg.alert('Todo', 'Manage groups here.');
+                    }
+                }, {
+                    xtype: 'tbseparator'
+                }, {
+                    text: cmatic.labels.button.editCompetitorDetails,
                     handler: function () {
                         var c = g.getSelectionModel().getSelected();
                         if (c) {
@@ -239,35 +249,6 @@ cmatic.registration.competitorList = function () {
                                 }]
                             });
 
-                            var individualEvents = new Ext.FormPanel({
-                                title: '__individual events',
-                                url: cmatic.url.blank,
-                                layout: 'fit',
-                                // TODO: Perhaps this should simply be a grid?
-                                items: [{
-                                    title: 'asdf',
-                                    html: 'foobar'
-                                }, {
-                                    fieldLabel: 'some thing',
-                                    name: 'blah',
-                                    value: 'theeventid',
-                                    checked: true,
-                                    xtype: 'checkbox'
-                                }]
-                            });
-
-                            var groupEvents = new Ext.FormPanel({
-                                title: '__group events',
-                                url: cmatic.url.blank,
-                                items: [{
-                                    fieldLabel: 'some group event',
-                                    name: 'blegh',
-                                    value: 'another event id',
-                                    checked: true,
-                                    xtype: 'checkbox'
-                                }]
-                            });
-
                             var win = new Ext.Window({
                                 title: String.format(cmatic.labels.registration.competitorDetails,
                                     cmatic.registration.competitorIdRenderer(c.get('id')), c.get('lastName'), c.get('firstName')
@@ -307,10 +288,79 @@ cmatic.registration.competitorList = function () {
                         }
                     }
                 }, {
-                    text: cmatic.labels.registration.manageGroups,
+                    text: cmatic.labels.button.editIndividualEvents,
                     handler: function () {
-                        // TODO: add this here or create a separate page?
-                        Ext.Msg.alert('Todo', 'Manage groups here.');
+                        var c = g.getSelectionModel().getSelected();
+                        if (c) {
+                            var individualEvents = new Ext.FormPanel({
+                                url: cmatic.url.blank,
+                                // TODO: Perhaps this should simply be a grid?
+                                items: [{
+                                    title: 'asdf',
+                                    html: 'foobar'
+                                }, {
+                                    fieldLabel: 'some thing',
+                                    name: 'blah',
+                                    value: 'theeventid',
+                                    checked: true,
+                                    xtype: 'checkbox'
+                                }]
+                            });
+
+                            var win = new Ext.Window({
+                                title: String.format(cmatic.labels.registration.individualEvents,
+                                    cmatic.registration.competitorIdRenderer(c.get('id')), c.get('lastName'), c.get('firstName')
+                                ),
+                                constrain: true,
+                                resizable: false,
+                                modal: true,
+                                width: 400,
+                                autoHeight: true,
+                                items: [individualEvents]
+                            });
+
+                            individualEvents.addButton(cmatic.labels.button.cancel, function () { win.close(); });
+
+                            win.show();
+                        } else {
+                            Ext.Msg.alert(cmatic.labels.message.warning, cmatic.labels.message.noCompetitorSelected);
+                        }
+                    }
+                }, {
+                    text: cmatic.labels.button.editGroupEvents,
+                    handler: function () {
+                        var c = g.getSelectionModel().getSelected();
+                        if (c) {
+                            var groupEvents = new Ext.FormPanel({
+                                url: cmatic.url.blank,
+                                items: [{
+                                    fieldLabel: 'some group event',
+                                    name: 'blegh',
+                                    value: 'another event id',
+                                    checked: true,
+                                    xtype: 'checkbox'
+                                }]
+                            });
+
+
+                            var win = new Ext.Window({
+                                title: String.format(cmatic.labels.registration.groupEvents,
+                                    cmatic.registration.competitorIdRenderer(c.get('id')), c.get('lastName'), c.get('firstName')
+                                ),
+                                constrain: true,
+                                resizable: false,
+                                modal: true,
+                                width: 400,
+                                autoHeight: true,
+                                items: [groupEvents]
+                            });
+
+                            groupEvents.addButton(cmatic.labels.button.cancel, function () { win.close(); });
+
+                            win.show();
+                        } else {
+                            Ext.Msg.alert(cmatic.labels.message.warning, cmatic.labels.message.noCompetitorSelected);
+                        }
                     }
                 }]
             });
