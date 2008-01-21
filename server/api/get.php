@@ -25,9 +25,18 @@ foreach (CmaticSchema::getAllFieldsForType($type) as $apiField => $dbColumn) {
     $fieldSelection[] = $dbColumn . ' AS "' . $apiField . '"';
 }
 
+// To filter by a specific FK field, both of these parameters
+// must be specified.
+$filterField = $requestParams['filterField'];
+$filterValue = $requestParams['filterValue'];
+$filterClause = '';
+if (!is_null($filterField) && !is_null($filterValue)) {
+    $filterClause = sprintf(' where %s = %d', CmaticSchema::getFieldDbColumn($type, $filterField), $filterValue);
+}
+
 
 $conn = PdoHelper::getPdo();
-$r = $conn->query(sprintf('select %s from %s', implode(', ', $fieldSelection), $table));
+$r = $conn->query(sprintf('select %s from %s%s', implode(', ', $fieldSelection), $table, $filterClause));
 $ret = array();
 $ret['records'] = $r->fetchAll(PDO::FETCH_ASSOC);
 $conn = null;
