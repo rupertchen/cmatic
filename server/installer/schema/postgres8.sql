@@ -127,6 +127,23 @@ CREATE TABLE cmatic_result_scoring (
     event_id integer NOT NULL REFERENCES cmatic_config_event,
     competitor_id integer,
     group_id integer,
+    judge_0 text,
+    judge_1 text,
+    judge_2 text,
+    judge_3 text,
+    judge_4 text,
+    judge_5 text,
+    score_0 numeric,
+    score_1 numeric,
+    score_2 numeric,
+    score_3 numeric,
+    score_4 numeric,
+    score_5 numeric,
+    seconds integer,
+    time_deduction numeric,
+    other_deduction numeric,
+    final_score numeric,
+    placement integer,
     UNIQUE (event_id, competitor_id, group_id)
 );
 

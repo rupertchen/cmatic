@@ -97,7 +97,29 @@ $CMATIC['fieldApiNameToDbColumnMap'] = array (
         'groupId' => 'group_id',
         'competitorId' => 'competitor_id'
     ),
-    'scoring' =>array()
+    'scoring' =>array(
+        'id' => 'scoring_id',
+        'eventId' => 'event_id',
+        'competitorId' => 'competitor_id',
+        'groupId' => 'group_id',
+        'judge0' => 'judge_0',
+        'judge1' => 'judge_1',
+        'judge2' => 'judge_2',
+        'judge3' => 'judge_3',
+        'judge4' => 'judge_4',
+        'judge5' => 'judge_5',
+        'score0' => 'score_0',
+        'score1' => 'score_1',
+        'score2' => 'score_2',
+        'score3' => 'score_3',
+        'score4' => 'score_4',
+        'score5' => 'score_5',
+        'time' => 'seconds',
+        'timeDeduction' => 'time_deduction',
+        'otherDeduction' => 'other_deduction',
+        'finalScore' => 'final_score',
+        'placement' => 'placement'
+    )
 );
 
 // TODO: Maybe these classes should all be merged into one class filled with statics
