@@ -22,7 +22,7 @@ if (is_null($typeDbTable)) {
 // TODO: This could grab a function out of map keyed by name?
 // For now it's easy enough to just expect one of these two
 $op = $requestParams['op'];
-if ($op != 'new' && $op != 'edit') {
+if ($op != 'new' && $op != 'edit' && $op != 'delete') {
     throw new CmaticApiException('Unrecognized op value: ' . $op);
 }
 
@@ -31,7 +31,6 @@ if (is_null($records)) {
     throw new CmaticApiException('Invalid records format: ' . $requestParams['records']);
 }
 
-// TODO: Change these ifs into a function array? Maybe, if it turns out they're simple enough
 $conn = PdoHelper::getPdo();
 $conn->beginTransaction();
 if ($op == 'new') {
@@ -85,6 +84,16 @@ if ($op == 'new') {
         $conn->query(sprintf('update %s set last_mod = now(), %s where %s=%s', $typeDbTable,
                 implode(',', $setClause), CmaticSchema::getFieldDbColumn($typeApiName, 'id'), $recordId));
     }
+} else if ($op == 'delete') {
+    // TODO: There needs to be some checks to make sure not just anything can be deleted.
+    // Specifically, we should NEVER be able to delete scoring rows if they have scores.
+    // Perhaps this should be set up as a trigger?
+    $recordIds = array();
+    foreach ($records as $index => $record) {
+        $recordIds[] = $record['id'];
+    }
+    $conn->query(sprintf('delete from %s where %s in (%s)', $typeDbTable,
+            CmaticSchema::getFieldDbColumn($typeApiName, 'id'), implode(',', $recordIds)));
 }
 $conn->commit();
 $conn = null;
