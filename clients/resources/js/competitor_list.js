@@ -3,51 +3,50 @@
  */
 Ext.namespace('cmatic.registration');
 
+// TODO: Should this be put in common.js?
 cmatic.registration.competitorIdRenderer = function (numberId) {
     return 'CMAT' + (16000 + numberId);
 };
 
 cmatic.registration.competitorList = function () {
+
+    /**
+     * TODO: Comment
+     */
+    function getEventCode (eventId) {
+        return cmatic.util.getCachedFieldValue('event', 'code', eventId);
+    }
+
+
+    /**
+     * TODO: Comment
+     */
+    function getFullEventNameRenderer (eventId) {
+        return String.format('{0} {1} {2} {3}',
+            cmatic.util.getParameterRenderer('division')(cmatic.util.getCachedFieldValue('event', 'divisionId', eventId)),
+            cmatic.util.getParameterRenderer('sex')(cmatic.util.getCachedFieldValue('event', 'sexId', eventId)),
+            cmatic.util.getParameterRenderer('ageGroup')(cmatic.util.getCachedFieldValue('event', 'ageGroupId', eventId)),
+            cmatic.util.getParameterRenderer('form')(cmatic.util.getCachedFieldValue('event', 'formId', eventId))
+        );
+    }
+
+
+    function primeDataStores () {
+        cmatic.util.getDataStore('competitor');
+        cmatic.util.getDataStore('event');
+        cmatic.util.getDataStore('division');
+        cmatic.util.getDataStore('sex');
+        cmatic.util.getDataStore('ageGroup');
+        cmatic.util.getDataStore('form');
+    }
+
     return {
         init: function () {
-            var s = Ext.StoreMgr.get('competitors');
-            var rc;
-            if (!s) {
-                rc = Ext.data.Record.create([
-                    {name: 'id'},
-                    {name: 'firstName'},
-                    {name: 'lastName'},
-                    {name: 'email'},
-                    {name: 'phone1'},
-                    {name: 'phone2'},
-                    {name: 'emergencyContactName'},
-                    {name: 'emergencyContactRelation'},
-                    {name: 'emergencyContactPhone'}
-                ]);
+            primeDataStores();
 
-                s = new Ext.data.Store({
-                    proxy: new Ext.data.HttpProxy({
-                        url: cmatic.url.get,
-                        method: 'POST'
-                    }),
-                    baseParams: {
-                        type: 'competitor'
-                    },
-                    reader: new Ext.data.JsonReader({
-                        root: 'records',
-                        id: 'id'
-                    }, rc),
-                    sortInfo: {
-                        field: 'id',
-                        direction: 'ASC'
-                    }
-                });
-                Ext.StoreMgr.add('competitors', s);
-                s.load();
-            }
-
+            var competitorStore = cmatic.util.getDataStore('competitor');
             var g = new Ext.grid.GridPanel({
-                store: s,
+                store: competitorStore,
                 columns: [{
                     id: 'id',
                     dataIndex: 'id',
@@ -116,11 +115,19 @@ cmatic.registration.competitorList = function () {
                 renderTo: 'competitorList',
                 tbar: [{
                     text: cmatic.labels.button.reload,
-                    handler: function () { s.reload(); }
+                    handler: function () {
+                        competitorStore.reload();
+                        cmatic.util.getDataStore('division').reload();
+                        cmatic.util.getDataStore('sex').reload();
+                        cmatic.util.getDataStore('ageGroup').reload();
+                        cmatic.util.getDataStore('form').reload();
+                        cmatic.util.getDataStore('event').reload();
+                        // TODO: Add group and group member
+                    }
                 }, {
                     xtype: 'tbseparator'
                 }, {
-                    text: cmatic.labels.button.add,
+                    text: cmatic.labels.button.addCompetitor,
                     handler: function () {
                         var formPanel = new Ext.form.FormPanel({
                             autoHeight: true,
@@ -138,7 +145,7 @@ cmatic.registration.competitorList = function () {
                         });
 
                         var win = new Ext.Window({
-                            title: cmatic.labels.registration.addNewCompetitor,
+                            title: cmatic.labels.registration.newCompetitor,
                             constrain: true,
                             resizable: false,
                             width: 300,
@@ -153,7 +160,7 @@ cmatic.registration.competitorList = function () {
                                     success: function (response) {
                                         var r = Ext.util.JSON.decode(response.responseText);
                                         if (r.success) {
-                                            s.reload();
+                                            competitorStore.reload();
                                             win.close();
                                         } else {
                                             Ext.Msg.alert(cmatic.labels.message.error, cmatic.labels.message.changesNotSaved);
@@ -266,7 +273,7 @@ cmatic.registration.competitorList = function () {
                                     success: function (response) {
                                         var r = Ext.util.JSON.decode(response.responseText);
                                         if (r.success) {
-                                            s.reload();
+                                            competitorStore.reload();
                                             win.close();
                                         } else {
                                             Ext.Msg.alert(cmatic.labels.message.error, cmatic.labels.message.changesNotSaved);
@@ -292,19 +299,63 @@ cmatic.registration.competitorList = function () {
                     handler: function () {
                         var c = g.getSelectionModel().getSelected();
                         if (c) {
+                            var iEventStore = new Ext.data.Store({
+                                proxy: new Ext.data.HttpProxy({
+                                    url: cmatic.url.get,
+                                    method: 'POST'
+                                }),
+                                baseParams: {
+                                    type: 'scoring',
+                                    filterField: 'competitorId',
+                                    filterValue: c.get('id')
+                                },
+                                reader: new Ext.data.JsonReader({
+                                        root: 'records',
+                                        id: 'id'
+                                    }, Ext.data.Record.create([
+                                        {name: 'id'},
+                                        {name: 'eventId'},
+                                        {name: 'competitorId'}
+                                    ])),
+                                sortInfo: {
+                                    field: 'eventId',
+                                    direction: 'ASC'
+                                }
+                            });
+                            iEventStore.load();
+                            var eventsGrid = new Ext.grid.GridPanel({
+                                store: iEventStore,
+                                columns: [{
+                                    id: 'id',
+                                    dataIndex: 'id',
+                                    header:cmatic.labels.type_scoring.id,
+                                    sortable: true,
+                                    hidden: true
+                                }, {
+                                    id: 'eventCode',
+                                    dataIndex: 'eventId',
+                                    header: cmatic.labels.type_event.code,
+                                    sortable: true,
+                                    renderer: getEventCode,
+                                    width: 50
+                                }, {
+                                    id: 'eventName',
+                                    dataIndex: 'eventId',
+                                    header: cmatic.labels.type_event._name,
+                                    renderer: getFullEventNameRenderer
+                                }],
+                                viewConfig: {forceFit: true },
+                                autoHeight: true,
+                                autoScroll: true,
+                                stripeRows: true,
+                                tbar: [{
+                                    text: cmatic.labels.button.reload,
+                                    handler: function () { iEventStore.reload(); }
+                                }]
+                            });
                             var individualEvents = new Ext.FormPanel({
                                 url: cmatic.url.blank,
-                                // TODO: Perhaps this should simply be a grid?
-                                items: [{
-                                    title: 'asdf',
-                                    html: 'foobar'
-                                }, {
-                                    fieldLabel: 'some thing',
-                                    name: 'blah',
-                                    value: 'theeventid',
-                                    checked: true,
-                                    xtype: 'checkbox'
-                                }]
+                                items: [eventsGrid]
                             });
 
                             var win = new Ext.Window({
@@ -314,7 +365,7 @@ cmatic.registration.competitorList = function () {
                                 constrain: true,
                                 resizable: false,
                                 modal: true,
-                                width: 400,
+                                width: 500,
                                 autoHeight: true,
                                 items: [individualEvents]
                             });
@@ -365,7 +416,7 @@ cmatic.registration.competitorList = function () {
                 }]
             });
 
-            setTimeout(cmatic.removeLoadingMask, 1000);
+            setTimeout(cmatic.util.removeLoadingMask, 1000);
         }
     };
 }();

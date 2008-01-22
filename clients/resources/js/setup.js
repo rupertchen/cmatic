@@ -8,25 +8,7 @@ Ext.namespace('cmatic.setup');
  * cmatic.setup.eventParameter
  * Namespace for all things related to event parameter types
  */
-cmatic.setup.eventParameter = function () {
-    var recordConstructor;
-
-    return {
-        /**
-         * Expose record constructor so we can create them dynamically.
-         */
-        getRecordConstructor: function () {
-            if (!recordConstructor) {
-                recordConstructor = Ext.data.Record.create([
-                    {name: 'id'},
-                    {name: 'shortName'},
-                    {name: 'longName'}
-                ]);
-            }
-            return recordConstructor;
-        }
-    };
-}();
+cmatic.setup.eventParameter = {};
 
 
 /**
@@ -39,7 +21,7 @@ cmatic.setup.eventParameter = function () {
  *  - maxShorthandLength
  */
 cmatic.setup.eventParameter.EventParameterPanel = function (config) {
-    var ds = cmatic.setup.app.getDataStore(config.cmaticType);
+    var ds = cmatic.util.getDataStore(config.cmaticType);
 
     // Save a reference to the grid (this)
     var _grid = this;
@@ -58,7 +40,7 @@ cmatic.setup.eventParameter.EventParameterPanel = function (config) {
         }, {
             text: cmatic.labels.button.add,
             handler: function () {
-                var r = new (cmatic.setup.eventParameter.getRecordConstructor())({
+                var r = new (cmatic.ddl._eventParameterRecord)({
                     id: '', // new records have no id
                     shortName: '-',
                     longName: '-'
@@ -210,7 +192,7 @@ cmatic.setup.event = function () {
  * subclass of Ext.grid.GridPanel
  */
 cmatic.setup.event.EventPanel = function (config) {
-    var eventDs = cmatic.setup.app.getDataStore('event');
+    var eventDs = cmatic.util.getDataStore('event');
 
     /**
      * Fill a field set for the Mass Add Event form.
@@ -221,7 +203,7 @@ cmatic.setup.event.EventPanel = function (config) {
      * we can get rid of some things.
      */
     function fillMassAddFormFieldSet (type, fieldSet) {
-        var records = cmatic.setup.app.getDataStore(type).getRange();
+        var records = cmatic.util.getDataStore(type).getRange();
         for (var i = 0; i < records.length; i++) {
             fieldSet.add(new Ext.form.Checkbox({
                 boxLabel: records[i].get('longName'),
@@ -258,27 +240,26 @@ cmatic.setup.event.EventPanel = function (config) {
             sortable: true,
             dataIndex: 'code',
             width: 100,
-            renderer: this.eventCodeRenderer
         }, {
             header: cmatic.labels.type_event.divisionId,
             sortable: true,
             dataIndex: 'divisionId',
-            renderer: this.getParameterRenderer('division')
+            renderer: cmatic.util.getParameterRenderer('division')
         }, {
             header: cmatic.labels.type_event.sexId,
             sortable: true,
             dataIndex: 'sexId',
-            renderer: this.getParameterRenderer('sex')
+            renderer: cmatic.util.getParameterRenderer('sex')
         }, {
             header: cmatic.labels.type_event.ageGroupId,
             sortable: true,
             dataIndex: 'ageGroupId',
-            renderer: this.getParameterRenderer('ageGroup')
+            renderer: cmatic.util.getParameterRenderer('ageGroup')
         }, {
             header: cmatic.labels.type_event.formId,
             sortable: true,
             dataIndex: 'formId',
-            renderer: this.getParameterRenderer('form')
+            renderer: cmatic.util.getParameterRenderer('form')
         }]),
         tbar: [{
             text: cmatic.labels.button.reload,
@@ -378,44 +359,12 @@ cmatic.setup.event.EventPanel = function (config) {
     // This element also relies on the event parameter data stores for
     // rendering. As such, redo the layout if they change.
     var gridView = this.getView();
-    cmatic.setup.app.getDataStore('division').on('update', function () { gridView.refresh(); });
-    cmatic.setup.app.getDataStore('sex').on('update', function () { gridView.refresh(); });
-    cmatic.setup.app.getDataStore('ageGroup').on('update', function () { gridView.refresh(); });
-    cmatic.setup.app.getDataStore('form').on('update', function () { gridView.refresh(); });
+    cmatic.util.getDataStore('division').on('update', function () { gridView.refresh(); });
+    cmatic.util.getDataStore('sex').on('update', function () { gridView.refresh(); });
+    cmatic.util.getDataStore('ageGroup').on('update', function () { gridView.refresh(); });
+    cmatic.util.getDataStore('form').on('update', function () { gridView.refresh(); });
 }
 Ext.extend(cmatic.setup.event.EventPanel, Ext.grid.EditorGridPanel);
-
-
-/**
- * Build a renderer for event parameters. The renderer will use the
- * longName associated to the id of the type it is given. If a data
- * store or matching id is not found, the raw data is returned.
- *
- * @param {String} type The name of the cmatic type
- */
-cmatic.setup.event.EventPanel.prototype.getParameterRenderer = function (type) {
-    return function (data) {
-        var s = cmatic.setup.app.getDataStore(type);
-        if (s) {
-            var r = s.getById(data);
-            if (r) {
-                return r.get('longName');
-            }
-        }
-        return data;
-    };
-};
-
-/**
- * Render the event codes
- * TODO: consider getting rid of this and having all formatting of the event
- * code done during insert to the database.
- *
- * @param {String} data The event code as text
- */
-cmatic.setup.event.EventPanel.prototype.eventCodeRenderer = function (data) {
-    return data.toUpperCase();
-};
 
 
 /**
@@ -433,7 +382,7 @@ cmatic.setup.event.EventSchedule = Ext.extend(Ext.Panel, {
     // private
     initComponent : function(){
         cmatic.setup.event.EventSchedule.superclass.initComponent.call(this);
-        this.store = cmatic.setup.app.getDataStore('event');
+        this.store = cmatic.util.getDataStore('event');
     },
 
 
@@ -838,12 +787,11 @@ cmatic.setup.app = function () {
      * store as it may be big.
      */
     function primeDataStores () {
-        cmatic.setup.app.getDataStore('division');
-        cmatic.setup.app.getDataStore('sex');
-        cmatic.setup.app.getDataStore('ageGroup');
-        cmatic.setup.app.getDataStore('form');
+        cmatic.util.getDataStore('division');
+        cmatic.util.getDataStore('sex');
+        cmatic.util.getDataStore('ageGroup');
+        cmatic.util.getDataStore('form');
     }
-
 
 
     /**
@@ -870,7 +818,7 @@ cmatic.setup.app = function () {
             buildViewport();
 
             // Wait a moment before doing this
-            setTimeout(cmatic.removeLoadingMask, 1000);
+            setTimeout(cmatic.util.removeLoadingMask, 1000);
         },
 
 
@@ -899,61 +847,7 @@ cmatic.setup.app = function () {
         },
 
 
-        /**
-         * Getter for data stores
-         * @param {String} cmaticType The api name of a type
-         *
-         * TODO: Need to figure out a good way to switch on all the types
-         * But it shouldn't be so bad, because there's really only events
-         * and everything else.
-         */
-        getDataStore: function (cmaticType) {
-            var s = Ext.StoreMgr.get(cmaticType);
-            if (!s) {
-                // Pick a record constructor
-                // We're taking a shortcut because we happen to know
-                // that only the "event" type is different
-                var rc;
-                var sortByField;
-                if ('event' == cmaticType) {
-                    rc = Ext.data.Record.create([
-                        {name: 'id'},
-                        {name: 'code'},
-                        {name: 'divisionId'},
-                        {name: 'sexId'},
-                        {name: 'ageGroupId'},
-                        {name: 'formId'},
-                        {name: 'ringId'},
-                        {name: 'order'}
-                    ]);
-                    sortByField = 'code';
-                } else {
-                    rc = cmatic.setup.eventParameter.getRecordConstructor();
-                    sortbyField = 'id';
-                }
 
-
-                // Make the new store
-                s = new Ext.data.Store({
-                    proxy: new Ext.data.HttpProxy({
-                        url: cmatic.url.get,
-                        method: 'POST'
-                    }),
-                    baseParams: { type: cmaticType },
-                    reader: new Ext.data.JsonReader({
-                        root: 'records',
-                        id: 'id'
-                    }, rc),
-                    sortInfo: {
-                        field: sortbyField,
-                        direction: 'ASC'
-                    }
-                });
-                Ext.StoreMgr.add(cmaticType, s);
-                s.load();
-            }
-            return s;
-        }
     };
 }();
 

@@ -69,6 +69,34 @@ cmatic.labels.type_competitor = {
     emergencyContactPhone: 'Emergency Contact Phone'
 };
 
+
+// Scoring
+cmatic.labels.type_scoring = {
+    _name: 'Scoring',
+    id: 'Scoring Id',
+    eventId: 'Event',
+    competitorId: 'Competitor',
+    groupId: 'Group',
+    judge0: 'Head Judge',
+    judge1: 'Judge 2',
+    judge2: 'Judge 3',
+    judge3: 'Judge 4',
+    judge4: 'Judge 5',
+    judge5: 'Judge 6',
+    score0: 'Score 1',
+    score1: 'Score 2',
+    score2: 'Score 3',
+    score3: 'Score 4',
+    score4: 'Score 5',
+    score5: 'Score 6',
+    time: 'Time',
+    timeDeduction: 'Deduction (Time)',
+    otherDeduction: 'Deduction (Other)',
+    finalScore: 'Final Score',
+    placement: 'Placement'
+};
+
+
 /**
  * Generic buttons
  */
@@ -78,7 +106,7 @@ cmatic.labels.button = {
     save: 'Save',
     cancel: 'Cancel',
     updateEventCodes: 'Update Event Codes',
-    addNewCompetitor: 'Add a Competitor',
+    addCompetitor: 'Add Competitor',
     editCompetitorDetails: 'Edit Competitor Details',
     manageGroups: 'Manage Groups',
     editIndividualEvents: 'Edit Individual Events',
@@ -135,6 +163,7 @@ cmatic.labels.eventManagement = {
  */
 cmatic.labels.registration = {
     competitorList: 'Competitor List',
+    newCompetitor: 'New Competitor',
     // id, last name, first name
     competitorDetails: '[{0}] {1}, {2} - Details',
     individualEvents: '[{0}] {1}, {2} - Individual Events',
