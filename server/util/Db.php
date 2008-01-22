@@ -165,7 +165,7 @@ class CmaticSchema {
         // This could be better, but in Postgres 8.0, we can't alias the update
         // table. This looks to be changed in 8.2.
         $eventDbTable = CmaticSchema::getTypeDbTable('event');
-        $selectEventSql = sprintf('select d.short_name || s.short_name || a.short_name || f.short_name as "event_code"'
+        $selectEventSql = sprintf('select upper(d.short_name) || upper(s.short_name) || upper(a.short_name) || upper(f.short_name) as "event_code"'
             . ' from %s d, %s s, %s a, %s f'
             . ' where %s.division_id = d.division_id'
             . ' and %s.sex_id = s.sex_id'
