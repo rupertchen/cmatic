@@ -167,3 +167,12 @@ cmatic.util.getParameterRenderer = function () {
         return r;
     };
 }();
+
+
+/**
+ * TODO: Comment this
+ * Enhance it so we can pass an error code?
+ */
+cmatic.util.alertSaveFailed = function () {
+    Ext.Msg.alert(cmatic.labels.message.warning, cmatic.labels.message.changesNotSaved);
+}

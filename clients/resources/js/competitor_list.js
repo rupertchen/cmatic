@@ -163,10 +163,10 @@ cmatic.registration.competitorList = function () {
                                             competitorStore.reload();
                                             win.close();
                                         } else {
-                                            Ext.Msg.alert(cmatic.labels.message.error, cmatic.labels.message.changesNotSaved);
+                                            cmatic.util.alertSaveFailed();
                                         }
                                     },
-                                    failure: function () { Ext.Msg.alert('failed', 'failed'); },
+                                    failure: function () { cmatic.util.alertSaveFailed(); },
                                     params: {
                                         op: 'new',
                                         type: 'competitor',
@@ -276,7 +276,7 @@ cmatic.registration.competitorList = function () {
                                             competitorStore.reload();
                                             win.close();
                                         } else {
-                                            Ext.Msg.alert(cmatic.labels.message.error, cmatic.labels.message.changesNotSaved);
+                                            cmatic.util.alertSaveFailed();
                                         }
                                     },
                                     failure: function () { Ext.Msg.alert('failed', 'failed')},
@@ -328,7 +328,7 @@ cmatic.registration.competitorList = function () {
                                 columns: [{
                                     id: 'id',
                                     dataIndex: 'id',
-                                    header:cmatic.labels.type_scoring.id,
+                                    header: cmatic.labels.type_scoring.id,
                                     sortable: true,
                                     hidden: true
                                 }, {
@@ -342,7 +342,8 @@ cmatic.registration.competitorList = function () {
                                     id: 'eventName',
                                     dataIndex: 'eventId',
                                     header: cmatic.labels.type_event._name,
-                                    renderer: getFullEventNameRenderer
+                                    renderer: getFullEventNameRenderer,
+                                    width: 150
                                 }],
                                 viewConfig: {forceFit: true },
                                 autoHeight: true,
@@ -351,11 +352,148 @@ cmatic.registration.competitorList = function () {
                                 tbar: [{
                                     text: cmatic.labels.button.reload,
                                     handler: function () { iEventStore.reload(); }
+                                }, {
+                                    text: cmatic.labels.button.add,
+                                    handler: function () {
+                                        // TODO: Add the ability to filter the list. The current
+                                        // list is ridiculously huge and annoying to use.
+
+                                        var eventList = new Ext.grid.GridPanel({
+                                            store: cmatic.util.getDataStore('event'),
+                                            columns: [{
+                                                id: 'id',
+                                                dataIndex: 'id',
+                                                header: cmatic.labels.setup.internalId,
+                                                sortable: true,
+                                                hidden: true
+                                            }, {
+                                                id: 'code',
+                                                dataIndex: 'code',
+                                                header: cmatic.labels.type_event.code,
+                                                sortable: true
+                                            }, {
+                                                id: 'divisionId',
+                                                dataIndex: 'divisionId',
+                                                header: cmatic.labels.type_event.divisionId,
+                                                sortable: true,
+                                                renderer: cmatic.util.getParameterRenderer('division')
+                                            }, {
+                                                id: 'sexId',
+                                                dataIndex: 'sexId',
+                                                header: cmatic.labels.type_event.sexId,
+                                                sortable: true,
+                                                renderer: cmatic.util.getParameterRenderer('sex')
+                                            }, {
+                                                id: 'ageGroupId',
+                                                dataIndex: 'ageGroupId',
+                                                header: cmatic.labels.type_event.ageGroupId,
+                                                sortable: true,
+                                                renderer: cmatic.util.getParameterRenderer('ageGroup')
+                                            }, {
+                                                id: 'formId',
+                                                dataIndex: 'formId',
+                                                header: cmatic.labels.type_event.formId,
+                                                sortable: true,
+                                                renderer: cmatic.util.getParameterRenderer('form')
+                                            }],
+                                            viewConfig: {forceFit: true},
+                                            height: 400,
+                                            autoScroll: true,
+                                            stripeRows: true
+                                        });
+
+                                        var formPanel = new Ext.form.FormPanel({
+                                            autoHeight: true,
+                                            items: [eventList]
+                                        });
+
+                                        var win2 = new Ext.Window({
+                                            title: 'Some title',
+                                            constrain: true,
+                                            resizable: false,
+                                            modal: true,
+                                            width: 450,
+                                            autoHeight: true,
+                                            items: [formPanel]
+                                        });
+
+                                        formPanel.addButton(cmatic.labels.button.add, function () {
+                                            var scoringToAdd = new Array();
+
+                                            // Add all events that aren't already associated to the competitor
+                                            Ext.each(eventList.getSelectionModel().getSelections(), function (eventRecord) {
+                                                var eventId = eventRecord.get('id');
+                                                if (-1 == iEventStore.find('eventId', eventId)) {
+                                                    scoringToAdd.push({
+                                                        eventId: eventId,
+                                                        competitorId: c.get('id')
+                                                    });
+                                                }
+                                            });
+
+                                            if (0 == scoringToAdd.length) {
+                                                Ext.Msg.alert(cmatic.labels.message.warning, cmatic.labels.message.noNewEvents);
+                                            } else {
+                                                Ext.Ajax.request({
+                                                    url: cmatic.url.set,
+                                                    success: function (response) {
+                                                        var r = Ext.util.JSON.decode(response.responseText);
+                                                        if (r.success) {
+                                                            iEventStore.reload();
+                                                            Ext.Msg.alert(cmatic.labels.message.success, cmatic.labels.message.changesSaved);
+                                                        } else {
+                                                            cmatic.util.alertSaveFailed();
+                                                        }
+                                                    },
+                                                    failure: function () { cmatic.util.alertSaveFailed(); },
+                                                    params: {
+                                                        op: 'new',
+                                                        type: 'scoring',
+                                                        records: Ext.util.JSON.encode(scoringToAdd)
+                                                    }
+                                                });
+                                            }
+                                        });
+
+                                        formPanel.addButton(cmatic.labels.button.cancel, function () {
+                                            win2.close();
+                                        });
+
+                                        win2.show();
+                                    }
+                                }, {
+                                    text: cmatic.labels.button.remove,
+                                    handler: function () {
+                                        var recordsToRemove = eventsGrid.getSelectionModel().getSelections();
+
+                                        if (0 == recordsToRemove.length) {
+                                            Ext.Msg.alert(cmatic.labels.message.warning, cmatic.labels.message.noRowSelected);
+                                            return;
+                                        }
+
+                                        var eventIdsToRemove = new Array();
+                                        Ext.each(recordsToRemove, function (x) {
+                                            eventIdsToRemove.push({id: x.get('id')});
+                                        });
+                                        Ext.Ajax.request({
+                                            url: cmatic.url.set,
+                                            success: function (response) {
+                                                var r = Ext.util.JSON.decode(response.responseText);
+                                                if (r.success) {
+                                                    iEventStore.reload();
+                                                } else {
+                                                    cmatic.util.alertSaveFailed();
+                                                }
+                                            },
+                                            failure: function () { cmatic.util.alertSaveFailed(); },
+                                            params: {
+                                                op: 'delete',
+                                                type: 'scoring',
+                                                records: Ext.util.JSON.encode(eventIdsToRemove)
+                                            }
+                                        });
+                                    }
                                 }]
-                            });
-                            var individualEvents = new Ext.FormPanel({
-                                url: cmatic.url.blank,
-                                items: [eventsGrid]
                             });
 
                             var win = new Ext.Window({
@@ -367,14 +505,12 @@ cmatic.registration.competitorList = function () {
                                 modal: true,
                                 width: 500,
                                 autoHeight: true,
-                                items: [individualEvents]
+                                items: [eventsGrid]
                             });
-
-                            individualEvents.addButton(cmatic.labels.button.cancel, function () { win.close(); });
 
                             win.show();
                         } else {
-                            Ext.Msg.alert(cmatic.labels.message.warning, cmatic.labels.message.noCompetitorSelected);
+                            Ext.Msg.alert(cmatic.labels.message.warning, cmatic.labels.message.noRowSelected);
                         }
                     }
                 }, {

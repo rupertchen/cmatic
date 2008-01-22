@@ -110,7 +110,8 @@ cmatic.labels.button = {
     editCompetitorDetails: 'Edit Competitor Details',
     manageGroups: 'Manage Groups',
     editIndividualEvents: 'Edit Individual Events',
-    editGroupEvents: 'Edit Group Events'
+    editGroupEvents: 'Edit Group Events',
+    remove: 'Remove'
 };
 
 
@@ -124,7 +125,8 @@ cmatic.labels.message = {
     changesNotSaved: 'Changes were not saved.',
     changesSaved: 'Change saved.',
     cantCloseWithUnsavedChanges: 'There are unsaved changes. To continue, either save or cancel the changes first.',
-    noCompetitorSelected: 'No competitor was selected.'
+    noRowSelected: 'No row was selected.',
+    noNewEvents: 'No new events to add.'
 };
 
 
