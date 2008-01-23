@@ -291,7 +291,7 @@ cmatic.registration.competitorList = function () {
 
                             win.show();
                         } else {
-                            Ext.Msg.alert(cmatic.labels.message.warning, cmatic.labels.message.noCompetitorSelected);
+                            Ext.Msg.alert(cmatic.labels.message.warning, cmatic.labels.message.noRowSelected);
                         }
                     }
                 }, {
@@ -546,7 +546,7 @@ cmatic.registration.competitorList = function () {
 
                             win.show();
                         } else {
-                            Ext.Msg.alert(cmatic.labels.message.warning, cmatic.labels.message.noCompetitorSelected);
+                            Ext.Msg.alert(cmatic.labels.message.warning, cmatic.labels.message.noRowSelected);
                         }
                     }
                 }]
