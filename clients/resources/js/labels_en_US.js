@@ -69,6 +69,11 @@ cmatic.labels.type_competitor = {
     emergencyContactPhone: 'Emergency Contact Phone'
 };
 
+cmatic.labels.type_group = {
+    _name: 'Group',
+    id: 'Group Id',
+    name: 'Name'
+};
 
 // Scoring
 cmatic.labels.type_scoring = {
@@ -111,6 +116,7 @@ cmatic.labels.button = {
     manageGroups: 'Manage Groups',
     editIndividualEvents: 'Edit Individual Events',
     editGroupEvents: 'Edit Group Events',
+    editGroupDetails: 'Edit Group Details',
     remove: 'Remove'
 };
 
@@ -165,7 +171,9 @@ cmatic.labels.eventManagement = {
  */
 cmatic.labels.registration = {
     competitorList: 'Competitor List',
+    groupList: 'Group List',
     newCompetitor: 'New Competitor',
+    newGroup: 'New Group',
     // id, last name, first name
     competitorDetails: '[{0}] {1}, {2} - Details',
     individualEvents: '[{0}] {1}, {2} - Individual Events',

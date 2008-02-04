@@ -108,7 +108,7 @@ cmatic.registration.competitorList = function () {
                 }],
                 viewConfig: { forceFit: true },
                 autoHeight: true,
-                sm: new Ext.grid.RowSelectionModel({singleSelect:true}),
+                sm: new Ext.grid.RowSelectionModel({singleSelect: true}),
                 title: cmatic.labels.registration.competitorList,
                 autoScroll: true,
                 stripeRows: true,
@@ -166,7 +166,7 @@ cmatic.registration.competitorList = function () {
                                             cmatic.util.alertSaveFailed();
                                         }
                                     },
-                                    failure: function () { cmatic.util.alertSaveFailed(); },
+                                    failure: cmatic.util.alertSaveFailed,
                                     params: {
                                         op: 'new',
                                         type: 'competitor',
@@ -182,8 +182,207 @@ cmatic.registration.competitorList = function () {
                 }, {
                     text: cmatic.labels.button.manageGroups,
                     handler: function () {
-                        // TODO: add this here or create a separate page?
-                        Ext.Msg.alert('Todo', 'Manage groups here.');
+                        // TODO: Consider moving to the data store manager
+                        var iGroupStore = new Ext.data.Store({
+                            proxy: new Ext.data.HttpProxy({
+                                url: cmatic.url.get,
+                                method: 'POST'
+                            }),
+                            baseParams: {
+                                type: 'group'
+                            },
+                            reader: new Ext.data.JsonReader({
+                                    root: 'records',
+                                    id: 'id'
+                                }, Ext.data.Record.create([
+                                    {name: 'id'},
+                                    {name: 'name'}
+                                ])
+                            ),
+                            sortInfo: {
+                                field: 'name',
+                                direction: 'ASC'
+                            }
+                        });
+                        iGroupStore.load();
+
+                        var groupList = new Ext.grid.GridPanel({
+                            store: iGroupStore,
+                            columns: [{
+                                id: 'id',
+                                dataIndex: 'id',
+                                header: cmatic.labels.type_group.id,
+                                sortable: true,
+                                hidden: true
+                            }, {
+                                id: 'name',
+                                dataIndex: 'name',
+                                header: cmatic.labels.type_group.name,
+                                sortable: true
+                            }],
+                            sm: new Ext.grid.RowSelectionModel({singleSelect: true}),
+                            viewConfig: {forceFit: true},
+                            autoHeight: true,
+                            autoScroll: true,
+                            stripeRows: true,
+                            tbar: [{
+                                text: cmatic.labels.button.reload,
+                                handler: function () { iGroupStore.reload(); }
+                            }, {
+                                text: cmatic.labels.button.add,
+                                handler: function () {
+                                    var details = new Ext.FormPanel({
+                                        labelWidth: 100,
+                                        url: cmatic.url.blank,
+                                        autoHeight: true,
+                                        defaultType: 'textfield',
+                                        items: [{
+                                            fieldLabel: cmatic.labels.type_group.name,
+                                            name: 'name'
+                                        }, {
+                                            // TODO: this should be a drop down from the event list.
+                                            xtype: 'combo',
+                                            fieldLabel: 'Group Event',
+                                            name: 'eventCode',
+                                            store: cmatic.util.getDataStore('event'),
+                                            displayField: 'code',
+                                            valueField: 'id',
+                                            typeAhead: true,
+					    hiddenName: 'eventId',
+                                            mode: 'local',
+                                            triggerAction: 'all',
+                                            emptyText: '__pick an event',
+                                            selectOnFocus: true
+                                        }]
+                                    });
+
+                                    var win = new Ext.Window({
+                                        title: cmatic.labels.registration.newGroup,
+                                        constrain: true,
+                                        resizable: false,
+                                        modal: true,
+                                        width: 400,
+                                        autoHeight: true,
+                                        items: [details]
+                                    });
+
+                                    details.addButton(cmatic.labels.button.save, function () {
+                                        var values = details.getForm().getValues(false);
+                                        Ext.Ajax.request({
+                                            url: cmatic.url.set,
+                                            params: {
+                                                op: 'new',
+                                                type: 'group',
+                                                records: '[' + Ext.util.JSON.encode({name: values.name}) + ']'
+                                            },
+                                            success: function (response) {
+                                                var r = Ext.util.JSON.decode(response.responseText);
+                                                if (r.success) {
+                                                    Ext.Ajax.request({
+                                                        url: cmatic.url.set,
+                                                        params: {
+                                                            op: 'new',
+                                                            type: 'scoring',
+                                                            records: '[' + Ext.util.JSON.encode({eventId: values.eventId, groupId: r.newId}) + ']'
+                                                        },
+                                                        success: function (response) {
+                                                            var r = Ext.util.JSON.decode(response.responseText);
+                                                            if (r.success) {
+                                                                iGroupStore.reload();
+                                                                win.close();
+                                                            } else {
+                                                                cmatic.util.alertSaveFailed();
+                                                            }
+                                                        },
+                                                        failure: cmatic.util.alertSaveFailed
+                                                    });
+                                                    iGroupStore.reload();
+                                                    win.close();
+                                                } else {
+                                                    cmatic.util.alertSaveFailed();
+                                                }
+                                            },
+                                            failure: cmatic.util.alertSaveFailed
+                                        });
+                                    });
+
+                                    details.addButton(cmatic.labels.button.cancel, function () { win.close(); });
+
+                                    win.show();
+                                }
+                            }, {
+                                text: cmatic.labels.button.editGroupDetails,
+                                handler: function () {
+                                    var c = groupList.getSelectionModel().getSelected();
+                                    if (!c) {
+                                        Ext.Msg.alert(cmatic.labels.message.warning, cmatic.labels.message.noRowSelected)
+                                        return;
+                                    }
+
+                                    var details = new Ext.FormPanel({
+                                        labelWidth: 100,
+                                        url: cmatic.url.blank,
+                                        autoHeight: true,
+                                        defaultType: 'textfield',
+                                        items: [{
+                                            xtype: 'hidden',
+                                            fieldLabel: cmatic.labels.type_group.id,
+                                            name: 'id',
+                                            value: c.get('id')
+                                        }, {
+                                            fieldLabel: cmatic.labels.type_group.name,
+                                            name: 'name',
+                                            value: c.get('name')
+                                        }]
+                                    });
+
+                                    var win2 = new Ext.Window({
+                                        title: '__some title',
+                                        constrain: true,
+                                        resizable: false,
+                                        modal: true,
+                                        width: 400,
+                                        autoHeight: true,
+                                        items: [details]
+                                    });
+
+                                    details.addButton(cmatic.labels.button.save, function () {
+                                        Ext.Ajax.request({
+                                            url: cmatic.url.set,
+                                            success: function (response) {
+                                                var r = Ext.util.JSON.decode(response.responseText);
+                                                if (r.success) {
+                                                    iGroupStore.reload();
+                                                    win2.close();
+                                                } else {
+                                                    cmatic.util.alertSaveFailed();
+                                                }
+                                            },
+                                            failure: cmatic.util.alertSaveFailed,
+                                            params: {
+                                                type: 'group',
+                                                op: 'edit',
+                                                records: '[' + Ext.util.JSON.encode(details.getForm().getValues(false)) + ']'
+                                            }
+                                        });
+                                    });
+                                    details.addButton(cmatic.labels.button.cancel, function () { win2.close(); });
+
+                                    win2.show();
+                               }
+                           }]
+                        });
+
+                        var win = new Ext.Window({
+                            title: cmatic.labels.registration.groupList,
+                            constrain: true,
+                            resizable: false,
+                            width: 300,
+                            modal: true,
+                            items: [groupList]
+                        });
+
+                        win.show();
                     }
                 }, {
                     xtype: 'tbseparator'
@@ -445,7 +644,7 @@ cmatic.registration.competitorList = function () {
                                                             cmatic.util.alertSaveFailed();
                                                         }
                                                     },
-                                                    failure: function () { cmatic.util.alertSaveFailed(); },
+                                                    failure: cmatic.util.alertSaveFailed,
                                                     params: {
                                                         op: 'new',
                                                         type: 'scoring',
@@ -485,7 +684,7 @@ cmatic.registration.competitorList = function () {
                                                     cmatic.util.alertSaveFailed();
                                                 }
                                             },
-                                            failure: function () { cmatic.util.alertSaveFailed(); },
+                                            failure: cmatic.util.alertSaveFailed,
                                             params: {
                                                 op: 'delete',
                                                 type: 'scoring',
@@ -528,7 +727,6 @@ cmatic.registration.competitorList = function () {
                                     xtype: 'checkbox'
                                 }]
                             });
-
 
                             var win = new Ext.Window({
                                 title: String.format(cmatic.labels.registration.groupEvents,
