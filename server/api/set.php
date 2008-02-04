@@ -57,6 +57,9 @@ if ($op == 'new') {
         }
         $conn->query(sprintf('insert into %s (%s) values (%s)', $typeDbTable,
                 implode(',', $fieldArray), implode(',', $valueArray)));
+        $r = $conn->query(sprintf('select currval(\'%s\')', CmaticSchema::GetIdSeqName($typeApiName)));
+        $ret = $r->fetch(PDO::FETCH_NUM);
+        $newId = $ret[0];
     }
 } else if ($op == 'edit') {
     foreach ($records as $index => $record) {
@@ -99,5 +102,9 @@ $conn->commit();
 $conn = null;
 
 // What should the response be on a successful set-request?
+if (isset($newId)) {
+    print "{success: 'true', newId: $newId}";
+} else {
+    print "{success: 'true'}";
+}
 ?>
-{success: 'true'}

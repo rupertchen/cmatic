@@ -136,6 +136,13 @@ class CmaticSchema {
 
 
     /**
+     * TODO: Comment this
+     */
+    public static function getIdSeqName($apiName) {
+        return CmaticSchema::getTypeDbTable($apiName) . '_' . CmaticSchema::getFieldDbColumn($apiName, 'id') . '_seq';
+    }
+
+    /**
      * Retrieve the DB column name given the names of the API type and field
      */
     public static function getFieldDbColumn($type, $field) {
