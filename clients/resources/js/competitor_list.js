@@ -27,9 +27,20 @@ cmatic.registration.competitorList = function () {
 
 
     /**
+     * Retrieve the event id of an event that is an instance of the specified
+     * form. This is only useful for forms that should only have one event such
+     * as group forms.
+     */
+    function getEventIdFromFormId (formId) {
+        var eventStore = cmatic.util.getDataStore('event');
+        return eventStore.getAt(eventStore.find('formId', formId)).get('id');
+    }
+
+
+    /**
      * Get the name of the event a group is registered for
      */
-    function getGroupEventName (groupId) {
+    function getFullEventNameFromGroup (groupId) {
         return getFullEventNameRenderer(cmatic.util.getCachedFieldValue('group', 'eventId', groupId));
     }
 
@@ -245,15 +256,14 @@ cmatic.registration.competitorList = function () {
                                         }, {
                                             xtype: 'combo',
                                             fieldLabel: 'Group Event',
-                                            name: 'eventCode',
-                                            store: cmatic.util.getDataStore('event'),
-                                            displayField: 'code',
+                                            name: 'formName',
+                                            store: cmatic.util.getDataStore('form'),
+                                            displayField: 'longName',
                                             valueField: 'id',
                                             typeAhead: true,
-                                            hiddenName: 'eventId',
+                                            hiddenName: 'formId',
                                             mode: 'local',
                                             triggerAction: 'all',
-                                            emptyText: '__pick an event',
                                             selectOnFocus: true
                                         }]
                                     });
@@ -270,12 +280,13 @@ cmatic.registration.competitorList = function () {
 
                                     details.addButton(cmatic.labels.button.save, function () {
                                         var values = details.getForm().getValues(false);
+                                        var eventId = getEventIdFromFormId(values.formId);
                                         Ext.Ajax.request({
                                             url: cmatic.url.set,
                                             params: {
                                                 op: 'new',
                                                 type: 'group',
-                                                records: '[' + Ext.util.JSON.encode({name: values.name, eventId: values.eventId}) + ']'
+                                                records: '[' + Ext.util.JSON.encode({name: values.name, eventId: eventId}) + ']'
                                             },
                                             success: function (response) {
                                                 var r = Ext.util.JSON.decode(response.responseText);
@@ -285,7 +296,7 @@ cmatic.registration.competitorList = function () {
                                                         params: {
                                                             op: 'new',
                                                             type: 'scoring',
-                                                            records: '[' + Ext.util.JSON.encode({eventId: values.eventId, groupId: r.newId}) + ']'
+                                                            records: '[' + Ext.util.JSON.encode({eventId: eventId, groupId: r.newId}) + ']'
                                                         },
                                                         success: function (response) {
                                                             var r = Ext.util.JSON.decode(response.responseText);
@@ -753,7 +764,7 @@ cmatic.registration.competitorList = function () {
                                     id: 'eventName',
                                     dataIndex: 'groupId',
                                     header: cmatic.labels.type_event._name,
-                                    renderer: getGroupEventName
+                                    renderer: getFullEventNameFromGroup
                                 }],
                                 viewConfig: {forceFit: true},
                                 autoHeight: true,

@@ -190,5 +190,4 @@ cmatic.labels.registration = {
     competitorDetails: '[{0}] {1}, {2} - Details',
     individualEvents: '[{0}] {1}, {2} - Individual Events',
     groupEvents: '[{0}] {1}, {2} - Group Events'
-
 };
