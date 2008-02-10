@@ -72,23 +72,24 @@ cmatic.labels.type_competitor = {
 cmatic.labels.type_group = {
     _name: 'Group',
     id: 'Group Id',
-    name: 'Name'
+    name: 'Name',
+    eventId: cmatic.labels.type_event._name
 };
 
 cmatic.labels.type_groupMember = {
     _name: 'Group Member',
     id: 'Group Member Id',
-    groupId: 'Group',
-    competitorId: 'Member'
+    groupId: cmatic.labels.type_group._name,
+    competitorId: cmatic.labels.type_competitor._name
 };
 
 // Scoring
 cmatic.labels.type_scoring = {
     _name: 'Scoring',
     id: 'Scoring Id',
-    eventId: 'Event',
-    competitorId: 'Competitor',
-    groupId: 'Group',
+    eventId: cmatic.labels.type_event._name,
+    competitorId: cmatic.labels.type_competitor._name,
+    groupId: cmatic.labels.type_group._name,
     judge0: 'Head Judge',
     judge1: 'Judge 2',
     judge2: 'Judge 3',
@@ -139,7 +140,8 @@ cmatic.labels.message = {
     changesSaved: 'Change saved.',
     cantCloseWithUnsavedChanges: 'There are unsaved changes. To continue, either save or cancel the changes first.',
     noRowSelected: 'No row was selected.',
-    noNewEvents: 'No new events to add.'
+    noNewEvents: 'No new events to add.',
+    noNewGroups: 'No new group memberships to add.'
 };
 
 
@@ -181,8 +183,12 @@ cmatic.labels.registration = {
     groupList: 'Group List',
     newCompetitor: 'New Competitor',
     newGroup: 'New Group',
-    // id, last name, first name
+    groupDetails: 'Group Details',
+    addIndividualEvents: 'Add Individual Events',
+    addGroupEvents: 'Add Group Events',
+    // 0:id, 1:last name, 2:first name
     competitorDetails: '[{0}] {1}, {2} - Details',
     individualEvents: '[{0}] {1}, {2} - Individual Events',
     groupEvents: '[{0}] {1}, {2} - Group Events'
+
 };

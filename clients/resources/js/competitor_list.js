@@ -11,7 +11,7 @@ cmatic.registration.competitorIdRenderer = function (numberId) {
 cmatic.registration.competitorList = function () {
 
     /**
-     * TODO: Comment
+     * Get the event code of the specified event.
      */
     function getEventCode (eventId) {
         return cmatic.util.getCachedFieldValue('event', 'code', eventId);
@@ -19,7 +19,7 @@ cmatic.registration.competitorList = function () {
 
 
     /**
-     * TODO: comment
+     * Get a name of the specified group.
      */
     function getGroupName (groupId) {
         return cmatic.util.getCachedFieldValue('group', 'name', groupId);
@@ -27,15 +27,26 @@ cmatic.registration.competitorList = function () {
 
 
     /**
-     * TODO: Comment
+     * Get the name of the event a group is registered for
+     */
+    function getGroupEventName (groupId) {
+        return getFullEventNameRenderer(cmatic.util.getCachedFieldValue('group', 'eventId', groupId));
+    }
+
+
+    /**
+     * Return the full name of the event with division, sex, age group, and form names.
+     * If the "name" of any of the components is "N/A", it is dropped from the full
+     * name to make the result more concise.
      */
     function getFullEventNameRenderer (eventId) {
-        return String.format('{0} {1} {2} {3}',
+        var fullEventName = String.format('{0} {1} {2} {3}',
             cmatic.util.getParameterRenderer('division')(cmatic.util.getCachedFieldValue('event', 'divisionId', eventId)),
             cmatic.util.getParameterRenderer('sex')(cmatic.util.getCachedFieldValue('event', 'sexId', eventId)),
             cmatic.util.getParameterRenderer('ageGroup')(cmatic.util.getCachedFieldValue('event', 'ageGroupId', eventId)),
             cmatic.util.getParameterRenderer('form')(cmatic.util.getCachedFieldValue('event', 'formId', eventId))
         );
+        return fullEventName.replace(/N\/A/g, '').trim();
     }
 
 
@@ -53,9 +64,8 @@ cmatic.registration.competitorList = function () {
         init: function () {
             primeDataStores();
 
-            var competitorStore = cmatic.util.getDataStore('competitor');
             var g = new Ext.grid.GridPanel({
-                store: competitorStore,
+                store: cmatic.util.getDataStore('competitor'),
                 columns: [{
                     id: 'id',
                     dataIndex: 'id',
@@ -125,12 +135,14 @@ cmatic.registration.competitorList = function () {
                 tbar: [{
                     text: cmatic.labels.button.reload,
                     handler: function () {
-                        competitorStore.reload();
+                        // Reload all data stores that were primed
+                        cmatic.util.getDataStore('competitor').reload();
+                        cmatic.util.getDataStore('group').reload();
+                        cmatic.util.getDataStore('event').reload();
                         cmatic.util.getDataStore('division').reload();
                         cmatic.util.getDataStore('sex').reload();
                         cmatic.util.getDataStore('ageGroup').reload();
                         cmatic.util.getDataStore('form').reload();
-                        cmatic.util.getDataStore('event').reload();
                     }
                 }, {
                     xtype: 'tbseparator'
@@ -168,7 +180,7 @@ cmatic.registration.competitorList = function () {
                                     success: function (response) {
                                         var r = Ext.util.JSON.decode(response.responseText);
                                         if (r.success) {
-                                            competitorStore.reload();
+                                            cmatic.util.getDataStore('competitor').reload();
                                             win.close();
                                         } else {
                                             cmatic.util.alertSaveFailed();
@@ -204,6 +216,12 @@ cmatic.registration.competitorList = function () {
                                 dataIndex: 'name',
                                 header: cmatic.labels.type_group.name,
                                 sortable: true
+                            }, {
+                                id: 'eventId',
+                                dataIndex: 'eventId',
+                                header: cmatic.labels.type_group.eventId,
+                                sortable: true,
+                                renderer: getFullEventNameRenderer
                             }],
                             sm: new Ext.grid.RowSelectionModel({singleSelect: true}),
                             viewConfig: {forceFit: true},
@@ -257,7 +275,7 @@ cmatic.registration.competitorList = function () {
                                             params: {
                                                 op: 'new',
                                                 type: 'group',
-                                                records: '[' + Ext.util.JSON.encode({name: values.name}) + ']'
+                                                records: '[' + Ext.util.JSON.encode({name: values.name, eventId: values.eventId}) + ']'
                                             },
                                             success: function (response) {
                                                 var r = Ext.util.JSON.decode(response.responseText);
@@ -280,8 +298,8 @@ cmatic.registration.competitorList = function () {
                                                         },
                                                         failure: cmatic.util.alertSaveFailed
                                                     });
-													cmatic.util.getDataStore('group').reload();
-													win.close();
+                                                    cmatic.util.getDataStore('group').reload();
+                                                    win.close();
                                                 } else {
                                                     cmatic.util.alertSaveFailed();
                                                 }
@@ -321,7 +339,7 @@ cmatic.registration.competitorList = function () {
                                     });
 
                                     var win2 = new Ext.Window({
-                                        title: '__some title',
+                                        title: cmatic.labels.registration.groupDetails,
                                         constrain: true,
                                         resizable: false,
                                         modal: true,
@@ -587,7 +605,7 @@ cmatic.registration.competitorList = function () {
                                         });
 
                                         var win2 = new Ext.Window({
-                                            title: 'Some title',
+                                            title: cmatic.labels.registration.addIndividualEvents,
                                             constrain: true,
                                             resizable: false,
                                             modal: true,
@@ -731,6 +749,11 @@ cmatic.registration.competitorList = function () {
                                     dataIndex: 'groupId',
                                     header: cmatic.labels.type_groupMember.groupId,
                                     renderer: getGroupName
+                                }, {
+                                    id: 'eventName',
+                                    dataIndex: 'groupId',
+                                    header: cmatic.labels.type_event._name,
+                                    renderer: getGroupEventName
                                 }],
                                 viewConfig: {forceFit: true},
                                 autoHeight: true,
@@ -755,6 +778,12 @@ cmatic.registration.competitorList = function () {
                                                 dataIndex: 'name',
                                                 header: cmatic.labels.type_group.name,
                                                 sortable: true
+                                            }, {
+                                                id: 'event',
+                                                dataIndex: 'eventId',
+                                                header: cmatic.labels.type_group.eventId,
+                                                sortable: true,
+                                                renderer: getFullEventNameRenderer
                                             }],
                                             viewConfig: {forceFit: true},
                                             autoHeight: true,
@@ -768,7 +797,7 @@ cmatic.registration.competitorList = function () {
                                         });
 
                                         var win = new Ext.Window({
-                                            title: '__Add a group event',
+                                            title: cmatic.labels.registration.addGroupEvents,
                                             constrain: true,
                                             resizable: false,
                                             modal: true,
@@ -792,7 +821,7 @@ cmatic.registration.competitorList = function () {
                                             });
 
                                             if (0 == groupsToAdd.length) {
-                                                Ext.Msg.alert(cmatic.labels.message.warning, '__no new groups');
+                                                Ext.Msg.alert(cmatic.labels.message.warning, cmatic.labels.message.noNewGroups);
                                             } else {
                                                 Ext.Ajax.request({
                                                     url: cmatic.url.set,

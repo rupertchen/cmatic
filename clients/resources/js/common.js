@@ -70,7 +70,8 @@ cmatic.ddl._competitorRecord = Ext.data.Record.create([
 
 cmatic.ddl._groupRecord = Ext.data.Record.create([
     {name: 'id'},
-    {name: 'name'}
+    {name: 'name'},
+    {name: 'eventId'}
 ]);
 
 
