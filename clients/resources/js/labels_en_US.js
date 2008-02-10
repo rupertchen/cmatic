@@ -75,6 +75,13 @@ cmatic.labels.type_group = {
     name: 'Name'
 };
 
+cmatic.labels.type_groupMember = {
+    _name: 'Group Member',
+    id: 'Group Member Id',
+    groupId: 'Group',
+    competitorId: 'Member'
+};
+
 // Scoring
 cmatic.labels.type_scoring = {
     _name: 'Scoring',

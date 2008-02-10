@@ -68,6 +68,25 @@ cmatic.ddl._competitorRecord = Ext.data.Record.create([
 ]);
 
 
+cmatic.ddl._groupRecord = Ext.data.Record.create([
+    {name: 'id'},
+    {name: 'name'}
+]);
+
+
+cmatic.ddl._groupMemberRecord = Ext.data.Record.create([
+    {name: 'id'},
+    {name: 'groupId'},
+    {name: 'competitorId'}
+]);
+
+cmatic.ddl._scoringRecord = Ext.data.Record.create([
+    {name: 'id'},
+    {name: 'eventId'},
+    {name: 'competitorId'}
+]);
+
+
 ////////////////////////////////////////
 // cmatic.util
 ////////////////////////////////////////
@@ -101,6 +120,13 @@ cmatic.util.getDataStore = function (cmaticType) {
                 rc = cmatic.ddl._eventRecord;
                 sortByField = 'code';
                 break;
+            case 'group':
+                rc = cmatic.ddl._groupRecord;
+                sortByField = 'name';
+                break;
+            case 'groupMember':
+                rc = cmatic.ddl._groupMemberRecord;
+                break;
             default:
                 rc = cmatic.ddl._eventParameterRecord;
         }
@@ -132,7 +158,7 @@ cmatic.util.getDataStore = function (cmaticType) {
  * TODO: Comment this. Falls back on id if all else fails
  */
 cmatic.util.getCachedFieldValue = function (type, field, id) {
-    var s = Ext.StoreMgr.get(type);
+    var s = cmatic.util.getDataStore(type);
     if (s) {
         var r = s.getById(id);
         if (r) {
