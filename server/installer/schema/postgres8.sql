@@ -94,7 +94,8 @@ CREATE TABLE cmatic_reg_group (
     group_id serial PRIMARY KEY,
     created timestamp NOT NULL DEFAULT now(),
     last_mod timestamp NOT NULL DEFAULT now(),
-    name text NOT NULL
+    name text NOT NULL,
+    event_id integer NOT NULL REFERENCES cmatic_config_events
 );
 
 /**

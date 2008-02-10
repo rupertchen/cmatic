@@ -90,7 +90,8 @@ $CMATIC['fieldApiNameToDbColumnMap'] = array (
     ),
     'group' => array(
         'id' => 'group_id',
-        'name' => 'name'
+        'name' => 'name',
+        'eventId' => 'event_id'
     ),
     'groupMember' => array(
         'id' => 'group_member_id',
