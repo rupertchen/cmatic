@@ -84,7 +84,9 @@ cmatic.ddl._groupMemberRecord = Ext.data.Record.create([
 cmatic.ddl._scoringRecord = Ext.data.Record.create([
     {name: 'id'},
     {name: 'eventId'},
-    {name: 'competitorId'}
+    {name: 'competitorId'},
+    {name: 'ringId'},
+    {name: 'order'}
 ]);
 
 
@@ -194,6 +196,22 @@ cmatic.util.getParameterRenderer = function () {
         return r;
     };
 }();
+
+
+/**
+ * Return the full name of the event with division, sex, age group, and form names.
+ * If the "name" of any of the components is "N/A", it is dropped from the full
+ * name to make the result more concise.
+ */
+cmatic.util.getFullEventNameRenderer = function (eventId) {
+    var fullEventName = String.format('{0} {1} {2} {3}',
+        cmatic.util.getParameterRenderer('division')(cmatic.util.getCachedFieldValue('event', 'divisionId', eventId)),
+        cmatic.util.getParameterRenderer('sex')(cmatic.util.getCachedFieldValue('event', 'sexId', eventId)),
+        cmatic.util.getParameterRenderer('ageGroup')(cmatic.util.getCachedFieldValue('event', 'ageGroupId', eventId)),
+        cmatic.util.getParameterRenderer('form')(cmatic.util.getCachedFieldValue('event', 'formId', eventId))
+    );
+    return fullEventName.replace(/N\/A/g, '').trim();
+}
 
 
 /**

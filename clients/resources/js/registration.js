@@ -41,23 +41,7 @@ cmatic.registration.competitorList = function () {
      * Get the name of the event a group is registered for
      */
     function getFullEventNameFromGroup (groupId) {
-        return getFullEventNameRenderer(cmatic.util.getCachedFieldValue('group', 'eventId', groupId));
-    }
-
-
-    /**
-     * Return the full name of the event with division, sex, age group, and form names.
-     * If the "name" of any of the components is "N/A", it is dropped from the full
-     * name to make the result more concise.
-     */
-    function getFullEventNameRenderer (eventId) {
-        var fullEventName = String.format('{0} {1} {2} {3}',
-            cmatic.util.getParameterRenderer('division')(cmatic.util.getCachedFieldValue('event', 'divisionId', eventId)),
-            cmatic.util.getParameterRenderer('sex')(cmatic.util.getCachedFieldValue('event', 'sexId', eventId)),
-            cmatic.util.getParameterRenderer('ageGroup')(cmatic.util.getCachedFieldValue('event', 'ageGroupId', eventId)),
-            cmatic.util.getParameterRenderer('form')(cmatic.util.getCachedFieldValue('event', 'formId', eventId))
-        );
-        return fullEventName.replace(/N\/A/g, '').trim();
+        return cmatic.util.getFullEventNameRenderer(cmatic.util.getCachedFieldValue('group', 'eventId', groupId));
     }
 
 
@@ -232,7 +216,7 @@ cmatic.registration.competitorList = function () {
                                 dataIndex: 'eventId',
                                 header: cmatic.labels.type_group.eventId,
                                 sortable: true,
-                                renderer: getFullEventNameRenderer
+                                renderer: cmatic.util.getFullEventNameRenderer
                             }],
                             sm: new Ext.grid.RowSelectionModel({singleSelect: true}),
                             viewConfig: {forceFit: true},
@@ -550,7 +534,7 @@ cmatic.registration.competitorList = function () {
                                     id: 'eventName',
                                     dataIndex: 'eventId',
                                     header: cmatic.labels.type_event._name,
-                                    renderer: getFullEventNameRenderer,
+                                    renderer: cmatic.util.getFullEventNameRenderer,
                                     width: 150
                                 }],
                                 viewConfig: {forceFit: true },
@@ -794,7 +778,7 @@ cmatic.registration.competitorList = function () {
                                                 dataIndex: 'eventId',
                                                 header: cmatic.labels.type_group.eventId,
                                                 sortable: true,
-                                                renderer: getFullEventNameRenderer
+                                                renderer: cmatic.util.getFullEventNameRenderer
                                             }],
                                             viewConfig: {forceFit: true},
                                             autoHeight: true,

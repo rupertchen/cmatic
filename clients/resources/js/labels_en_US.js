@@ -43,6 +43,7 @@ cmatic.labels.type_sex = {
 // must come after the event parameter labels
 cmatic.labels.type_event = {
     _name: 'Event',
+    id: 'Event Id',
     code: 'Event Code',
     divisionId: cmatic.labels.type_division._name,
     sexId: cmatic.labels.type_sex._name,
@@ -125,7 +126,8 @@ cmatic.labels.button = {
     editIndividualEvents: 'Edit Individual Events',
     editGroupEvents: 'Edit Group Events',
     editGroupDetails: 'Edit Group Details',
-    remove: 'Remove'
+    remove: 'Remove',
+    showFinished: 'Show Finished'
 };
 
 
@@ -176,7 +178,7 @@ cmatic.labels.eventManagement = {
 
 
 /**
- * Registration clients labels
+ * Registration client labels
  */
 cmatic.labels.registration = {
     competitorList: 'Competitor List',
@@ -191,3 +193,13 @@ cmatic.labels.registration = {
     individualEvents: '[{0}] {1}, {2} - Individual Events',
     groupEvents: '[{0}] {1}, {2} - Group Events'
 };
+
+
+/**
+ * Scoring client labels
+ */
+cmatic.labels.scoring = {
+    eventList: 'Event List',
+    judgesPanel: 'Judges',
+    x: ''
+}
