@@ -155,12 +155,15 @@ cmatic.labels.message = {
     warning: 'Warning',
     error: 'Error',
     success: 'Success',
+    input: 'Input Needed',
     changesNotSaved: 'Changes were not saved.',
     changesSaved: 'Change saved.',
     cantCloseWithUnsavedChanges: 'There are unsaved changes. To continue, either save or cancel the changes first.',
     noRowSelected: 'No row was selected.',
     noNewEvents: 'No new events to add.',
-    noNewGroups: 'No new group memberships to add.'
+    noNewGroups: 'No new group memberships to add.',
+    ringNumberPrompt: 'Enter your ring number (1-8):',
+    ringNumberTryAgain: 'Oops. That\'s an unknown ring. Please try again.'
 };
 
 
@@ -217,6 +220,5 @@ cmatic.labels.registration = {
  */
 cmatic.labels.scoring = {
     eventList: 'Event List',
-    judgesPanel: 'Judges',
-    x: ''
+    judgesPanel: 'Judges'
 }

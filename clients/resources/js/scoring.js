@@ -24,6 +24,9 @@ cmatic.scoring.app = function () {
         cmatic.util.getDataStore('competitor');
         cmatic.util.getDataStore('group');
 
+    }
+
+    function _primeEventStore(ringNumber) {
         var eventStore = new Ext.data.Store({
             proxy: new Ext.data.HttpProxy({
                 url: cmatic.url.get,
@@ -32,8 +35,7 @@ cmatic.scoring.app = function () {
             baseParams: {
                 type: 'event',
                 filterField: 'ringId',
-                filterValue: 8 //TODO: need to find a way to ask for this value
-
+                filterValue: ringNumber
             },
             reader: new Ext.data.JsonReader({
                 root: 'records',
@@ -141,7 +143,8 @@ cmatic.scoring.app = function () {
     }
 
 
-    function _buildViewport () {
+    function _buildViewport (ringNumber) {
+        _primeEventStore(ringNumber);
         headerPanel = _buildHeaderPanel();
         eventPanel = _buildEventPanel();
         judgesPanel = _buildJudgesPanel();
@@ -153,14 +156,32 @@ cmatic.scoring.app = function () {
         });
     }
 
+
+    function _ringNumberPrompt () {
+        Ext.Msg.show({
+            title: cmatic.labels.message.input,
+            msg: cmatic.labels.message.ringNumberPrompt,
+            buttons: Ext.Msg.OK,
+            prompt: true,
+            fn: function (btn, ringNumber) {
+                ringNumber = parseInt(ringNumber);
+                if (ringNumber && ringNumber > 0 && ringNumber < 9) {
+                    document.title = document.title + ": Ring " + ringNumber;
+                    _buildViewport(ringNumber);
+                } else {
+                    alert(cmatic.labels.message.ringNumberTryAgain);
+                    setTimeout(function() {_ringNumberPrompt()}, 100);
+                }
+            }
+        });
+    }
+
     return {
         init: function () {
             _primeDataStores();
 
             Ext.QuickTips.init();
-            _buildViewport();
-
-            // Wait a moment before doing this
+            _ringNumberPrompt();
             setTimeout(cmatic.util.removeLoadingMask, 2500);
         }
     };
