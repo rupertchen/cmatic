@@ -591,7 +591,7 @@ cmatic.registration.competitorList = function () {
                                     }, {
                                         xtype: 'panel',
                                         items: [emergencyFieldSet, paymentFieldSet, miscFieldSet]
-                                    }/*personalFieldSet, contactFieldSet, emergencyFieldSet, paymentFieldSet, miscFieldSet*/]
+                                    }]
                                 }],
                             });
 
@@ -607,6 +607,11 @@ cmatic.registration.competitorList = function () {
                                 items: [details]
                             });
                             details.addButton(cmatic.labels.button.save, function () {
+                                var vals = details.getForm().getValues(false);
+                                // weight is an optional field, but it is an integer use null instead of the emptry string
+                                if (!vals['weight']) {
+                                    vals['weight'] = null;
+                                }
                                 Ext.Ajax.request({
                                     url: cmatic.url.set,
                                     success: function (response) {
@@ -622,7 +627,7 @@ cmatic.registration.competitorList = function () {
                                     params: {
                                         type: 'competitor',
                                         op: 'edit',
-                                        records: '[' + Ext.util.JSON.encode(details.getForm().getValues(false)) + ']'
+                                        records: '[' + Ext.util.JSON.encode(vals) + ']'
                                     }
                                 });
                             });
@@ -973,6 +978,7 @@ cmatic.registration.competitorList = function () {
                                                         if (r.success) {
                                                             Ext.Msg.alert(cmatic.labels.message.success, cmatic.labels.message.changesSaved);
                                                             iGroupMemberStore.load();
+                                                            win.close();
                                                         } else {
                                                             cmatic.util.alertSaveFailed();
                                                         }
