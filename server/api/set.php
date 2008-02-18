@@ -77,7 +77,14 @@ if ($op == 'new') {
             if (is_null($tmpField)) {
                 throw new CmaticApiException(sprintf('Record %d: Unrecognized field on type: %s.%s', $index, $typeApiName, $fieldApiName));
             }
-            $tmpValue = (is_int($value) || is_float($value)) ? $value : '\'' . TextUtils::cleanTextForSql($value) . '\'';
+
+            if (is_null($value)) {
+                $tmpValue = 'NULL';
+            } else if (is_int($value) || is_float($value)) {
+                $tmpValue = $value;
+            } else {
+                $tmpValue = '\'' . TextUtils::cleanTextForSql($value) . '\'';
+            }
             if (is_null($tmpValue)) {
                 throw new CmaticApiException(sprintf('Record %d: Invalid value for %s.%s: $s', $index, $typeApiName, $fieldApiName, $value));
             }
