@@ -56,18 +56,35 @@ cmatic.labels.type_event = {
 // Registration
 cmatic.labels.type_competitor = {
     _name: 'Competitor',
-    subcategoryPersonal: 'Personal',
+    subcategoryCompetition: 'Competition',
     subcategoryContact: 'Contact',
     subcategoryEmergency: 'Emergency Contact',
+    subcategoryPayment: 'Payment',
+    subcategoryMisc: 'Miscellaneous',
     id: 'Competitor Id',
     firstName: 'First Name',
     lastName: 'Last Name',
+    sexId: cmatic.labels.type_sex._name,
+    age: 'Age',
+    divisionId: cmatic.labels.type_division._name,
+    weight: 'Weight (lbs)',
     email: 'E-mail',
     phone1: 'Primary Phone',
     phone2: 'Seconary Phone',
+    streetAddress: 'Street Address',
+    city: 'City',
+    state: 'State / Province',
+    postalCode: 'Zip / Postal Code',
+    country: 'Country',
+    school: 'School',
+    coach: 'Coach',
     emergencyContactName: 'Emergency Contact Name',
     emergencyContactRelation: 'Emergency Contact Relation',
-    emergencyContactPhone: 'Emergency Contact Phone'
+    emergencyContactPhone: 'Emergency Contact Phone',
+    isEarlyRegistration: 'Early Registration',
+    isDiscountRegistration: 'Special Discount',
+    amountPaid: 'Amount Paid ($)',
+    comments: 'Comments'
 };
 
 cmatic.labels.type_group = {

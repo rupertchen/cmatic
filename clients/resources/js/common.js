@@ -1,6 +1,4 @@
-/**
- * TODO: Comment, cmatic.* is root, cmatic.util has common functions
- */
+Ext.namespace('cmatic.constant');
 Ext.namespace('cmatic.ddl');
 Ext.namespace('cmatic.util');
 
@@ -33,6 +31,21 @@ cmatic.url = {
 
 
 ////////////////////////////////////////
+// cmatic.constant
+////////////////////////////////////////
+
+cmatic.constant.cmaticTrue = 'true';
+cmatic.constant.cmaticFalse = 'false';
+cmatic.constant.booleanStore = new Ext.data.SimpleStore({
+    fields: ['label', 'value'],
+    data : [
+        ['Yes', cmatic.constant.cmaticTrue],
+        ['No', cmatic.constant.cmaticFalse]
+    ]
+});
+
+
+////////////////////////////////////////
 // cmatic.ddl
 ////////////////////////////////////////
 
@@ -59,12 +72,27 @@ cmatic.ddl._competitorRecord = Ext.data.Record.create([
     {name: 'id'},
     {name: 'firstName'},
     {name: 'lastName'},
+    {name: 'sexId'},
+    {name: 'age'},
+    {name: 'divisionId'},
+    {name: 'weight'},
     {name: 'email'},
     {name: 'phone1'},
     {name: 'phone2'},
+    {name: 'streetAddress'},
+    {name: 'city'},
+    {name: 'state'},
+    {name: 'postalCode'},
+    {name: 'country'},
+    {name: 'school'},
+    {name: 'coach'},
     {name: 'emergencyContactName'},
     {name: 'emergencyContactRelation'},
-    {name: 'emergencyContactPhone'}
+    {name: 'emergencyContactPhone'},
+    {name: 'isEarlyRegistration'},
+    {name: 'isDiscountRegistration'},
+    {name: 'amountPaid'},
+    {name: 'comments'}
 ]);
 
 
@@ -220,4 +248,12 @@ cmatic.util.getFullEventNameRenderer = function (eventId) {
  */
 cmatic.util.alertSaveFailed = function () {
     Ext.Msg.alert(cmatic.labels.message.warning, cmatic.labels.message.changesNotSaved);
+}
+
+
+/**
+ * Convert the input to the cmatic boolean value.
+ */
+cmatic.util.getCmaticBoolean = function (flag) {
+    return flag ? cmatic.constant.cmaticTrue : cmatic.constant.cmaticFalse;
 }

@@ -77,14 +77,35 @@ CREATE TABLE cmatic_reg_competitor (
     competitor_id serial PRIMARY KEY,
     created timestamp NOT NULL DEFAULT now(),
     last_mod timestamp NOT NULL DEFAULT now(),
-    last_name text,
-    first_name text,
+    /* competition */
+    last_name text NOT NULL,
+    first_name text NOT NULL,
+    sex_id int REFERENCES cmatic_config_sex,
+    age int,
+    division_id int REFERENCES cmatic_config_division,
+    weight int,
+    /* contact */
     email text,
     phone_1 text,
     phone_2 text,
+    street_address text,
+    city text,
+    state text,
+    postal_code text,
+    country text,
+    /* affiliation */
+    school text,
+    coach text,
+    /* emergency */
     emergency_contact_name text,
     emergency_contact_relation text,
-    emergency_contact_phone text
+    emergency_contact_phone text,
+    /* payment */
+    is_early boolean NOT NULL DEFAULT FALSE,
+    is_discount boolean NOT NULL FALSE,
+    amount_paid numeric(6, 2) NOT NULL DEFAULT 0,
+    /* misc */
+    comments text
 );
 
 /**

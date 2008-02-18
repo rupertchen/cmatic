@@ -46,13 +46,13 @@ cmatic.registration.competitorList = function () {
 
 
     function primeDataStores () {
-        cmatic.util.getDataStore('competitor');
-        cmatic.util.getDataStore('group');
-        cmatic.util.getDataStore('event');
         cmatic.util.getDataStore('division');
         cmatic.util.getDataStore('sex');
         cmatic.util.getDataStore('ageGroup');
         cmatic.util.getDataStore('form');
+        cmatic.util.getDataStore('event');
+        cmatic.util.getDataStore('competitor');
+        cmatic.util.getDataStore('group');
     }
 
     return {
@@ -131,13 +131,13 @@ cmatic.registration.competitorList = function () {
                     text: cmatic.labels.button.reload,
                     handler: function () {
                         // Reload all data stores that were primed
-                        cmatic.util.getDataStore('competitor').reload();
-                        cmatic.util.getDataStore('group').reload();
-                        cmatic.util.getDataStore('event').reload();
                         cmatic.util.getDataStore('division').reload();
                         cmatic.util.getDataStore('sex').reload();
                         cmatic.util.getDataStore('ageGroup').reload();
                         cmatic.util.getDataStore('form').reload();
+                        cmatic.util.getDataStore('event').reload();
+                        cmatic.util.getDataStore('competitor').reload();
+                        cmatic.util.getDataStore('group').reload();
                     }
                 }, {
                     xtype: 'tbseparator'
@@ -388,68 +388,211 @@ cmatic.registration.competitorList = function () {
                     handler: function () {
                         var c = g.getSelectionModel().getSelected();
                         if (c) {
+                            var competitionFieldSet = {
+                                xtype: 'fieldset',
+                                title: cmatic.labels.type_competitor.subcategoryCompetition,
+                                autoHeight: true,
+                                defaults: {width: 150},
+                                defaultType: 'textfield',
+                                items: [{
+                                    xtype: 'hidden',
+                                    name: 'id',
+                                    value: c.get('id'),
+                                    allowBlank: false
+                                }, {
+                                    fieldLabel: cmatic.labels.type_competitor.lastName,
+                                    name: 'lastName',
+                                    value: c.get('lastName'),
+                                    allowBlank: false
+                                }, {
+                                    fieldLabel: cmatic.labels.type_competitor.firstName,
+                                    name: 'firstName',
+                                    value: c.get('firstName'),
+                                    allowBlank: false
+                                }, {
+                                    xtype: 'combo',
+                                    fieldLabel: cmatic.labels.type_competitor.sexId,
+                                    name: 'sexName',
+                                    store: cmatic.util.getDataStore('sex'),
+                                    displayField: 'longName',
+                                    valueField: 'id',
+                                    typeAhead: true,
+                                    hiddenName: 'sexId',
+                                    mode: 'local',
+                                    triggerAction: 'all',
+                                    selectOnFocus: true,
+                                    forceSelection: true,
+                                    value: c.get('sexId'),
+                                    allowBlank: false
+                                }, {
+                                    fieldLabel: cmatic.labels.type_competitor.age,
+                                    name: 'age',
+                                    value: c.get('age'),
+                                    allowBlank: false
+                                }, {
+                                    xtype: 'combo',
+                                    fieldLabel: cmatic.labels.type_competitor.divisionId,
+                                    name: 'divisionName',
+                                    store: cmatic.util.getDataStore('division'),
+                                    displayField: 'longName',
+                                    valueField: 'id',
+                                    typeAhead: true,
+                                    hiddenName: 'divisionId',
+                                    mode: 'local',
+                                    triggerAction: 'all',
+                                    selectOnFocus: true,
+                                    forceSelection: true,
+                                    value: c.get('divisionId'),
+                                    allowBlank: false,
+                                }, {
+                                    fieldLabel: cmatic.labels.type_competitor.weight,
+                                    name: 'weight',
+                                    value: c.get('weight')
+                                }]
+                            };
+                            var contactFieldSet = {
+                                xtype: 'fieldset',
+                                title: cmatic.labels.type_competitor.subcategoryContact,
+                                autoHeight: true,
+                                defaults: {width: 150},
+                                defaultType: 'textfield',
+                                items: [{
+                                    fieldLabel: cmatic.labels.type_competitor.email,
+                                    name: 'email',
+                                    value: c.get('email')
+                                }, {
+                                    fieldLabel: cmatic.labels.type_competitor.phone1,
+                                    name: 'phone1',
+                                    value: c.get('phone1')
+                                }, {
+                                    fieldLabel: cmatic.labels.type_competitor.phone2,
+                                    name: 'phone2',
+                                    value: c.get('phone2')
+                                }, {
+                                    fieldLabel: cmatic.labels.type_competitor.streetAddress,
+                                    name: 'streetAddress',
+                                    value: c.get('streetAddress')
+                                }, {
+                                    fieldLabel: cmatic.labels.type_competitor.city,
+                                    name: 'city',
+                                    value: c.get('city')
+                                }, {
+                                    fieldLabel: cmatic.labels.type_competitor.state,
+                                    name: 'state',
+                                    value: c.get('state')
+                                }, {
+                                    fieldLabel: cmatic.labels.type_competitor.postalCode,
+                                    name: 'postalCode',
+                                    value: c.get('postalCode')
+                                }, {
+                                    fieldLabel: cmatic.labels.type_competitor.country,
+                                    name: 'country',
+                                    value: c.get('country')
+                                }, {
+                                    fieldLabel: cmatic.labels.type_competitor.school,
+                                    name: 'school',
+                                    value: c.get('school')
+                                }, {
+                                    fieldLabel: cmatic.labels.type_competitor.coach,
+                                    name: 'coach',
+                                    value: c.get('coach')
+                                }]
+                            };
+                            var emergencyFieldSet = {
+                                xtype: 'fieldset',
+                                title: cmatic.labels.type_competitor.subcategoryEmergency,
+                                autoHeight: true,
+                                defaults: {width: 150},
+                                defaultType: 'textfield',
+                                items: [{
+                                    fieldLabel: cmatic.labels.type_competitor.emergencyContactName,
+                                    name: 'emergencyContactName',
+                                    value: c.get('emergencyContactName')
+                                }, {
+                                    fieldLabel: cmatic.labels.type_competitor.emergencyContactRelation,
+                                    name: 'emergencyContactRelation',
+                                    value: c.get('emergencyContactRelation')
+                                }, {
+                                    fieldLabel: cmatic.labels.type_competitor.emergencyContactPhone,
+                                    name: 'emergencyContactPhone',
+                                    value: c.get('emergencyContactPhone')
+                                }]
+                            };
+                            var paymentFieldSet = {
+                                xtype: 'fieldset',
+                                title: cmatic.labels.type_competitor.subcategoryPayment,
+                                autoHeight: true,
+                                defaults: {width: 150},
+                                items: [{
+                                    xtype: 'combo',
+                                    fieldLabel: cmatic.labels.type_competitor.isEarlyRegistration,
+                                    name: 'isEarlyRegistrationLabel',
+                                    store: cmatic.constant.booleanStore,
+                                    displayField: 'label',
+                                    valueField: 'value',
+                                    typeAhead: true,
+                                    hiddenName: 'isEarlyRegistration',
+                                    mode: 'local',
+                                    triggerAction: 'all',
+                                    selectOnFocus: true,
+                                    forceSelection: true,
+                                    value: cmatic.util.getCmaticBoolean(c.get('isEarlyRegistration')),
+                                    allowBlank: false,
+
+                                }, {
+                                    xtype: 'combo',
+                                    fieldLabel: cmatic.labels.type_competitor.isDiscountRegistration,
+                                    name: 'isDiscountRegistrationLabel',
+                                    store: cmatic.constant.booleanStore,
+                                    displayField: 'label',
+                                    valueField: 'value',
+                                    typeAhead: true,
+                                    hiddenName: 'isDiscountRegistration',
+                                    mode: 'local',
+                                    triggerAction: 'all',
+                                    selectOnFocus: true,
+                                    forceSelection: true,
+                                    value: cmatic.util.getCmaticBoolean(c.get('isDiscountRegistration')),
+                                    allowBlank: false
+                                }, {
+                                    xtype: 'textfield',
+                                    fieldLabel: cmatic.labels.type_competitor.amountPaid,
+                                    name: 'amountPaid',
+                                    value: c.get('amountPaid')
+                                }]
+                            };
+                            var miscFieldSet = {
+                                xtype: 'fieldset',
+                                title: cmatic.labels.type_competitor.subcategoryMisc,
+                                autoHeight: true,
+                                defaults: {width: 150},
+                                items: [{
+                                    xtype: 'textarea',
+                                    fieldLabel: cmatic.labels.type_competitor.comments,
+                                    name: 'comments',
+                                    value: c.get('comments'),
+                                    height: 150
+                                }]
+                            };
+
                             var details = new Ext.FormPanel({
                                 labelWidth: 100,
                                 url: cmatic.url.blank,
                                 autoHeight: true,
                                 items: [{
-                                    xtype: 'fieldset',
-                                    title: cmatic.labels.type_competitor.subcategoryPersonal,
-                                    autoHeight: true,
-                                    defaults: {width: 220},
-                                    defaultType: 'textfield',
+                                    xtype: 'panel',
+                                    layout: 'column',
+                                    defaults: {
+                                        columnWidth: .5
+                                    },
                                     items: [{
-                                        xtype: 'hidden',
-                                        name: 'id',
-                                        value: c.get('id')
+                                        xtype: 'panel',
+                                        items: [competitionFieldSet, contactFieldSet]
                                     }, {
-                                        fieldLabel: cmatic.labels.type_competitor.lastName,
-                                        name: 'lastName',
-                                        value: c.get('lastName')
-                                    }, {
-                                        fieldLabel: cmatic.labels.type_competitor.firstName,
-                                        name: 'firstName',
-                                        value: c.get('firstName')
-                                    }]
-                                }, {
-                                    xtype: 'fieldset',
-                                    title: cmatic.labels.type_competitor.subcategoryContact,
-                                    autoHeight: true,
-                                    defaults: {width: 220},
-                                    defaultType: 'textfield',
-                                    items: [{
-                                        fieldLabel: cmatic.labels.type_competitor.email,
-                                        name: 'email',
-                                        value: c.get('email')
-                                    }, {
-                                        fieldLabel: cmatic.labels.type_competitor.phone1,
-                                        name: 'phone1',
-                                        value: c.get('phone1')
-                                    }, {
-                                        fieldLabel: cmatic.labels.type_competitor.phone2,
-                                        name: 'phone2',
-                                        value: c.get('phone2')
-                                    }]
-                                }, {
-                                    xtype: 'fieldset',
-                                    title: cmatic.labels.type_competitor.subcategoryEmergency,
-                                    autoHeight: true,
-                                    defaults: {width: 220},
-                                    defaultType: 'textfield',
-                                    items: [{
-                                        fieldLabel: cmatic.labels.type_competitor.emergencyContactName,
-                                        name: 'emergencyContactName',
-                                        value: c.get('emergencyContactName')
-                                    }, {
-                                        fieldLabel: cmatic.labels.type_competitor.emergencyContactRelation,
-                                        name: 'emergencyContactRelation',
-                                        value: c.get('emergencyContactRelation')
-                                    }, {
-                                        fieldLabel: cmatic.labels.type_competitor.emergencyContactPhone,
-                                        name: 'emergencyContactPhone',
-                                        value: c.get('emergencyContactPhone')
-                                    }]
-                                }]
+                                        xtype: 'panel',
+                                        items: [emergencyFieldSet, paymentFieldSet, miscFieldSet]
+                                    }/*personalFieldSet, contactFieldSet, emergencyFieldSet, paymentFieldSet, miscFieldSet*/]
+                                }],
                             });
 
                             var win = new Ext.Window({
@@ -459,7 +602,7 @@ cmatic.registration.competitorList = function () {
                                 constrain: true,
                                 resizable: false,
                                 modal: true,
-                                width: 400,
+                                width: 700,
                                 autoHeight: true,
                                 items: [details]
                             });
@@ -469,7 +612,7 @@ cmatic.registration.competitorList = function () {
                                     success: function (response) {
                                         var r = Ext.util.JSON.decode(response.responseText);
                                         if (r.success) {
-                                            competitorStore.reload();
+                                            cmatic.util.getDataStore('competitor').reload();
                                             win.close();
                                         } else {
                                             cmatic.util.alertSaveFailed();
