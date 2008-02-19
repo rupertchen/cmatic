@@ -102,7 +102,7 @@ CREATE TABLE cmatic_reg_competitor (
     emergency_contact_phone text,
     /* payment */
     is_early boolean NOT NULL DEFAULT FALSE,
-    is_discount boolean NOT NULL FALSE,
+    is_discount boolean NOT NULL DEFAULT FALSE,
     amount_paid numeric(6, 2) NOT NULL DEFAULT 0,
     /* misc */
     comments text
@@ -116,7 +116,7 @@ CREATE TABLE cmatic_reg_group (
     created timestamp NOT NULL DEFAULT now(),
     last_mod timestamp NOT NULL DEFAULT now(),
     name text NOT NULL,
-    event_id integer NOT NULL REFERENCES cmatic_config_events
+    event_id integer NOT NULL REFERENCES cmatic_config_event
 );
 
 /**

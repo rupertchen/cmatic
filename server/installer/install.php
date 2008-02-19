@@ -29,6 +29,9 @@ function step1Body($inputs, $errorMessages = false) {
     if (empty($inputs['port'])) {
         $inputs['port'] = '5432';
     }
+    if (empty($inputs['tablePrefix'])) {
+        $inputs['tablePrefix'] = 'cmatic_';
+    }
 ?>
         <form method="POST">
             <fieldset>
