@@ -81,6 +81,12 @@ cmatic.registration.competitorList = function () {
                     sortable: true,
                     width: 50
                 }, {
+                    id: 'amountPaid',
+                    dataIndex: 'amountPaid',
+                    header: cmatic.labels.type_competitor.amountPaid,
+                    sortable: true,
+                    width: 50
+                }, {
                     id: 'email',
                     dataIndex: 'email',
                     header: cmatic.labels.type_competitor.email,
