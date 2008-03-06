@@ -5,12 +5,12 @@ Ext.namespace('cmatic.util');
 /**
  * Base URL
  * These should be relative to the same domain. Both
- * the server and client must be shosted on the same
+ * the server and client must be hosted on the same
  * domain.
  */
 cmatic.base = {
-    clientUrl: '/~serka/cmc/',
-    serverApiUrl: '/~serka/cms/api/'
+    clientUrl: '/cmatic/clients/',
+    serverApiUrl: '/cmatic/server/api/'
 };
 
 /**
