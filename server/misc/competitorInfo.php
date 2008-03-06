@@ -33,7 +33,7 @@
 	// Check hash
 	$CMAT_ID = $_REQUEST[$PARAM_CMAT_ID];
 	if ($_REQUEST[$PARAM_HASH] != str_rot13(md5($CMAT_ID))) {
-		print 'Invalid or missing hash.' . str_rot13(md5($CMAT_ID));
+		print 'Invalid or missing hash.';
 		exit;
 	}
 
