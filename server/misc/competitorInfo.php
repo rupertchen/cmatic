@@ -77,7 +77,7 @@
 			<tr><th scope="row">City:</th><td><?php print $DETAILS['city'] ?></td></tr>
 			<tr><th scope="row">State / Province:</th><td><?php print $DETAILS['state'] ?></td></tr>
 			<tr><th scope="row">Zip / Postal Code:</th><td><?php print $DETAILS['zip'] ?></td></tr>
-			<tr><th scope="row">Country</td><td><?php print $DETAILS['country'] ?></td></tr>
+			<tr><th scope="row">Country:</th><td><?php print $DETAILS['country'] ?></td></tr>
 			<tr><th scope="row">School:</th><td><?php print $DETAILS['school'] ?></td></tr>
 			<tr><th scope="row">Coach:</th><td><?php print $DETAILS['instructor'] ?></td></tr>
 		</table>

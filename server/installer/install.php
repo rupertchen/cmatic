@@ -33,28 +33,28 @@ function step1Body($inputs, $errorMessages = false) {
         $inputs['tablePrefix'] = 'cmatic_';
     }
 ?>
-        <form method="POST">
+        <form method="post">
             <fieldset>
                 <legend>Database Connection Settings</legend>
                 <table>
                     <tr>
-                        <td><label for="host">Hostname<label></td>
+                        <td><label for="host">Hostname</label></td>
                         <td><input type="text" id="host" name="host" value="<?php echo TextUtils::htmlize($inputs['host']); ?>"/></td>
                     </tr>
                     <tr>
-                        <td><label for="port">Port<label></td>
+                        <td><label for="port">Port</label></td>
                         <td><input type="text" id="port" name="port" value="<?php echo TextUtils::htmlize($inputs['port']); ?>"/></td>
                     </tr>
                     <tr>
-                        <td><label for="db">Database Name<label></td>
+                        <td><label for="db">Database Name</label></td>
                         <td><input type="text" id="db" name="db" value="<?php echo TextUtils::htmlize($inputs['db']); ?>"/></td>
                     </tr>
                     <tr>
-                        <td><label for="user">User Name<label></td>
+                        <td><label for="user">User Name</label></td>
                         <td><input type="text" id="user" name="user" value="<?php echo TextUtils::htmlize($inputs['user']); ?>"/></td>
                     </tr>
                     <tr>
-                        <td><label for="password">Password<label></td>
+                        <td><label for="password">Password</label></td>
                         <td><input type="password" id="password" name="password" value="<?php echo TextUtils::htmlize($inputs['password']); ?>"/></td>
                     </tr>
                 </table>
@@ -63,7 +63,7 @@ function step1Body($inputs, $errorMessages = false) {
                 <legend>Application Settings</legend>
                 <table>
                     <tr>
-                        <td><label for="tablePrefix">Database Table Prefix<label></td>
+                        <td><label for="tablePrefix">Database Table Prefix</label></td>
                         <td><input type="text" id="tablePrefix" name="tablePrefix" value="<?php echo TextUtils::htmlize($inputs['tablePrefix']); ?>"/></td>
                     </tr>
                 </table>
@@ -105,7 +105,7 @@ function step2Body($confData = false) {
 ?>
 <html>
 <head>
-    <META http-equiv="Content-Style-Type" content="text/css">
+    <meta http-equiv="Content-Style-Type" content="text/css"/>
     <title>CMAT-o-Matic Installer</title>
     <link href="../resources/css/installer.css" type="text/css" rel="stylesheet"/>
 </head>
