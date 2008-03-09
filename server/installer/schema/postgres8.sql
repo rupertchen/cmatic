@@ -104,6 +104,7 @@ CREATE TABLE cmatic_reg_competitor (
     is_early boolean NOT NULL DEFAULT FALSE,
     is_discount boolean NOT NULL DEFAULT FALSE,
     amount_paid numeric(6, 2) NOT NULL DEFAULT 0,
+    is_confirmed boolean NOT NULL DEFAULT FALSE,
     /* misc */
     comments text
 );

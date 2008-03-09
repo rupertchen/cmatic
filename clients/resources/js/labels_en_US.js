@@ -84,6 +84,7 @@ cmatic.labels.type_competitor = {
     isEarlyRegistration: 'Early Registration',
     isDiscountRegistration: 'Special Discount',
     amountPaid: 'Amount Paid ($)',
+    isConfirmed: 'Confirmed',
     comments: 'Comments'
 };
 

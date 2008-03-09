@@ -101,6 +101,7 @@ $CMATIC['fieldApiNameToDbColumnMap'] = array (
         'isEarlyRegistration' => 'is_early_registration',
         'isDiscountRegistration' => 'is_discount_registration',
         'amountPaid' => 'amount_paid',
+    	'isConfirmed' => 'is_confirmed',
         'comments' => 'comments'
     ),
     'group' => array(

@@ -87,6 +87,12 @@ cmatic.registration.competitorList = function () {
                     sortable: true,
                     width: 50
                 }, {
+                	id: 'isConfirmed',
+                	dataIndex: 'isConfirmed',
+                	header: cmatic.labels.type_competitor.isConfirmed,
+                	sortable: true,
+                	width: 50
+                }, {
                     id: 'email',
                     dataIndex: 'email',
                     header: cmatic.labels.type_competitor.email,
@@ -97,13 +103,15 @@ cmatic.registration.competitorList = function () {
                     dataIndex: 'phone1',
                     header: cmatic.labels.type_competitor.phone1,
                     sortable: true,
-                    width: 50
+                    width: 50,
+                    hidden: true
                 }, {
                     id: 'phone2',
                     dataIndex: 'phone2',
                     header: cmatic.labels.type_competitor.phone2,
                     sortable: true,
-                    width: 50
+                    width: 50,
+                    hidden: true
                 }, {
                     id: 'emergencyContactName',
                     dataIndex: 'emergencyContactName',
@@ -565,6 +573,21 @@ cmatic.registration.competitorList = function () {
                                     fieldLabel: cmatic.labels.type_competitor.amountPaid,
                                     name: 'amountPaid',
                                     value: c.get('amountPaid')
+                                }, {
+                                	xtype: 'combo',
+                                	fieldLabel: cmatic.labels.type_competitor.isConfirmed,
+                                	name: 'isConfirmedLabel',
+                                	store: cmatic.constant.booleanStore,
+                                	displayField: 'label',
+                                	valueField: 'value',
+                                	typeAhead: true,
+                                	hiddenName: 'isConfirmed',
+                                	mode: 'local',
+                                	triggerAction: 'all',
+                                	selectOnFocus: true,
+                                	forceSelection: true,
+                                	value: cmatic.util.getCmaticBoolean(c.get('isConfirmed')),
+                                	allowBlank: false
                                 }]
                             };
                             var miscFieldSet = {
@@ -577,7 +600,7 @@ cmatic.registration.competitorList = function () {
                                     fieldLabel: cmatic.labels.type_competitor.comments,
                                     name: 'comments',
                                     value: c.get('comments'),
-                                    height: 150
+                                    height: 130
                                 }]
                             };
 
