@@ -92,6 +92,7 @@ cmatic.ddl._competitorRecord = Ext.data.Record.create([
     {name: 'isEarlyRegistration'},
     {name: 'isDiscountRegistration'},
     {name: 'amountPaid'},
+    {name: 'isConfirmed'},
     {name: 'comments'}
 ]);
 
