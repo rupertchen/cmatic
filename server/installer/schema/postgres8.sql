@@ -101,8 +101,8 @@ CREATE TABLE cmatic_reg_competitor (
     emergency_contact_relation text,
     emergency_contact_phone text,
     /* payment */
-    is_early boolean NOT NULL DEFAULT FALSE,
-    is_discount boolean NOT NULL DEFAULT FALSE,
+    is_early_registration boolean NOT NULL DEFAULT FALSE,
+    is_discount_registration boolean NOT NULL FALSE,
     amount_paid numeric(6, 2) NOT NULL DEFAULT 0,
     is_confirmed boolean NOT NULL DEFAULT FALSE,
     /* misc */
