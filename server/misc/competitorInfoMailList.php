@@ -23,7 +23,7 @@ foreach ($rs as $row) {
 
 function makeUrl($id) {
     $hash = str_rot13(md5($id));
-    return "http://www.ocf.berkeley.edu/~calwushu/cmat/16/competitorInfo.php?id=$id&hash=$hash";
+    return "http://www.ocf.berkeley.edu/~calwushu/cmat16data/competitorInfo.php?id=$id&hash=$hash";
 }
 
 ?>
