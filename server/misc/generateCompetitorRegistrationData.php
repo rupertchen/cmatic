@@ -68,6 +68,7 @@ function _buildEventsArray() {
     $sexTable = CmaticSchema::getTypeDbTable('sex');
     $ageGroupTable = CmaticSchema::getTypeDbTable('ageGroup');
     $formTable = CmaticSchema::getTypeDbTable('form');
+    $scoringTable = CmaticSchema::getTypeDbTable('scoring');
 
     $conn = PdoHelper::getPdo();
     $r = $conn->query("select e.event_id as event_id, e.event_code as event_code, d.long_name as division, s.long_name as sex, a.long_name as age, f.long_name as form"
@@ -90,6 +91,7 @@ function _buildCompetitorsArray() {
     $competitorTable = CmaticSchema::getTypeDbTable('competitor');
     $sexTable = CmaticSchema::getTypeDbTable('sex');
     $divisionTable = CmaticSchema::getTypeDbTable('division');
+    $scoringTable = CmaticSchema::getTypeDbTable('scoring');
 
     $competitorQuery = 'select'
         . ' c.competitor_id, c.last_name, c.first_name, c.age, c.weight, c.amount_paid,'
@@ -101,11 +103,12 @@ function _buildCompetitorsArray() {
 
     $conn = PdoHelper::getPdo();
     $r = $conn->query($competitorQuery);
-    $resultSet = $r->fetchAll(PDO::FETCH_ASSOC);
+    $competitorResultSet = $r->fetchAll(PDO::FETCH_ASSOC);
 
     $ret = array();
+
     // Set competitor info
-    foreach ($resultSet as $row) {
+    foreach ($competitorResultSet as $row) {
         $ret[$row['competitor_id']] = array('last_name' => $row['last_name'],
                                             'first_name' => $row['first_name'],
                                             'sex' => $row['sex'],
@@ -130,11 +133,21 @@ function _buildCompetitorsArray() {
                                             'group_events' => array());
     }
 
-    $individualEventQuery = '';
-    $r = $conn->query($individualEventQuery);
-    $resultSet = $r->fetchAll(PDO::FETCH_ASSOC);
+    // merge individual events
+    $eventQuery = "select event_id, competitor_id, group_id from $scoringTable order by competitor_id";
+    $r = $conn->query($eventQuery);
+    $eventResultSet = $r->fetchAll(PDO::FETCH_ASSOC);
 
-    // TODO: set group event
+    foreach ($eventResultSet as $row) {
+        if ($row['competitor_id']) {
+            // individual event
+            $ret[$row['competitor_id']]['individual_events'][] = $row['event_id'];
+        } else if ($row['group_id']) {
+            // group event
+        }
+    }
+
+    // merge group events
     $r = $conn->query($groupEventQuery);
     $resultSet = $r->fetchAll(PDO::FETCH_ASSOC);
 
