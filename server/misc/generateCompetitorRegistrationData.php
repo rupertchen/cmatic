@@ -80,7 +80,7 @@ function _buildEventsArray() {
     $ret = array();
     foreach ($resultSet as $row) {
         $ret[$row['event_id']] = array('code' => $row['event_code'],
-                                       'name' => "$row[division] $row[sex] $row[age] $row[form]");
+                                       'name' => trim(str_replace('N/A', '', "$row[division] $row[sex] $row[age] $row[form]")));
     }
 
     return $ret;
@@ -92,6 +92,8 @@ function _buildCompetitorsArray() {
     $sexTable = CmaticSchema::getTypeDbTable('sex');
     $divisionTable = CmaticSchema::getTypeDbTable('division');
     $scoringTable = CmaticSchema::getTypeDbTable('scoring');
+    $groupTable = CmaticSchema::getTypeDbTable('group');
+    $groupMemberTable = CmaticSchema::getTypeDbTable('groupMember');
 
     $competitorQuery = 'select'
         . ' c.competitor_id, c.last_name, c.first_name, c.age, c.weight, c.amount_paid,'
@@ -107,7 +109,7 @@ function _buildCompetitorsArray() {
 
     $ret = array();
 
-    // Set competitor info
+    // set competitor info
     foreach ($competitorResultSet as $row) {
         $ret[$row['competitor_id']] = array('last_name' => $row['last_name'],
                                             'first_name' => $row['first_name'],
@@ -133,23 +135,48 @@ function _buildCompetitorsArray() {
                                             'group_events' => array());
     }
 
-    // merge individual events
+    // individual and group performances
     $eventQuery = "select event_id, competitor_id, group_id from $scoringTable order by competitor_id";
     $r = $conn->query($eventQuery);
     $eventResultSet = $r->fetchAll(PDO::FETCH_ASSOC);
 
+    // groups
+    $groupQuery = "select group_id, name from $groupTable";
+    $r = $conn->query($groupQuery);
+    $groupResultSet = $r->fetchAll(PDO::FETCH_ASSOC);
+
+    // group members
+    $groupMemberQuery = "select group_id, competitor_id from $groupMemberTable order by group_id";
+    $r = $conn->query($groupMemberQuery);
+    $groupMemberResultSet = $r->fetchAll(PDO::FETCH_ASSOC);
+
+    // build group->name map
+    $groupNameMap = array();
+    foreach ($groupResultSet as $row) {
+        $groupNameMap[$row['group_id']] = $row['name'];
+    }
+
+    // build group->member map
+    $groupMemberMap = array();
+    foreach($groupMemberResultSet as $row) {
+        if (!$groupMemberMap[$row['group_id']]) {
+            $groupMemberMap[$row['group_id']] = array();
+        }
+        $groupMemberMap[$row['group_id']][] = $row['competitor_id'];
+    }
+
+    // add events
     foreach ($eventResultSet as $row) {
         if ($row['competitor_id']) {
             // individual event
             $ret[$row['competitor_id']]['individual_events'][] = $row['event_id'];
         } else if ($row['group_id']) {
             // group event
+            foreach ($groupMemberMap[$row['group_id']] as $competitorId) {
+                $ret[$competitorId]['group_events'][strval($row['event_id'])] = $groupNameMap[$row['group_id']];
+            }
         }
     }
-
-    // merge group events
-    $r = $conn->query($groupEventQuery);
-    $resultSet = $r->fetchAll(PDO::FETCH_ASSOC);
 
     return $ret;
 }
