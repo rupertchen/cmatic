@@ -17,7 +17,7 @@ function printHeader() {
 */
 class CompetitorInfoData {
 
-    public static function get() {
+    /*public static*/ function get() {
         return unserialize(
         // Begin generated data
 
