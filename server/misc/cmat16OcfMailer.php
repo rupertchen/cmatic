@@ -20,13 +20,16 @@ if ($_REQUEST['send'] && $id && $email) {
     $body = <<<EOD
 
 This is an automatically generated e-mail from the CMAT16 Registration Team.
-Your registration has been received and enterd into our system. Please
+Your registration has been received and entered into our system. Please
 double-check your details are correct by going to the following URL.
 
 $url
 
 --
 CMAT16 Registration
+
+PS: Don't forget to check out Li Qiang's seminar. Details can be found online at
+http://www.ocf.berkeley.edu/~calwushu/cmat/16/liQiang.php
 
 EOD;
 
