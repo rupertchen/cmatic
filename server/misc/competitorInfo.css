@@ -1,0 +1,25 @@
+@CHARSET "UTF-8";
+
+h1, h2 {
+    border-bottom: 1px solid black;
+}
+
+.section {
+    margin: 5px 40px;
+}
+
+td {
+    padding: 2px 3px;
+}
+
+th.fieldName {
+    background-color: #EEE;
+    padding-right: 2px 10px 2px 2px;
+    text-align: left;
+}
+
+.eventTable th,
+.eventTable td {
+    border: 1px solid black;
+    padding: 2px 3px;
+}

@@ -2,6 +2,7 @@
 <html>
     <head>
         <title>Competitor Registration Details</title>
+        <link rel="stylesheet" type="text/css" href="competitorInfo.css"/>
     </head>
     <body>
 <?php
@@ -18,8 +19,9 @@
     $PARAM_CMAT_ID = 'id';
     $PARAM_HASH = 'hash';
 
-    //require_once 'CompetitorInfoData.class.php';
-    require_once 'test.php';
+    // This file must be included as it contains
+    // all of the data provided.
+    require_once 'CompetitorInfoData.class.php';
 
     $DATA = CompetitorInfoData::get();
 
@@ -59,62 +61,71 @@
     $DETAILS = $DATA['competitors'][$CMAT_ID];
 ?>
         <h1><?php print "$DETAILS[last_name], $DETAILS[first_name] ($CMAT_ID)" ?></h1>
-        <h2>Competition Info</h2>
-        <table>
-            <tr><th scope="row">Last Name:</th><td><?php print $DETAILS['last_name']?></td></tr>
-            <tr><th scope="row">First Name:</th><td><?php print $DETAILS['first_name']?></td></tr>
-            <tr><th scope="row">Sex:</th><td><?php print $DETAILS['sex']?></td></tr>
-            <tr><th scope="row">Age:</th><td><?php print $DETAILS['age']?></td></tr>
-            <tr><th scope="row">Division:</th><td><?php print $DETAILS['division']?></td></tr>
-            <tr><th scope="row">Weight:</th><td><?php print $DETAILS['weight']?></td></tr>
-            <tr><th scope="row">Amount Paid:</th><td><?php print $DETAILS['amount_paid'] ?></td></tr>
-        </table>
-        <h2>Contact Info</h2>
-        <table>
-            <tr><th scope="row">E-Mail:</th><td><?php print $DETAILS['email'] ?></td></tr>
-            <tr><th scope="row">Primary Phone:</th><td><?php print $DETAILS['phone_1'] ?></td></tr>
-            <tr><th scope="row">Secondary Phone:</th><td><?php print $DETAILS['phone_2'] ?></td></tr>
-            <tr><th scope="row">Street Address:</th><td><?php print $DETAILS['street_address'] ?></td></tr>
-            <tr><th scope="row">City:</th><td><?php print $DETAILS['city'] ?></td></tr>
-            <tr><th scope="row">State / Province:</th><td><?php print $DETAILS['state'] ?></td></tr>
-            <tr><th scope="row">Zip / Postal Code:</th><td><?php print $DETAILS['zip'] ?></td></tr>
-            <tr><th scope="row">Country:</th><td><?php print $DETAILS['country'] ?></td></tr>
-            <tr><th scope="row">School:</th><td><?php print $DETAILS['school'] ?></td></tr>
-            <tr><th scope="row">Coach:</th><td><?php print $DETAILS['instructor'] ?></td></tr>
-        </table>
-        <h2>Emergency Contact</h2>
-        <table>
-            <tr><th scope="row">Name:</th><td><?php print $DETAILS['emergency_contact_name'] ?></td></tr>
-            <tr><th scope="row">Relation:</th><td><?php print $DETAILS['emergency_contact_relation'] ?></td></tr>
-            <tr><th scope="row">Phone:</th><td><?php print $DETAILS['emergency_contact_phone'] ?></td></tr>
-        </table>
-        <h2>Individual Events</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th scope="col">Code</th>
-                    <th scope="col">Name</th>
-                </tr>
-            </thead>
-            <tbody>
+        <div class="section">
+            <h2>Competition Info</h2>
+            <table>
+                <tr><th scope="row" class="fieldName">Last Name:</th><td><?php print $DETAILS['last_name']?></td></tr>
+                <tr><th scope="row" class="fieldName">First Name:</th><td><?php print $DETAILS['first_name']?></td></tr>
+                <tr><th scope="row" class="fieldName">Sex:</th><td><?php print $DETAILS['sex']?></td></tr>
+                <tr><th scope="row" class="fieldName">Age:</th><td><?php print $DETAILS['age']?></td></tr>
+                <tr><th scope="row" class="fieldName">Division:</th><td><?php print $DETAILS['division']?></td></tr>
+                <tr><th scope="row" class="fieldName">Weight:</th><td><?php print $DETAILS['weight']?></td></tr>
+                <tr><th scope="row" class="fieldName">Amount Paid:</th><td><?php print $DETAILS['amount_paid'] ?></td></tr>
+            </table>
+        </div>
+        <div class="section">
+            <h2>Contact Info</h2>
+            <table>
+                <tr><th scope="row" class="fieldName">E-Mail:</th><td><?php print $DETAILS['email'] ?></td></tr>
+                <tr><th scope="row" class="fieldName">Primary Phone:</th><td><?php print $DETAILS['phone_1'] ?></td></tr>
+                <tr><th scope="row" class="fieldName">Secondary Phone:</th><td><?php print $DETAILS['phone_2'] ?></td></tr>
+                <tr><th scope="row" class="fieldName">Street Address:</th><td><?php print $DETAILS['street_address'] ?></td></tr>
+                <tr><th scope="row" class="fieldName">City:</th><td><?php print $DETAILS['city'] ?></td></tr>
+                <tr><th scope="row" class="fieldName">State / Province:</th><td><?php print $DETAILS['state'] ?></td></tr>
+                <tr><th scope="row" class="fieldName">Zip / Postal Code:</th><td><?php print $DETAILS['zip'] ?></td></tr>
+                <tr><th scope="row" class="fieldName">Country:</th><td><?php print $DETAILS['country'] ?></td></tr>
+                <tr><th scope="row" class="fieldName">School:</th><td><?php print $DETAILS['school'] ?></td></tr>
+                <tr><th scope="row" class="fieldName">Coach:</th><td><?php print $DETAILS['instructor'] ?></td></tr>
+            </table>
+        </div>
+        <div class="section">
+            <h2>Emergency Contact</h2>
+            <table>
+                <tr><th scope="row" class="fieldName">Name:</th><td><?php print $DETAILS['emergency_contact_name'] ?></td></tr>
+                <tr><th scope="row" class="fieldName">Relation:</th><td><?php print $DETAILS['emergency_contact_relation'] ?></td></tr>
+                <tr><th scope="row" class="fieldName">Phone:</th><td><?php print $DETAILS['emergency_contact_phone'] ?></td></tr>
+            </table>
+        </div>
+        <div class="section">
+            <h2>Individual Events</h2>
+            <table class="eventTable">
+                <thead>
+                    <tr>
+                        <th scope="col">Code</th>
+                        <th scope="col">Name</th>
+                    </tr>
+                </thead>
+                <tbody>
 <?php foreach ($DETAILS['individual_events'] as $event_id) { ?>
                 <tr>
                     <td><?php print getEventCode($event_id); ?></td>
                     <td><?php print getEventName($event_id); ?></td>
                 </tr>
 <?php } ?>
-            </tbody>
-        </table>
-        <h2>Special (Group) Events</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th scope="col">Code</th>
-                    <th scope="col">Event Name</th>
-                    <th scope="col">Group Name</th>
-                </tr>
-            </thead>
-            <tbody>
+                </tbody>
+            </table>
+        </div>
+        <div class="section">
+            <h2>Special (Group) Events</h2>
+            <table class="eventTable">
+                <thead>
+                    <tr>
+                        <th scope="col">Code</th>
+                        <th scope="col">Event Name</th>
+                        <th scope="col">Group Name</th>
+                    </tr>
+                </thead>
+                <tbody>
 <?php foreach ($DETAILS['group_events'] as $event_id => $group_name) { ?>
                 <tr>
                     <td><?php print getEventCode($event_id); ?></td>
@@ -122,7 +133,8 @@
                     <td><?php print $group_name?></td>
                 </tr>
 <?php } ?>
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+        </div>
     </body>
 </html>

@@ -182,6 +182,7 @@ function _buildCompetitorsArray() {
 }
 
 
+// Output
 printHeader();
 printData();
 printFooter();
