@@ -8,12 +8,14 @@
 <?php
 $id = intval($_REQUEST['id']);
 $email = strval($_REQUEST['email']);
-if ($_REQUEST['send'] && $_REQUEST['id'] && $_REQUEST['email']) {
+if ($_REQUEST['send'] && $id && $email) {
 
     $hash = str_rot13(md5($id));
     $url = "http://www.ocf.berkeley.edu/~calwushu/cmat16data/competitorInfo.php?id=$id&hash=$hash";
 
     $to = $email;
+    $headers = 'From: cmat16_registration@calwushu.com' . "\n"
+        . 'Reply-To: cmat16_registration@calwushu.com' . "\n";
     $subject = '[CMAT16] Competitor Registration Details';
     $body = <<<EOD
 
