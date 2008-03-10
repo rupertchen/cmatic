@@ -172,8 +172,10 @@ function _buildCompetitorsArray() {
             $ret[$row['competitor_id']]['individual_events'][] = $row['event_id'];
         } else if ($row['group_id']) {
             // group event
-            foreach ($groupMemberMap[$row['group_id']] as $competitorId) {
-                $ret[$competitorId]['group_events'][strval($row['event_id'])] = $groupNameMap[$row['group_id']];
+            if ($groupMemberMap[$row['group_id']]) {
+                foreach ($groupMemberMap[$row['group_id']] as $competitorId) {
+                    $ret[$competitorId]['group_events'][strval($row['event_id'])] = $groupNameMap[$row['group_id']];
+                }
             }
         }
     }
