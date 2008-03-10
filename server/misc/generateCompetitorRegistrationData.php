@@ -1,0 +1,148 @@
+<?php
+
+require_once '../util/Db.php';
+
+define('CMATIC_SPLIT', '<cmatic_split>');
+
+/**
+ * Output header
+ */
+function printHeader() {
+    // Output header
+    print <<<EOD
+<?php
+
+/**
+* This is a generated class.
+*/
+class CompetitorInfoData {
+
+    public static function get() {
+        return unserialize(
+        // Begin generated data
+
+EOD;
+}
+
+
+/**
+ * Output footer
+ */
+function printFooter() {
+    // Output footer
+    print <<<EOD
+
+        // End generated data
+        );
+        ;
+    }
+}
+
+?>
+EOD;
+}
+
+
+/**
+ * Output array
+ */
+function printData() {
+    $data = array(
+        'events' => _buildEventsArray(),
+        'competitors' => _buildCompetitorsArray()
+    );
+
+    $foo = array();
+    foreach (explode(CMATIC_SPLIT, chunk_split($serialized_data = serialize($data), 80, CMATIC_SPLIT)) as $line) {
+        $foo[] = str_replace('"', '\"', $line);
+    }
+    print '"';
+    print implode("\"\n. \"", $foo);
+    print '"';
+}
+
+
+function _buildEventsArray() {
+    $eventTable = CmaticSchema::getTypeDbTable('event');
+    $divisionTable = CmaticSchema::getTypeDbTable('division');
+    $sexTable = CmaticSchema::getTypeDbTable('sex');
+    $ageGroupTable = CmaticSchema::getTypeDbTable('ageGroup');
+    $formTable = CmaticSchema::getTypeDbTable('form');
+
+    $conn = PdoHelper::getPdo();
+    $r = $conn->query("select e.event_id as event_id, e.event_code as event_code, d.long_name as division, s.long_name as sex, a.long_name as age, f.long_name as form"
+        . " from $eventTable e, $divisionTable d, $sexTable s, $ageGroupTable a, $formTable f"
+        . " where e.division_id = d.division_id and e.sex_id = s.sex_id and e.age_group_id = a.age_group_id and e.form_id = f.form_id");
+    $resultSet = $r->fetchAll(PDO::FETCH_ASSOC);
+    $conn = null;
+
+    $ret = array();
+    foreach ($resultSet as $row) {
+        $ret[$row['event_id']] = array('code' => $row['event_code'],
+                                       'name' => "$row[division] $row[sex] $row[age] $row[form]");
+    }
+
+    return $ret;
+}
+
+
+function _buildCompetitorsArray() {
+    $competitorTable = CmaticSchema::getTypeDbTable('competitor');
+    $sexTable = CmaticSchema::getTypeDbTable('sex');
+    $divisionTable = CmaticSchema::getTypeDbTable('division');
+
+    $competitorQuery = 'select'
+        . ' c.competitor_id, c.last_name, c.first_name, c.age, c.weight, c.amount_paid,'
+        . ' c.email, c.phone_1, c.phone_2, c.street_address, c.city, c.state, c.postal_code,'
+        . ' c.country, c.school, c.coach, c.emergency_contact_name, c.emergency_contact_relation, c.emergency_contact_phone,'
+        . ' s.long_name as sex, d.long_name as division'
+        . " from $competitorTable c, $sexTable s, $divisionTable d"
+        . ' where c.sex_id = s.sex_id and c.division_id = d.division_id';
+
+    $conn = PdoHelper::getPdo();
+    $r = $conn->query($competitorQuery);
+    $resultSet = $r->fetchAll(PDO::FETCH_ASSOC);
+
+    $ret = array();
+    // Set competitor info
+    foreach ($resultSet as $row) {
+        $ret[$row['competitor_id']] = array('last_name' => $row['last_name'],
+                                            'first_name' => $row['first_name'],
+                                            'sex' => $row['sex'],
+                                            'age' => $row['age'],
+                                            'division' => $row['division'],
+                                            'weight' => $row['weight'],
+                                            'amount_paid' => $row['amount_paid'],
+                                            'email' => $row['email'],
+                                            'phone_1' => $row['phone_1'],
+                                            'phone_2' => $row['phone_2'],
+                                            'street_address' => $row['street_address'],
+                                            'city' => $row['city'],
+                                            'state' => $row['state'],
+                                            'zip' => $row['postal_code'],
+                                            'country' => $row['country'],
+                                            'school' => $row['school'],
+                                            'instructor' => $row['coach'],
+                                            'emergency_contact_name' => $row['emergency_contact_name'],
+                                            'emergency_contact_relation' => $row['emergency_contact_relation'],
+                                            'emergency_contact_phone' => $row['emergency_contact_phone'],
+                                            'individual_events' => array(),
+                                            'group_events' => array());
+    }
+
+    $individualEventQuery = '';
+    $r = $conn->query($individualEventQuery);
+    $resultSet = $r->fetchAll(PDO::FETCH_ASSOC);
+
+    // TODO: set group event
+    $r = $conn->query($groupEventQuery);
+    $resultSet = $r->fetchAll(PDO::FETCH_ASSOC);
+
+    return $ret;
+}
+
+
+printHeader();
+printData();
+printFooter();
+?>
