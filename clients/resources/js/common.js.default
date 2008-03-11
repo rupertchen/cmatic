@@ -64,7 +64,8 @@ cmatic.ddl._eventRecord = Ext.data.Record.create([
     {name: 'ageGroupId'},
     {name: 'formId'},
     {name: 'ringId'},
-    {name: 'order'}
+    {name: 'order'},
+    {name: 'numCompetitors'}
 ]);
 
 

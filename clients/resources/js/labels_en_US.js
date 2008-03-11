@@ -50,7 +50,8 @@ cmatic.labels.type_event = {
     ageGroupId: cmatic.labels.type_ageGroup._name,
     formId: cmatic.labels.type_form._name,
     ringId: 'Ring',
-    order: 'Order'
+    order: 'Order',
+    numCompetitors: '# Competitors'
 };
 
 // Registration

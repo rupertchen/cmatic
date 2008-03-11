@@ -1,0 +1,9 @@
+@CHARSET "UTF-8";
+
+.x-slated-event {
+    border: 1px solid black;
+    background-color: #DDD;
+    font-size: 8px;
+    padding: 1px 3px;
+    margin: 2px 0;
+}

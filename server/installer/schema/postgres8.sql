@@ -59,8 +59,9 @@ CREATE TABLE cmatic_config_event (
     age_group_id integer NOT NULL REFERENCES cmatic_config_age_group,
     form_id integer NOT NULL REFERENCES cmatic_config_form,
     event_code text,
-    ring_id integer,
+    ring_id integer NOT NULL DEFAULT 0,
     ring_order integer,
+    num_competitors integer NOT NULL DEFAULT 0,
     UNIQUE (division_id, sex_id, age_group_id, form_id)
 );
 

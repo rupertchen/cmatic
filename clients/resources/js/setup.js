@@ -236,6 +236,11 @@ cmatic.setup.event.EventPanel = function (config) {
             dataIndex: 'order',
             width: 50
         }, {
+            header: cmatic.labels.type_event.numCompetitors,
+            sortable: true,
+            dataIndex: 'numCompetitors',
+            width: 50
+        }, {
             header: cmatic.labels.type_event.code,
             sortable: true,
             dataIndex: 'code',
@@ -382,7 +387,7 @@ cmatic.setup.event.EventSchedule = Ext.extend(Ext.Panel, {
     // private
     initComponent : function(){
         cmatic.setup.event.EventSchedule.superclass.initComponent.call(this);
-        this.store = cmatic.util.getDataStore('event');
+        cmatic.util.getDataStore('event');
     },
 
 
@@ -409,20 +414,19 @@ cmatic.setup.event.EventSchedule = Ext.extend(Ext.Panel, {
         // I'll come back and revisit this when I have time.
         // A good solution would be to use Templates and create my own DD
         // proxy and div instead of using the rather heavyweight Panel.
-        var rawSchedule = [[], [], [], [], [], [], [], []];
-        this.store.each(function (data) {
-            rawSchedule[data.get('ringId') - 1].push({
-                eventId: data.get('id'),
-                code: data.get('code')
-                // TODO: this is where size would be entered
-            });
-        });
+        var rawSchedule = [[], [], [], [], [], [], [], [], []];
+        var store = cmatic.util.getDataStore('event');
+
+        for (var i = 0; i < store.getCount(); i++) {
+            var data = store.getAt(i);
+            rawSchedule[data.get('ringId')].push(data);
+        }
 
         for (var i = 0; i < rawSchedule.length; i++) {
             var competitionRing = new cmatic.setup.event.CompetitionRing();
             for (var j = 0; j < rawSchedule[i].length; j++) {
                 var e = rawSchedule[i][j];
-                competitionRing.add({title: e.code, eventId: e.eventId});
+                competitionRing.add({eventCode: e.get('code'), eventId: e.get('id'), numCompetitors: e.get('numCompetitors'), formName: cmatic.util.getCachedFieldValue('form', 'longName', e.get('formId'))});
             }
             this.add(competitionRing);
         }
@@ -512,6 +516,10 @@ Ext.extend(cmatic.setup.event.EventSchedule.DropZone, Ext.dd.DropTarget,{
     },
 
     notifyDrop: function (dd, e, data) {
+        if (!this.lastPos) {
+            return;
+        }
+
         var order = this.lastPos.order;
         var ring = this.lastPos.ring;
 
@@ -544,7 +552,7 @@ cmatic.setup.event.CompetitionRing = Ext.extend(Ext.Container, {
     autoEl: 'div',
     defaultType: 'slatedevent',
     cls: 'x-competition-ring',
-    columnWidth: .125,
+    columnWidth: .11,
     style: 'padding: 10px 2px'
 });
 Ext.reg('competitionring', cmatic.setup.event.CompetitionRing);
@@ -552,14 +560,74 @@ Ext.reg('competitionring', cmatic.setup.event.CompetitionRing);
 /**
  * TODO: Comment this
  */
-cmatic.setup.event.SlatedEvent = Ext.extend(Ext.Panel, {
+cmatic.setup.event.SlatedEvent = Ext.extend(Ext.BoxComponent, {
     anchor: '100%',
-    draggable: true,
-    cls: 'x-slated-event'
     /**
      * eventId (required)
      * TODO: Comment this
      */
+    /**
+     * eventCode (required)
+     * TODO: Comment this
+     */
+    /**
+     * numCompetitors (required)
+     * TODO: comment this
+     */
+    /**
+     * formName (required)
+     * TODO: comment this
+     */
+
+    initComponent : function () {
+        cmatic.setup.event.SlatedEvent.superclass.initComponent.call(this);
+    },
+
+    onRender : function(ct, position){
+        cmatic.setup.event.SlatedEvent.superclass.onRender.call(this, ct, position);
+
+        // assume there is no existing markup, if there
+        // is, it's gone now.
+        this.el = ct.createChild({
+            id: this.id,
+            cls: 'x-slated-event'
+        }, position);
+        this.el.update(this.eventCode + " " + this.formName);
+        // Every competitor is another 3 pixels. 10 is added on top of that just for the event name
+        this.el.setStyle('height', ((this.numCompetitors * 3) + 10) + 'px');
+
+        // faking the header for panel DD
+        this.header = this.el;
+    },
+
+    afterRender : function(){
+        this.el.show();
+        cmatic.setup.event.SlatedEvent.superclass.afterRender.call(this);
+        this.dd = new Ext.Panel.DD(this, null)
+    },
+
+    // Yoinked from Panel.js so this class can mimic a panel
+    createGhost : function(cls, useShim, appendTo){
+        var el = document.createElement('div');
+        el.className = 'x-panel-ghost ' + (cls ? cls : '');
+        if(this.header){
+            el.appendChild(this.el.dom.firstChild.cloneNode(true));
+        }
+        Ext.fly(el.appendChild(document.createElement('ul'))).setHeight(this.el.getHeight());
+        el.style.width = this.el.dom.offsetWidth + 'px';;
+        if(!appendTo){
+            this.container.dom.appendChild(el);
+        }else{
+            Ext.getDom(appendTo).appendChild(el);
+        }
+        if(useShim !== false && this.el.useShim !== false){
+            var layer = new Ext.Layer({shadow:false, useDisplay:true, constrain:false}, el);
+            layer.show();
+            return layer;
+        }else{
+            return new Ext.Element(el);
+        }
+    }
 });
 Ext.reg('slatedevent', cmatic.setup.event.SlatedEvent);
 
@@ -711,8 +779,7 @@ cmatic.setup.app = function () {
                                         text: cmatic.labels.button.save,
                                         handler: function () {
                                             // TODO: It's ugly that the save code is sitting in the nav tree, but
-                                            // for now, it will work. This should be addressed when the schedule is
-                                            // reimplemented without using panels.
+                                            // for now, it will work.
 
                                             // Walk through the schedule (DOM) collecting ids, rings, and orders
                                             var updateOrders = [];
@@ -720,7 +787,7 @@ cmatic.setup.app = function () {
                                             for (var i = 0; i < rings.length; i++) {
                                                 var ringEvents = rings[i].items.items;
                                                 for (var j = 0; j < ringEvents.length; j++) {
-                                                    updateOrders.push({id: ringEvents[j].eventId, ringId: (i + 1), order: j});
+                                                    updateOrders.push({id: ringEvents[j].eventId, ringId: i, order: j});
                                                 }
                                             }
 
