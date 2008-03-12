@@ -87,11 +87,11 @@ cmatic.registration.competitorList = function () {
                     sortable: true,
                     width: 50
                 }, {
-                	id: 'isConfirmed',
-                	dataIndex: 'isConfirmed',
-                	header: cmatic.labels.type_competitor.isConfirmed,
-                	sortable: true,
-                	width: 50
+                    id: 'isConfirmed',
+                    dataIndex: 'isConfirmed',
+                    header: cmatic.labels.type_competitor.isConfirmed,
+                    sortable: true,
+                    width: 50
                 }, {
                     id: 'email',
                     dataIndex: 'email',
@@ -574,20 +574,20 @@ cmatic.registration.competitorList = function () {
                                     name: 'amountPaid',
                                     value: c.get('amountPaid')
                                 }, {
-                                	xtype: 'combo',
-                                	fieldLabel: cmatic.labels.type_competitor.isConfirmed,
-                                	name: 'isConfirmedLabel',
-                                	store: cmatic.constant.booleanStore,
-                                	displayField: 'label',
-                                	valueField: 'value',
-                                	typeAhead: true,
-                                	hiddenName: 'isConfirmed',
-                                	mode: 'local',
-                                	triggerAction: 'all',
-                                	selectOnFocus: true,
-                                	forceSelection: true,
-                                	value: cmatic.util.getCmaticBoolean(c.get('isConfirmed')),
-                                	allowBlank: false
+                                    xtype: 'combo',
+                                    fieldLabel: cmatic.labels.type_competitor.isConfirmed,
+                                    name: 'isConfirmedLabel',
+                                    store: cmatic.constant.booleanStore,
+                                    displayField: 'label',
+                                    valueField: 'value',
+                                    typeAhead: true,
+                                    hiddenName: 'isConfirmed',
+                                    mode: 'local',
+                                    triggerAction: 'all',
+                                    selectOnFocus: true,
+                                    forceSelection: true,
+                                    value: cmatic.util.getCmaticBoolean(c.get('isConfirmed')),
+                                    allowBlank: false
                                 }]
                             };
                             var miscFieldSet = {
@@ -739,24 +739,28 @@ cmatic.registration.competitorList = function () {
                                                 id: 'code',
                                                 dataIndex: 'code',
                                                 header: cmatic.labels.type_event.code,
-                                                sortable: true
+                                                sortable: true,
+                                                width: 50
                                             }, {
                                                 id: 'divisionId',
                                                 dataIndex: 'divisionId',
                                                 header: cmatic.labels.type_event.divisionId,
                                                 sortable: true,
+                                                width: 50,
                                                 renderer: cmatic.util.getParameterRenderer('division')
                                             }, {
                                                 id: 'sexId',
                                                 dataIndex: 'sexId',
                                                 header: cmatic.labels.type_event.sexId,
                                                 sortable: true,
+                                                width: 40,
                                                 renderer: cmatic.util.getParameterRenderer('sex')
                                             }, {
                                                 id: 'ageGroupId',
                                                 dataIndex: 'ageGroupId',
                                                 header: cmatic.labels.type_event.ageGroupId,
                                                 sortable: true,
+                                                width: 50,
                                                 renderer: cmatic.util.getParameterRenderer('ageGroup')
                                             }, {
                                                 id: 'formId',
@@ -781,7 +785,7 @@ cmatic.registration.competitorList = function () {
                                             constrain: true,
                                             resizable: false,
                                             modal: true,
-                                            width: 450,
+                                            width: 650,
                                             autoHeight: true,
                                             items: [formPanel]
                                         });
