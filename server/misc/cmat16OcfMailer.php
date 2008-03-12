@@ -30,6 +30,10 @@ CMAT16 Registration
 
 
 Announcements:
+(*) Competitors in traditional straightsword, broadsword, and southern broadsword
+events must use weapons that can support their own weight when rested point down
+on the ground. More details can be found at
+http://www.ocf.berkeley.edu/~calwushu/cmat/16/competitors.php#rules .
 
 (*) Don't forget to check out Li Qiang's seminar. Details can be found online at
 http://www.ocf.berkeley.edu/~calwushu/cmat/16/liQiang.php .
