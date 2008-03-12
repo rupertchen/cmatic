@@ -28,8 +28,14 @@ $url
 --
 CMAT16 Registration
 
-PS: Don't forget to check out Li Qiang's seminar. Details can be found online at
-http://www.ocf.berkeley.edu/~calwushu/cmat/16/liQiang.php
+
+Announcements:
+
+(*) Don't forget to check out Li Qiang's seminar. Details can be found online at
+http://www.ocf.berkeley.edu/~calwushu/cmat/16/liQiang.php .
+
+(*) There deadline for purchasing shoutouts has been extended. Get yours today!
+Find details at http://www.ocf.berkeley.edu/~calwushu/cmat/16/shoutouts.php .
 
 EOD;
 
