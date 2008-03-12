@@ -114,7 +114,7 @@ function _buildCompetitorsArray() {
         $ret[$row['competitor_id']] = array('last_name' => $row['last_name'],
                                             'first_name' => $row['first_name'],
                                             'sex' => $row['sex'],
-                                            'age' => $row['age'],
+                                            'age' => _convertAgeToAgeGroup($row['age']),
                                             'division' => $row['division'],
                                             'weight' => $row['weight'],
                                             'amount_paid' => $row['amount_paid'],
@@ -181,6 +181,24 @@ function _buildCompetitorsArray() {
     }
 
     return $ret;
+}
+
+
+function _convertAgeToAgeGroup($age) {
+    $age = intval($age);
+    if ($age <= 7) {
+        return "<7";
+    } else if ($age <= 12) {
+        return "8-12";
+    } else if ($age <= 17) {
+        return "13-17";
+    } else if ($age <= 35) {
+        return "18-35";
+    } else if ($age <= 52) {
+        return "36-52";
+    } else {
+        return "53+";
+    }
 }
 
 
