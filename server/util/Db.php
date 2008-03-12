@@ -180,11 +180,10 @@ class CmaticSchema {
 
     /**
      * Updates all event codes
-     * TODO: Put this into CmaticSchema?
-     * @param $c {PDO Connection}
+     * @param $conn {PDO Connection}
      * @param $onlyNulls {boolean} True to only update if the code is currently NULL
      */
-    public static function updateEventCodes($c, $onlyNulls) {
+    public static function updateEventCodes($conn, $onlyNulls) {
         // This snippet of SQL is intended to be run within an update where the
         // event db table is available.
         // This could be better, but in Postgres 8.0, we can't alias the update
@@ -203,8 +202,29 @@ class CmaticSchema {
             $eventDbTable, $eventDbTable, $eventDbTable, $eventDbTable
             );
         $whereClause = $onlyNulls ? ' where event_code is null' : '';
-        $c->query(sprintf('update %s set event_code = (%s)%s', CmaticSchema::getTypeDbTable('event'), $selectEventSql, $whereClause));
+        $conn->query(sprintf('update %s set event_code = (%s)%s', CmaticSchema::getTypeDbTable('event'), $selectEventSql, $whereClause));
         return true;
+    }
+
+
+    /**
+     * Updates all num competitors
+     *
+     * @param $conn {PDO Connection}
+     */
+    public static function updateNumCompetitors($conn) {
+        // get counts for all events
+        $scoringTable = CmaticSchema::getTypeDbTable('scoring');
+        $eventTable = CmaticSchema::getTypeDbTable('event');
+        $r = $conn->query("select event_id, count(*) from $scoringTable group by event_id");
+        $countResultSet = $r->fetchAll(PDO::FETCH_ASSOC);
+
+        // Reset all counts to 0
+        $conn->query("update $eventTable set num_competitors = 0");
+        // Set all new counts
+        foreach ($countResultSet as $row) {
+            $conn->query(sprintf("update $eventTable set num_competitors = %d where event_id = %d", $row['count'], $row['event_id']));
+        }
     }
 }
 

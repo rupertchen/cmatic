@@ -192,7 +192,6 @@ cmatic.setup.event = function () {
  * subclass of Ext.grid.GridPanel
  */
 cmatic.setup.event.EventPanel = function (config) {
-    var eventDs = cmatic.util.getDataStore('event');
 
     /**
      * Fill a field set for the Mass Add Event form.
@@ -217,9 +216,9 @@ cmatic.setup.event.EventPanel = function (config) {
         layout: 'fit',
         enableColumnMove: false,
         autoScroll: true,
-        autoExpandColumn: 7,
+        autoExpandColumn: 8,
         stripeRows: true,
-        store: eventDs,
+        store: cmatic.util.getDataStore('event'),
         colModel: new Ext.grid.ColumnModel([{
             header: cmatic.labels.setup.internalId,
             sortable: true,
@@ -268,7 +267,7 @@ cmatic.setup.event.EventPanel = function (config) {
         }]),
         tbar: [{
             text: cmatic.labels.button.reload,
-            handler: function () { eventDs.reload(); }
+            handler: function () { cmatic.util.getDataStore('event').reload(); }
         }, {
             text: cmatic.labels.button.add,
             handler: function () {
@@ -328,7 +327,7 @@ cmatic.setup.event.EventPanel = function (config) {
                             url: cmatic.url.massAddEvents,
                             waitMsg: cmatic.labels.eventManagement.addingEvents,
                             success: function () {
-                                eventDs.reload();
+                                cmatic.util.getDataStore('event').reload();
                                 win.close();
                             },
                             failure: function (form, action) { Ext.Msg.alert(cmatic.labels.message.error + ':105', cmatic.labels.message.changesNotSaved); }
@@ -349,10 +348,27 @@ cmatic.setup.event.EventPanel = function (config) {
                         // the call itself may have had errors, but we'll
                         // pretend that never happens for now
                         Ext.Msg.alert(cmatic.labels.message.success, cmatic.labels.message.changesSaved);
-                        eventDs.reload();
+                        cmatic.util.getDataStore('event').reload();
                     },
                     failure: function () {
                         Ext.Msg.alert(cmatic.labels.message.error + ':106', cmatic.labels.message.changesNotSaved);
+                    }
+                });
+            }
+        }, {
+            text: cmatic.labels.button.updateNumCompetitors,
+            handler: function () {
+                Ext.Ajax.request({
+                    url: cmatic.url.massUpdateNumCompetitors,
+                    success: function () {
+                        // TODO: This just means a successful HTTP request,
+                        // the call itself may have had errors, but we'll
+                        // pretend that never happens for now
+                        Ext.Msg.alert(cmatic.labels.message.success, cmatic.labels.message.changesSaved);
+                        cmatic.util.getDataStore('event').reload();
+                    },
+                    failure: function () {
+                        Ext.Msg.alert(cmatic.labels.message.error + ':121', cmatic.labels.message.changesNotSaved);
                     }
                 });
             }
@@ -422,14 +438,18 @@ cmatic.setup.event.EventSchedule = Ext.extend(Ext.Panel, {
             rawSchedule[data.get('ringId')].push(data);
         }
 
+		this.suspendEvents();
         for (var i = 0; i < rawSchedule.length; i++) {
             var competitionRing = new cmatic.setup.event.CompetitionRing();
+            competitionRing.suspendEvents();
             for (var j = 0; j < rawSchedule[i].length; j++) {
                 var e = rawSchedule[i][j];
                 competitionRing.add({eventCode: e.get('code'), eventId: e.get('id'), numCompetitors: e.get('numCompetitors'), formName: cmatic.util.getCachedFieldValue('form', 'longName', e.get('formId'))});
             }
+            competitionRing.resumeEvents();
             this.add(competitionRing);
         }
+        this.resumeEvents();
     }
 });
 Ext.reg('eventschedule', cmatic.setup.event.EventSchedule);
@@ -774,7 +794,10 @@ cmatic.setup.app = function () {
                                     title: cmatic.labels.navTree.schedule,
                                     tbar: [{
                                         text: cmatic.labels.button.reload,
-                                        handler: function () { Ext.Msg.alert('Todo', 'Not implemented yet.'); }
+                                        handler: function () {
+                                            // TODO RPC: do this after the scheduler is well behaved (like grid)
+                                            Ext.Msg.alert('Todo', 'Not implemented yet.');
+                                        }
                                     }, {
                                         text: cmatic.labels.button.save,
                                         handler: function () {
@@ -858,6 +881,7 @@ cmatic.setup.app = function () {
         cmatic.util.getDataStore('sex');
         cmatic.util.getDataStore('ageGroup');
         cmatic.util.getDataStore('form');
+        cmatic.util.getDataStore('event');
     }
 
 
