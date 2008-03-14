@@ -27,6 +27,7 @@ cmatic.url = {
     set: cmatic.base.serverApiUrl + 'set.php',
     massAddEvents: cmatic.base.serverApiUrl + 'massAddEvents.php',
     massUpdateEventCodes: cmatic.base.serverApiUrl + 'massUpdateEventCodes.php'
+    massUpdateNumCompetitors: cmatic.base.serverApiUrl + 'massUpdateNumCompetitors.php'
 };
 
 
