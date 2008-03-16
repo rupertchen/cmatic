@@ -91,7 +91,8 @@ cmatic.registration.competitorList = function () {
                     dataIndex: 'isConfirmed',
                     header: cmatic.labels.type_competitor.isConfirmed,
                     sortable: true,
-                    width: 50
+                    width: 50,
+		    renderer: function (x) { if (x) { return x; } else { return '<span style="color: red; font-weight: bold;">FALSE</span>'; } }
                 }, {
                     id: 'email',
                     dataIndex: 'email',
