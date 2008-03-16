@@ -431,14 +431,14 @@ cmatic.setup.event.EventSchedule = Ext.extend(Ext.Panel, {
         // A good solution would be to use Templates and create my own DD
         // proxy and div instead of using the rather heavyweight Panel.
         var rawSchedule = [[], [], [], [], [], [], [], [], []];
-        var store = cmatic.util.getDataStore('event');
+        this.store = cmatic.util.getDataStore('event');
 
-        for (var i = 0; i < store.getCount(); i++) {
-            var data = store.getAt(i);
+        for (var i = 0; i < this.store.getCount(); i++) {
+            var data = this.store.getAt(i);
             rawSchedule[data.get('ringId')].push(data);
         }
 
-		this.suspendEvents();
+        this.suspendEvents();
         for (var i = 0; i < rawSchedule.length; i++) {
             var competitionRing = new cmatic.setup.event.CompetitionRing();
             competitionRing.suspendEvents();
@@ -599,9 +599,6 @@ cmatic.setup.event.SlatedEvent = Ext.extend(Ext.BoxComponent, {
      * TODO: comment this
      */
 
-    initComponent : function () {
-        cmatic.setup.event.SlatedEvent.superclass.initComponent.call(this);
-    },
 
     onRender : function(ct, position){
         cmatic.setup.event.SlatedEvent.superclass.onRender.call(this, ct, position);
