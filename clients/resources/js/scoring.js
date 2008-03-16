@@ -96,21 +96,25 @@ cmatic.scoring.app = function () {
         return new Ext.grid.GridPanel({
             region: 'west',
             collapsible: true,
+            split: true,
+            minWidth: 100,
+            maxWidth: 600,
             title: cmatic.labels.scoring.eventList,
             width: 300,
+            autoExpandColumn: 1,
             store: cmatic.util.getDataStore('event'),
             columns: [{
                 id: 'code',
                 dataIndex: 'code',
                 header: cmatic.labels.type_event.code,
                 sortable: true,
-                width: 40
+                width: 30
             }, {
                 id: 'id',
                 dataIndex: 'id',
-                header: cmatic.labels.type_event.id,
+                header: cmatic.labels.type_event._name,
                 sortable: true,
-                renderer: cmatic.util.getFullEventNameRenderer
+                renderer: cmatic.util.getShortEventNameRenderer
             }],
             viewConfig: {forceFit: true},
             autoScroll: true,
@@ -176,13 +180,33 @@ cmatic.scoring.app = function () {
         });
     }
 
+
+    function _startTasks () {
+        // Start a simple clock task that updates a div once per second
+        var refreshEventList = {
+            run: function(){
+                cmatic.util.getDataStore('event').reload();
+            },
+            interval: 59000 // 59 seconds
+        }
+
+        Ext.TaskMgr.start(refreshEventList);
+    }
+
     return {
         init: function () {
             _primeDataStores();
 
             Ext.QuickTips.init();
             _ringNumberPrompt();
+
+            // Give some time for the browser to take care of everything
+            // before unhiding the UI to allow user interaction.
             setTimeout(cmatic.util.removeLoadingMask, 2500);
+
+            // Don't start performing reoccuring tasks until aft er the
+            // user has been using the client (we guess) for some time.
+            setTimeout(_startTasks, 60000);
         }
     };
 }();

@@ -246,6 +246,22 @@ cmatic.util.getFullEventNameRenderer = function (eventId) {
 
 
 /**
+ * Return the short name of the event with division, sex, and age group shorthands
+ * and full form names. If the "name" of any of the components is "N", it is dropped
+ * to make the result more concise.
+ */
+cmatic.util.getShortEventNameRenderer = function (eventId) {
+    var fullEventName = String.format('{0}{1}{2}: {3}',
+        cmatic.util.getCachedFieldValue('division', 'shortName', cmatic.util.getCachedFieldValue('event', 'divisionId', eventId)),
+        cmatic.util.getCachedFieldValue('sex', 'shortName', cmatic.util.getCachedFieldValue('event', 'sexId', eventId)),
+        cmatic.util.getCachedFieldValue('ageGroup', 'shortName', cmatic.util.getCachedFieldValue('event', 'ageGroupId', eventId)),
+        cmatic.util.getParameterRenderer('form')(cmatic.util.getCachedFieldValue('event', 'formId', eventId))
+    );
+    return fullEventName.replace(/N\/A/g, '').trim();
+}
+
+
+/**
  * TODO: Comment this
  * Enhance it so we can pass an error code?
  */
