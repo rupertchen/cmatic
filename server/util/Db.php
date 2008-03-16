@@ -120,6 +120,7 @@ $CMATIC['fieldApiNameToDbColumnMap'] = array (
         'eventId' => 'event_id',
         'competitorId' => 'competitor_id',
         'groupId' => 'group_id',
+        'order' => 'performance_order',
         'judge0' => 'judge_0',
         'judge1' => 'judge_1',
         'judge2' => 'judge_2',
@@ -136,6 +137,9 @@ $CMATIC['fieldApiNameToDbColumnMap'] = array (
         'timeDeduction' => 'time_deduction',
         'otherDeduction' => 'other_deduction',
         'finalScore' => 'final_score',
+        'tieBreaker0' => 'tie_breaker_0',
+        'tieBreaker1' => 'tie_breaker_1',
+        'tieBreaker2' => 'tie_breaker_2',
         'placement' => 'placement'
     )
 );
