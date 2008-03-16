@@ -23,8 +23,22 @@ cmatic.scoring.app = function () {
         cmatic.util.getDataStore('form');
         cmatic.util.getDataStore('competitor');
         cmatic.util.getDataStore('group');
-
     }
+
+
+    function _reloadDataStores () {
+        // This should include everything from _primeDataStores
+        cmatic.util.getDataStore('division').reload();
+        cmatic.util.getDataStore('sex').reload();
+        cmatic.util.getDataStore('ageGroup').reload();
+        cmatic.util.getDataStore('form').reload();
+        cmatic.util.getDataStore('competitor').reload();
+        cmatic.util.getDataStore('group').reload();
+
+        // Also reload the events for this ring.
+        cmatic.util.getDataStore('event').reload();
+    }
+
 
     function _primeEventStore(ringNumber) {
         var eventStore = new Ext.data.Store({
@@ -142,6 +156,10 @@ cmatic.scoring.app = function () {
                 xtype: 'panel',
                 title: 'FAQ',
                 contentEl: 'faq'
+            }],
+            bbar: [{
+                text: cmatic.labels.button.reloadAll,
+                handler: _reloadDataStores
             }]
         });
     }

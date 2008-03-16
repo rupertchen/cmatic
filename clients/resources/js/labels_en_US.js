@@ -147,7 +147,8 @@ cmatic.labels.button = {
     editGroupDetails: 'Edit Group Details',
     remove: 'Remove',
     showFinished: 'Show Finished',
-    updateNumCompetitors: 'Update Competitors Per Event'
+    updateNumCompetitors: 'Update Competitors Per Event',
+    reloadAll: 'Reload All Data'
 };
 
 
