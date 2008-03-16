@@ -3,7 +3,167 @@
  */
 Ext.namespace('cmatic.scoring');
 
+
+/**
+ * Retrieve the name of a competitor or group for display in the
+ * scoring window
+ */
+cmatic.scoring.getCompetitorNameRenderer = function (competitorId) {
+    var last = cmatic.util.getCachedFieldValue('competitor', 'lastName', competitorId);
+    var first = cmatic.util.getCachedFieldValue('competitor', 'firstName', competitorId);
+    var cId = cmatic.util.competitorIdRenderer(competitorId);
+    return last + ', ' + first + ' <span>(' + cId + ')</span>';
+};
+
+
+cmatic.scoring.getGroupNameRenderer = function (groupId) {
+    return groupId;
+}
+
+cmatic.scoring.Event = Ext.extend(Ext.grid.GridPanel, {
+    closable: true,
+    enableColumnMove: false,
+    autoScroll: true,
+    stripeRows: true,
+
+    initComponent: function () {
+        this.title = cmatic.util.getShortEventNameRenderer(this.eventId);
+        this.tbar = [{
+            text: cmatic.labels.button.reload,
+            scope: this,
+            handler: this.reloadStore
+        }, {
+            text: cmatic.labels.button.save,
+            scope: this,
+            handler: this.saveScores
+        }];
+
+        // TODO: FIXME: should not have this hard-coded
+        this.isGroup = /^NNN:/.test(this.title);
+        // TODO: FIXME: should not have this hard-coded
+        this.isNandu = /\(Nandu\)/.test(this.title);
+
+        this.autoExpandColumn = 2;
+        this.colModel = new Ext.grid.ColumnModel([{
+            header: cmatic.labels.type_scoring.id,
+            dataIndex: 'id',
+            sortable: true,
+            hidden: true
+        }, {
+            header: cmatic.labels.type_scoring.short_order,
+            dataIndex: 'order',
+            sortable: true,
+            width: 35
+        }, {
+            header: this.isGroup ? cmatic.labels.type_scoring.groupId : cmatic.labels.type_scoring.competitorId,
+            dataIndex: this.isGroup ? 'groupId' : 'competitorId',
+            sortable: true,
+            renderer: this.isGroup ? cmatic.scoring.getGroupNameRenderer : cmatic.scoring.getCompetitorNameRenderer
+        }, {
+            header: cmatic.labels.type_scoring.short_score0,
+            dataIndex: 'score0',
+            sortable: true,
+            width: 40
+        }, {
+            header: cmatic.labels.type_scoring.short_score1,
+            dataIndex: 'score1',
+            sortable: true,
+            width: 40
+        }, {
+            header: cmatic.labels.type_scoring.short_score2,
+            dataIndex: 'score2',
+            sortable: true,
+            width: 40
+        }, {
+            header: cmatic.labels.type_scoring.short_score3,
+            dataIndex: 'score3',
+            sortable: true,
+            width: 40
+        }, {
+            header: cmatic.labels.type_scoring.short_score4,
+            dataIndex: 'score4',
+            sortable: true,
+            width: 40
+        }, {
+            header: cmatic.labels.type_scoring.short_score5,
+            dataIndex: 'score5',
+            sortable: true,
+            width: 40,
+            hidden: !this.isNandu
+        }, {
+            header: cmatic.labels.type_scoring.time,
+            dataIndex: 'time',
+            sortable: true,
+            width: 40
+        }, {
+            header: cmatic.labels.type_scoring.short_otherDeduction,
+            dataIndex: 'otherDeduction',
+            sortable: true,
+            width: 50
+        }, {
+            header: cmatic.labels.type_scoring.short_timeDeduction,
+            dataIndex: 'timeDeduction',
+            sortable: true,
+            width: 60
+        }, {
+            header: cmatic.labels.type_scoring.short_tieBreaker0,
+            dataIndex: 'tieBreaker0',
+            sortable: true,
+            width: 30,
+            hidden: true
+        }, {
+            header: cmatic.labels.type_scoring.short_tieBreaker1,
+            dataIndex: 'tieBreaker1',
+            sortable: true,
+            width: 30,
+            hidden: true
+        }, {
+            header: cmatic.labels.type_scoring.short_tieBreaker2,
+            dataIndex: 'tieBreaker2',
+            sortable: true,
+            width: 30,
+            hidden: true
+        }, {
+            header: cmatic.labels.type_scoring.short_finalScore,
+            dataIndex: 'finalScore',
+            sortable: true,
+            width: 40
+        }, {
+            header: cmatic.labels.type_scoring.short_placement,
+            dataIndex: 'placement',
+            sortable: true,
+            width: 40
+        }]);
+        cmatic.scoring.Event.superclass.initComponent.call(this);
+    },
+
+
+    reloadStore: function () {
+        this.askConfirmation(function (x) {
+            if ('yes' == x) {
+                this.store.reload();
+            }
+        }, this);
+    },
+
+
+    saveScores: function () {
+        // TODO: Write this
+        Ext.Msg.alert('TODO', 'save scores here');
+    },
+
+
+    askConfirmation: function (callback, scope) {
+        Ext.Msg.confirm('__ Confirmation', '-- are you sure?', callback, scope);
+    }
+});
+Ext.reg('scoringevent', cmatic.scoring.Event);
+
 cmatic.scoring.app = function () {
+
+    // private "constants"
+    var EVENT_TAB_ID_PREFIX = 'eventTab_';
+    var SCORING_STORE_ID_PREFIX = 'scoringStore_';
 
     // private member variables
     var headerPanel;
@@ -124,11 +284,17 @@ cmatic.scoring.app = function () {
                 sortable: true,
                 width: 30
             }, {
-                id: 'id',
+                id: 'id-prettyprint',
                 dataIndex: 'id',
                 header: cmatic.labels.type_event._name,
                 sortable: true,
                 renderer: cmatic.util.getShortEventNameRenderer
+            }, {
+                id: 'id',
+                dataIndex: 'id',
+                header: cmatic.labels.type_event.id,
+                sortable: true,
+                hidden: true
             }],
             viewConfig: {forceFit: true},
             autoScroll: true,
@@ -160,6 +326,16 @@ cmatic.scoring.app = function () {
             bbar: [{
                 text: cmatic.labels.button.reloadAll,
                 handler: _reloadDataStores
+            }, {
+                // TODO: RPC: remove this.
+                // Fake way to open an event for now.
+                text: '__Open IMC30 (194)',
+                handler: function () { cmatic.scoring.app.openEventTab(194); }
+            }, {
+                // TODO: RPC: remove this.
+                // Fake way to open an event for now.
+                text: '__Open NNN71 (686)',
+                handler: function () { cmatic.scoring.app.openEventTab(686); }
             }]
         });
     }
@@ -211,6 +387,17 @@ cmatic.scoring.app = function () {
         Ext.TaskMgr.start(refreshEventList);
     }
 
+
+    function _getEventTabId(eventId) {
+        return EVENT_TAB_ID_PREFIX + eventId;
+    }
+
+
+    function _getScoringStoreId(eventId) {
+        return SCORING_STORE_ID_PREFIX + eventId;
+    }
+
+
     return {
         init: function () {
             _primeDataStores();
@@ -225,6 +412,57 @@ cmatic.scoring.app = function () {
             // Don't start performing reoccuring tasks until aft er the
             // user has been using the client (we guess) for some time.
             setTimeout(_startTasks, 60000);
+        },
+
+
+        /**
+        * WARN: does not load data store
+        */
+        getEventScoringDataStore: function (eventId) {
+            var storeId = _getScoringStoreId(eventId);
+            var s = Ext.StoreMgr.get(storeId);
+            if (!s) {
+                var s = new Ext.data.Store({
+                    proxy: new Ext.data.HttpProxy({
+                        url: cmatic.url.get,
+                        method: 'POST'
+                    }),
+                    baseParams: {
+                        type: 'scoring',
+                        filterField: 'eventId',
+                        filterValue: eventId
+                    },
+                    reader: new Ext.data.JsonReader({
+                        root: 'records',
+                        id: 'id'
+                    }, cmatic.ddl._scoringRecord),
+                    sortInfo: {
+                        field: 'order',
+                        direction: 'ASC'
+                    }
+                });
+                Ext.StoreMgr.add(_getScoringStoreId(eventId), s);
+            }
+            return s;
+        },
+
+
+        openEventTab: function (eventId) {
+            // TODO: in progress
+            // create or find panel
+            var eventTabId = _getEventTabId(eventId);
+            var panel = mainPanel.getComponent(eventTabId);
+            if (!panel) {
+                var store = cmatic.scoring.app.getEventScoringDataStore(eventId);
+                store.load();
+                panel = new cmatic.scoring.Event({
+                    id: eventTabId,
+                    eventId: eventId,
+                    store: store
+                });
+            }
+            mainPanel.add(panel);
+            mainPanel.setActiveTab(panel);
         }
     };
 }();

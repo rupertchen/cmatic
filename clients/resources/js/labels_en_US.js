@@ -110,6 +110,7 @@ cmatic.labels.type_scoring = {
     eventId: cmatic.labels.type_event._name,
     competitorId: cmatic.labels.type_competitor._name,
     groupId: cmatic.labels.type_group._name,
+    order: 'Order',
     judge0: 'Head Judge',
     judge1: 'Judge 2',
     judge2: 'Judge 3',
@@ -126,7 +127,24 @@ cmatic.labels.type_scoring = {
     timeDeduction: 'Deduction (Time)',
     otherDeduction: 'Deduction (Other)',
     finalScore: 'Final Score',
-    placement: 'Placement'
+    tieBreaker0: '1st Tie Breaker',
+    tieBreaker1: '2nd Tie Breaker',
+    tieBreaker2: '3rd Tie Breaker',
+    placement: 'Placement',
+    short_order: '#',
+    short_score0: 'S:1',
+    short_score1: 'S:2',
+    short_score2: 'S:3',
+    short_score3: 'S:4',
+    short_score4: 'S:5',
+    short_score5: 'S:6',
+    short_timeDeduction: 'T.Deduct.',
+    short_otherDeduction: 'Deduct',
+    short_finalScore: 'Final',
+    short_tieBreaker0: 'TB:1',
+    short_tieBreaker1: 'TB:2',
+    short_tieBreaker2: 'TB:3',
+    short_placement: 'Place'
 };
 
 

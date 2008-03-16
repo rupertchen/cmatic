@@ -116,8 +116,28 @@ cmatic.ddl._scoringRecord = Ext.data.Record.create([
     {name: 'id'},
     {name: 'eventId'},
     {name: 'competitorId'},
-    {name: 'ringId'},
-    {name: 'order'}
+    {name: 'groupId'},
+    {name: 'order'},
+    {name: 'judge0'},
+    {name: 'judge1'},
+    {name: 'judge2'},
+    {name: 'judge3'},
+    {name: 'judge4'},
+    {name: 'judge5'},
+    {name: 'score0'},
+    {name: 'score1'},
+    {name: 'score2'},
+    {name: 'score3'},
+    {name: 'score4'},
+    {name: 'score5'},
+    {name: 'time'},
+    {name: 'timeDeduction'},
+    {name: 'otherDeduction'},
+    {name: 'finalScore'},
+    {name: 'tieBreaker0'},
+    {name: 'tieBreaker1'},
+    {name: 'tieBreaker2'},
+    {name: 'placement'}
 ]);
 
 
@@ -161,6 +181,8 @@ cmatic.util.getDataStore = function (cmaticType) {
             case 'groupMember':
                 rc = cmatic.ddl._groupMemberRecord;
                 break;
+            case 'scoring':
+                rc = cmatic.ddl._scoringRecord;
             default:
                 rc = cmatic.ddl._eventParameterRecord;
         }
@@ -259,6 +281,11 @@ cmatic.util.getShortEventNameRenderer = function (eventId) {
     );
     return fullEventName.replace(/N\/A/g, '').trim();
 }
+
+
+cmatic.util.competitorIdRenderer = function (numberId) {
+    return 'CMAT' + (16000 + numberId);
+};
 
 
 /**

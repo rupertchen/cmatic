@@ -3,11 +3,6 @@
  */
 Ext.namespace('cmatic.registration');
 
-// TODO: Should this be put in common.js?
-cmatic.registration.competitorIdRenderer = function (numberId) {
-    return 'CMAT' + (16000 + numberId);
-};
-
 cmatic.registration.competitorList = function () {
 
     /**
@@ -67,7 +62,7 @@ cmatic.registration.competitorList = function () {
                     header: cmatic.labels.type_competitor.id,
                     sortable: true,
                     width: 50,
-                    renderer: cmatic.registration.competitorIdRenderer
+                    renderer: cmatic.util.competitorIdRenderer
                 }, {
                     id: 'lastName',
                     dataIndex: 'lastName',
@@ -92,7 +87,7 @@ cmatic.registration.competitorList = function () {
                     header: cmatic.labels.type_competitor.isConfirmed,
                     sortable: true,
                     width: 50,
-		    renderer: function (x) { if (x) { return x; } else { return '<span style="color: red; font-weight: bold;">FALSE</span>'; } }
+                    renderer: function (x) { if (x) { return x; } else { return '<span style="color: red; font-weight: bold;">FALSE</span>'; } }
                 }, {
                     id: 'email',
                     dataIndex: 'email',
@@ -627,7 +622,7 @@ cmatic.registration.competitorList = function () {
 
                             var win = new Ext.Window({
                                 title: String.format(cmatic.labels.registration.competitorDetails,
-                                    cmatic.registration.competitorIdRenderer(c.get('id')), c.get('lastName'), c.get('firstName')
+                                    cmatic.util.competitorIdRenderer(c.get('id')), c.get('lastName'), c.get('firstName')
                                 ),
                                 constrain: true,
                                 resizable: false,
@@ -872,7 +867,7 @@ cmatic.registration.competitorList = function () {
 
                             var win = new Ext.Window({
                                 title: String.format(cmatic.labels.registration.individualEvents,
-                                    cmatic.registration.competitorIdRenderer(c.get('id')), c.get('lastName'), c.get('firstName')
+                                    cmatic.util.competitorIdRenderer(c.get('id')), c.get('lastName'), c.get('firstName')
                                 ),
                                 constrain: true,
                                 resizable: false,
@@ -1063,7 +1058,7 @@ cmatic.registration.competitorList = function () {
 
                             var win = new Ext.Window({
                                 title: String.format(cmatic.labels.registration.groupEvents,
-                                    cmatic.registration.competitorIdRenderer(c.get('id')), c.get('lastName'), c.get('firstName')
+                                    cmatic.util.competitorIdRenderer(c.get('id')), c.get('lastName'), c.get('firstName')
                                 ),
                                 constrain: true,
                                 resizable: false,
