@@ -51,7 +51,9 @@ cmatic.labels.type_event = {
     formId: cmatic.labels.type_form._name,
     ringId: 'Ring',
     order: 'Order',
-    numCompetitors: '# Competitors'
+    numCompetitors: '# Competitors',
+    short_code: 'Code',
+    short_numCompetitors: '#'
 };
 
 // Registration

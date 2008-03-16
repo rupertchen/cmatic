@@ -12,19 +12,78 @@ cmatic.scoring.getCompetitorNameRenderer = function (competitorId) {
     var last = cmatic.util.getCachedFieldValue('competitor', 'lastName', competitorId);
     var first = cmatic.util.getCachedFieldValue('competitor', 'firstName', competitorId);
     var cId = cmatic.util.competitorIdRenderer(competitorId);
-    return last + ', ' + first + ' <span>(' + cId + ')</span>';
+    return last + ', ' + first + ' <span class="cmatic-scoringevent-cmatid">(' + cId + ')</span>';
 };
 
 
 cmatic.scoring.getGroupNameRenderer = function (groupId) {
     return groupId;
-}
+};
 
-cmatic.scoring.Event = Ext.extend(Ext.grid.GridPanel, {
+
+cmatic.scoring.EventList = Ext.extend(Ext.grid.GridPanel, {
+    title: cmatic.labels.scoring.eventList,
+    autoExpandColumn: 3,
+    columns: [{
+        id: 'id',
+        dataIndex: 'id',
+        header: cmatic.labels.type_event.id,
+        sortable: true,
+        hidden: true
+    }, {
+        id: 'code',
+        dataIndex: 'code',
+        header: cmatic.labels.type_event.short_code,
+        sortable: true,
+        width: 25
+    }, {
+        id: 'numCompetitors',
+        dataIndex: 'numCompetitors',
+        header: cmatic.labels.type_event.short_numCompetitors,
+        sortable: true,
+        width: 10
+    }, {
+        id: 'id-prettyprint',
+        dataIndex: 'id',
+        header: cmatic.labels.type_event._name,
+        sortable: true,
+        renderer: cmatic.util.getShortEventNameRenderer
+    }],
+    viewConfig: {forceFit: true},
+    autoScroll: true,
+    stripeRows: true,
+
+    initComponent: function () {
+        this.tbar = [{
+                text: cmatic.labels.button.reload,
+                scope: this,
+                handler: function () { this.getStore().reload(); }
+            }, {
+                text: cmatic.labels.button.showFinished,
+                enableToggle: true,
+                handler: function() { Ext.Msg.alert('Todo')}
+            }];
+        cmatic.scoring.EventList.superclass.initComponent.call(this);
+    },
+
+    initEvents: function () {
+        cmatic.scoring.EventList.superclass.initEvents.call(this);
+        this.on('celldblclick', this.onCellDblClick, this);
+    },
+
+    onCellDblClick: function(g, row, col) {
+        cmatic.scoring.app.openEventTab(g.getStore().getAt(row).get('id'));
+    }
+});
+
+
+cmatic.scoring.Event = Ext.extend(Ext.grid.EditorGridPanel, {
     closable: true,
     enableColumnMove: false,
     autoScroll: true,
     stripeRows: true,
+    sm: new Ext.grid.RowSelectionModel({singleSelect: true}),
+    cls: 'cmatic-scoringevent',
 
     initComponent: function () {
         this.title = cmatic.util.getShortEventNameRenderer(this.eventId);
@@ -36,6 +95,14 @@ cmatic.scoring.Event = Ext.extend(Ext.grid.GridPanel, {
             text: cmatic.labels.button.save,
             scope: this,
             handler: this.saveScores
+        }, {
+            text: '__randomize'
+        }, {
+            text: '__compute placement'
+        }, {
+            text: '__start'
+        }, {
+            text: '__finish'
         }];
 
         // TODO: FIXME: should not have this hard-coded
@@ -63,43 +130,51 @@ cmatic.scoring.Event = Ext.extend(Ext.grid.GridPanel, {
             header: cmatic.labels.type_scoring.short_score0,
             dataIndex: 'score0',
             sortable: true,
-            width: 40
+            width: 40,
+            editor: new Ext.form.TextField()
         }, {
             header: cmatic.labels.type_scoring.short_score1,
             dataIndex: 'score1',
             sortable: true,
-            width: 40
+            width: 40,
+            editor: new Ext.form.TextField()
         }, {
             header: cmatic.labels.type_scoring.short_score2,
             dataIndex: 'score2',
             sortable: true,
-            width: 40
+            width: 40,
+            editor: new Ext.form.TextField()
         }, {
             header: cmatic.labels.type_scoring.short_score3,
             dataIndex: 'score3',
             sortable: true,
-            width: 40
+            width: 40,
+            editor: new Ext.form.TextField()
         }, {
             header: cmatic.labels.type_scoring.short_score4,
             dataIndex: 'score4',
             sortable: true,
-            width: 40
+            width: 40,
+            editor: new Ext.form.TextField()
         }, {
             header: cmatic.labels.type_scoring.short_score5,
             dataIndex: 'score5',
+            hidden: !this.isNandu,
             sortable: true,
             width: 40,
-            hidden: !this.isNandu
+            editor: new Ext.form.TextField()
         }, {
             header: cmatic.labels.type_scoring.time,
             dataIndex: 'time',
             sortable: true,
-            width: 40
+            width: 40,
+            editor: new Ext.form.TextField()
         }, {
             header: cmatic.labels.type_scoring.short_otherDeduction,
             dataIndex: 'otherDeduction',
             sortable: true,
-            width: 50
+            width: 50,
+            editor: new Ext.form.TextField()
         }, {
             header: cmatic.labels.type_scoring.short_timeDeduction,
             dataIndex: 'timeDeduction',
@@ -135,6 +210,7 @@ cmatic.scoring.Event = Ext.extend(Ext.grid.GridPanel, {
             width: 40
         }]);
         cmatic.scoring.Event.superclass.initComponent.call(this);
+
     },
 
 
@@ -200,28 +276,31 @@ cmatic.scoring.app = function () {
     }
 
 
-    function _primeEventStore(ringNumber) {
-        var eventStore = new Ext.data.Store({
-            proxy: new Ext.data.HttpProxy({
-                url: cmatic.url.get,
-                method: 'POST'
-            }),
-            baseParams: {
-                type: 'event',
-                filterField: 'ringId',
-                filterValue: ringNumber
-            },
-            reader: new Ext.data.JsonReader({
-                root: 'records',
-                id: 'id'
-            }, cmatic.ddl._eventRecord),
-            sortInfo: {
-                field: 'order',
-                direction: 'ASC'
-            }
-        });
-        Ext.StoreMgr.add('event', eventStore);
-        eventStore.load();
+    function _getEventStore(ringNumber) {
+        var eventStore = Ext.StoreMgr.get('event');
+        if (!eventStore) {
+            eventStore = new Ext.data.Store({
+                proxy: new Ext.data.HttpProxy({
+                    url: cmatic.url.get,
+                    method: 'POST'
+                }),
+                baseParams: {
+                    type: 'event',
+                    filterField: 'ringId',
+                    filterValue: ringNumber
+                },
+                reader: new Ext.data.JsonReader({
+                    root: 'records',
+                    id: 'id'
+                }, cmatic.ddl._eventRecord),
+                sortInfo: {
+                    field: 'order',
+                    direction: 'ASC'
+                }
+            });
+            Ext.StoreMgr.add('event', eventStore);
+        }
+        return eventStore;
     }
 
 
@@ -266,47 +345,15 @@ cmatic.scoring.app = function () {
     }
 
 
-    function _buildEventPanel() {
-        return new Ext.grid.GridPanel({
+    function _buildEventPanel(ringNumber) {
+        return new cmatic.scoring.EventList({
             region: 'west',
             collapsible: true,
             split: true,
             minWidth: 100,
             maxWidth: 600,
-            title: cmatic.labels.scoring.eventList,
             width: 300,
-            autoExpandColumn: 1,
-            store: cmatic.util.getDataStore('event'),
-            columns: [{
-                id: 'code',
-                dataIndex: 'code',
-                header: cmatic.labels.type_event.code,
-                sortable: true,
-                width: 30
-            }, {
-                id: 'id-prettyprint',
-                dataIndex: 'id',
-                header: cmatic.labels.type_event._name,
-                sortable: true,
-                renderer: cmatic.util.getShortEventNameRenderer
-            }, {
-                id: 'id',
-                dataIndex: 'id',
-                header: cmatic.labels.type_event.id,
-                sortable: true,
-                hidden: true
-            }],
-            viewConfig: {forceFit: true},
-            autoScroll: true,
-            stripeRows: true,
-            tbar: [{
-                text: cmatic.labels.button.reload,
-                handler: function () {cmatic.util.getDataStore('event').reload(); }
-            }, {
-                text: cmatic.labels.button.showFinished,
-                enableToggle: true,
-                handler: function() {}
-            }]
+            store: _getEventStore(ringNumber)
         });
     }
 
@@ -318,6 +365,7 @@ cmatic.scoring.app = function () {
             title: 'Main',
             defaults: {autoScroll: true},
             activeItem: 0,
+            enableTabScroll: true,
             items: [{
                 xtype: 'panel',
                 title: 'FAQ',
@@ -326,25 +374,16 @@ cmatic.scoring.app = function () {
             bbar: [{
                 text: cmatic.labels.button.reloadAll,
                 handler: _reloadDataStores
-            }, {
-                // TODO: RPC: remove this.
-                // Fake way to open an event for now.
-                text: '__Open IMC30 (194)',
-                handler: function () { cmatic.scoring.app.openEventTab(194); }
-            }, {
-                // TODO: RPC: remove this.
-                // Fake way to open an event for now.
-                text: '__Open NNN71 (686)',
-                handler: function () { cmatic.scoring.app.openEventTab(686); }
             }]
         });
     }
 
 
     function _buildViewport (ringNumber) {
-        _primeEventStore(ringNumber);
+        _getEventStore(ringNumber).load();
+
         headerPanel = _buildHeaderPanel();
-        eventPanel = _buildEventPanel();
+        eventPanel = _buildEventPanel(ringNumber);
         judgesPanel = _buildJudgesPanel();
         mainPanel = _buildMainPanel();
 
@@ -379,7 +418,10 @@ cmatic.scoring.app = function () {
         // Start a simple clock task that updates a div once per second
         var refreshEventList = {
             run: function(){
-                cmatic.util.getDataStore('event').reload();
+                var s = cmatic.util.getDataStore('event');
+                if (s) {
+                    s.reload();
+                }
             },
             interval: 59000 // 59 seconds
         }

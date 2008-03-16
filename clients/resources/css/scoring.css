@@ -1,0 +1,38 @@
+@CHARSET "UTF-8";
+
+/****************************************
+ * Event List Styles
+ */
+
+
+/****************************************
+ * Event Tab Styles
+ */
+
+/* Identification fields of selected row */
+.cmatic-scoringevent .x-grid3-row-selected .x-grid3-td-0,
+.cmatic-scoringevent .x-grid3-row-selected .x-grid3-td-1,
+.cmatic-scoringevent .x-grid3-row-selected .x-grid3-td-2 {
+    color: green;
+    font-weight: bold;
+}
+
+/* Keep CMAT Id small */
+.cmatic-scoringevent  .cmatic-scoringevent-cmatid {
+    font-size: 80%;
+}
+
+.cmatic-scoringevent .x-grid3-row-selected .cmatic-scoringevent-cmatid {
+    font-weight: normal;
+}
+
+/* Read-only score fields */
+.cmatic-scoringevent .x-grid3-body .x-grid3-td-11,
+.cmatic-scoringevent .x-grid3-body .x-grid3-td-12,
+.cmatic-scoringevent .x-grid3-body .x-grid3-td-13,
+.cmatic-scoringevent .x-grid3-body .x-grid3-td-14,
+.cmatic-scoringevent .x-grid3-body .x-grid3-td-15,
+.cmatic-scoringevent .x-grid3-body .x-grid3-td-16,
+.cmatic-scoringevent .x-grid3-body .x-grid3-td-17 {
+    background-color: #EAEAEA;
+}
