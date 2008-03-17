@@ -105,7 +105,7 @@ cmatic.scoring.Event = Ext.extend(Ext.grid.EditorGridPanel, {
         }, {
             text: cmatic.labels.button.placement,
             scope: this,
-            handler: this.todo
+            handler: this.computePlacement
         }, {
             xtype: 'tbseparator'
         }, {
@@ -314,8 +314,41 @@ cmatic.scoring.Event = Ext.extend(Ext.grid.EditorGridPanel, {
     },
 
 
-    updatePlacements: function () {
-        // TODO: update the placement
+    computePlacement: function () {
+        if (cmatic.scoring.app.getCurrentEvent() != this) {
+            Ext.Msg.alert(cmatic.labels.message.warning, cmatic.labels.message.onlyEditCurrentEvent);
+            return false;
+        }
+
+        var s = this.getStore().getRange();
+        // Sort in order from highest placement to lowest
+        var sorter = function (a, b) {
+            var ret = b.get('finalScore') - a.get('finalScore');
+            if (0 == ret) {
+                ret = b.get('tieBreaker0') - a.get('tieBreaker0');
+            }
+            if (0 == ret) {
+                ret = b.get('tieBreaker1') - a.get('tieBreaker1');
+            }
+            if (0 == ret) {
+                ret = b.get('tieBreaker2') - a.get('tieBreaker2');
+            }
+            return ret;
+        }
+        s.sort(sorter);
+
+        lastSeenScore = '';
+        lastGivenPlace = 0;
+        for (var i = 0; i < s.length; i++) {
+            var thisScore = s[i].get('finalScore') + '_' + s[i].get('tieBreaker0') + '_' + s[i].get('tieBreaker1') + '_' + s[i].get('tieBreaker2');
+            if (lastSeenScore == thisScore) {
+                s[i].set('placement', lastGivenPlace);
+            } else {
+                lastGivenPlace = i+1;
+                s[i].set('placement', lastGivenPlace);
+                lastSeenScore = thisScore;
+            }
+        }
     },
 
 
@@ -330,9 +363,9 @@ cmatic.scoring.Event = Ext.extend(Ext.grid.EditorGridPanel, {
 
 
     saveScores: function () {
+        this.computePlacement();
         var scoringUpdates = [];
         var scoringRecords = this.getStore().getModifiedRecords();
-        console.debug('modified records: %o', scoringRecords);
         for (var i = 0; i < scoringRecords.length; i++) {
             var rec = scoringRecords[i];
             scoringUpdates.push({
@@ -350,7 +383,8 @@ cmatic.scoring.Event = Ext.extend(Ext.grid.EditorGridPanel, {
                 finalScore: this.convertNumeric(rec.get('finalScore')),
                 tieBreaker0: this.convertNumeric(rec.get('tieBreaker0')),
                 tieBreaker1: this.convertNumeric(rec.get('tieBreaker1')),
-                tieBreaker2: this.convertNumeric(rec.get('tieBreaker2'))
+                tieBreaker2: this.convertNumeric(rec.get('tieBreaker2')),
+                placement: this.convertNumeric(rec.get('placement'))
             });
         }
 
@@ -383,6 +417,10 @@ cmatic.scoring.Event = Ext.extend(Ext.grid.EditorGridPanel, {
 
     computeFinalScore: function (scoringRecord) {
         var finalScore = 0;
+        var tieBreaker0 = 0;
+        var tieBreaker1 = 0;
+        var tieBreaker2 = 0;
+        var timeDeduction = 0;
         if (this.isNandu) {
             // In nandu, add up all scores, subtract all deductions.
             finalScore = this.convertNumeric(scoringRecord.get('score0'))
@@ -421,9 +459,22 @@ cmatic.scoring.Event = Ext.extend(Ext.grid.EditorGridPanel, {
                 // final score is merited score minus any deductions
                 finalScore = meritedScore - this.convertNumeric(scoringRecord.get('timeDeduction')) - this.convertNumeric(scoringRecord.get('otherDeduction'));
             }
+
+            // Compute and set tiebreakers
+            // negate so "bigger is better"
+            tieBreaker0 = -1 * (Math.abs((maxScore + minScore) / 2 - finalScore));
+            tieBreaker1 = (maxScore + minScore) / 2;
+            tieBreaker2 = minScore;
         }
 
         scoringRecord.set('finalScore', finalScore);
+        scoringRecord.set('timeDeduction', timeDeduction);
+        scoringRecord.set('tieBreaker0', tieBreaker0);
+        scoringRecord.set('tieBreaker1', tieBreaker1);
+        scoringRecord.set('tieBreaker2', tieBreaker2);
+
+        this.computePlacement();
+
         return finalScore;
     },
 
