@@ -168,7 +168,11 @@ cmatic.labels.button = {
     remove: 'Remove',
     showFinished: 'Show Finished',
     updateNumCompetitors: 'Update Competitors Per Event',
-    reloadAll: 'Reload All Data'
+    reloadAll: 'Reload All Data',
+    randomize: 'Randomize Competitors',
+    placement: 'Update Placements',
+    startEvent: 'Start',
+    finishEvent: 'Finish'
 };
 
 
@@ -180,14 +184,17 @@ cmatic.labels.message = {
     error: 'Error',
     success: 'Success',
     input: 'Input Needed',
+    confirmation: 'Confirmation',
     changesNotSaved: 'Changes were not saved.',
     changesSaved: 'Change saved.',
     cantCloseWithUnsavedChanges: 'There are unsaved changes. To continue, either save or cancel the changes first.',
     noRowSelected: 'No row was selected.',
     noNewEvents: 'No new events to add.',
     noNewGroups: 'No new group memberships to add.',
+    noScoringUpdates: 'No scoring updates to save.',
     ringNumberPrompt: 'Enter your ring number (1-8):',
-    ringNumberTryAgain: 'Oops. That\'s an unknown ring. Please try again.'
+    ringNumberTryAgain: 'Oops. That\'s an unknown ring. Please try again.',
+    areYouSure: 'Are you sure? Unsaved changes may be lost.'
 };
 
 

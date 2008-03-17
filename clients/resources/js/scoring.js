@@ -92,17 +92,33 @@ cmatic.scoring.Event = Ext.extend(Ext.grid.EditorGridPanel, {
             scope: this,
             handler: this.reloadStore
         }, {
+            text: cmatic.labels.button.cancel,
+            scope: this,
+            handler: this.cancelChanges
+        }, {
+            xtype: 'tbseparator'
+        }, {
+            text: cmatic.labels.button.randomize,
+            scope: this,
+            handler: this.todo
+        }, {
+            text: cmatic.labels.button.placement,
+            scope: this,
+            handler: this.todo
+        }, {
+            text: cmatic.labels.button.startEvent,
+            scope: this,
+            handler: this.todo
+        }, {
+            text: cmatic.labels.button.finishEvent,
+            scope: this,
+            handler: this.todo
+        }, {
+            xtype: 'tbseparator'
+        }, {
             text: cmatic.labels.button.save,
             scope: this,
             handler: this.saveScores
-        }, {
-            text: '__randomize'
-        }, {
-            text: '__compute placement'
-        }, {
-            text: '__start'
-        }, {
-            text: '__finish'
         }];
 
         // TODO: FIXME: should not have this hard-coded
@@ -214,6 +230,34 @@ cmatic.scoring.Event = Ext.extend(Ext.grid.EditorGridPanel, {
     },
 
 
+    initEvents: function () {
+        cmatic.scoring.Event.superclass.initEvents.call(this);
+
+        cmatic.scoring.app.getMainPanel().on('beforeRemove', function (mainPanel, tab) {
+            if (this == tab) {
+                if (this.isSafeToClose()) {
+                    Ext.Msg.alert(cmatic.labels.message.warning, cmatic.labels.message.cantCloseWithUnsavedChanges)
+                    return false;
+                }
+            }
+        }, this);
+    },
+
+
+    isSafeToClose: function () {
+        return this.getStore().getModifiedRecords().length > 0;
+    },
+
+
+    // TODO: Delete this
+    todo: function () { Ext.Msg.alert('TODO', 'not done.')},
+
+
+    cancelChanges: function () {
+        this.getStore().rejectChanges();
+    },
+
+
     reloadStore: function () {
         this.askConfirmation(function (x) {
             if ('yes' == x) {
@@ -223,14 +267,86 @@ cmatic.scoring.Event = Ext.extend(Ext.grid.EditorGridPanel, {
     },
 
 
+    randomizeCompetitors: function () {
+        this.askConfirmation(function (x) {
+            if ('yes' == x) {
+                // Do something.
+            }
+        });
+    },
+
+
+    updatePlacements: function () {
+        // TODO: update the placement
+    },
+
+
+    convertNumeric: function (str) {
+        var number = parseFloat(str);
+        if (isNaN(number)) {
+            return 0;
+        } else {
+            return number;
+        }
+    },
+
+
     saveScores: function () {
         // TODO: Write this
-        Ext.Msg.alert('TODO', 'save scores here');
+        // save changes
+        // commit everything?
+        var scoringUpdates = [];
+        var scoringRecords = this.getStore().getModifiedRecords();
+        console.debug('modified records: %o', scoringRecords);
+        for (var i = 0; i < scoringRecords.length; i++) {
+            var rec = scoringRecords[i];
+            scoringUpdates.push({
+                id: rec.get('id'),
+                score0: this.convertNumeric(rec.get('score0')),
+                score1: this.convertNumeric(rec.get('score1')),
+                score2: this.convertNumeric(rec.get('score2')),
+                score3: this.convertNumeric(rec.get('score3')),
+                score4: this.convertNumeric(rec.get('score4')),
+                score5: this.convertNumeric(rec.get('score5')),
+                time: this.convertNumeric(rec.get('time')),
+                timeDeduction: this.convertNumeric(rec.get('timeDeduction')),
+                otherDeduction: this.convertNumeric(rec.get('otherDeduction')),
+                finalScore: this.convertNumeric(rec.get('finalScore')),
+                tieBreaker0: this.convertNumeric(rec.get('tieBreaker0')),
+                tieBreaker1: this.convertNumeric(rec.get('tieBreaker1')),
+                tieBreaker2: this.convertNumeric(rec.get('tieBreaker2'))
+            });
+        }
+
+        if (scoringUpdates.length > 0) {
+            var thizStore = this.getStore();
+            Ext.Ajax.request({
+                url: cmatic.url.set,
+                success: function (response) {
+                    var r = Ext.util.JSON.decode(response.responseText);
+                    if (r.success) {
+                        Ext.Msg.alert(cmatic.labels.message.success, cmatic.labels.message.changesSaved);
+                        thizStore.commitChanges();
+                        thizStore.reload();
+                    } else {
+                        cmatic.util.alertSaveFailed();
+                    }
+                },
+                failure: cmatic.util.alertSaveFailed,
+                params: {
+                    op: 'edit',
+                    type: 'scoring',
+                    records: Ext.util.JSON.encode(scoringUpdates)
+                }
+            });
+        } else {
+            Ext.Msg.alert(cmatic.labels.message.warning, cmatic.labels.message.noScoringUpdates)
+        }
     },
 
 
     askConfirmation: function (callback, scope) {
-        Ext.Msg.confirm('__ Confirmation', '-- are you sure?', callback, scope);
+        Ext.Msg.confirm(cmatic.labels.message.confirmation, cmatic.labels.message.areYouSure, callback, scope);
     }
 });
 Ext.reg('scoringevent', cmatic.scoring.Event);
@@ -384,12 +500,12 @@ cmatic.scoring.app = function () {
 
         headerPanel = _buildHeaderPanel();
         eventPanel = _buildEventPanel(ringNumber);
-        judgesPanel = _buildJudgesPanel();
+        //judgesPanel = _buildJudgesPanel();
         mainPanel = _buildMainPanel();
 
         return new Ext.Viewport({
             layout: 'border',
-            items:[headerPanel, eventPanel, judgesPanel, mainPanel]
+            items:[headerPanel, eventPanel, /*judgesPanel, */mainPanel]
         });
     }
 
@@ -505,6 +621,11 @@ cmatic.scoring.app = function () {
             }
             mainPanel.add(panel);
             mainPanel.setActiveTab(panel);
+        },
+
+
+        getMainPanel: function () {
+            return mainPanel;
         }
     };
 }();

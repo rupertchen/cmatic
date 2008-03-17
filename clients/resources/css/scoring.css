@@ -36,3 +36,15 @@
 .cmatic-scoringevent .x-grid3-body .x-grid3-td-17 {
     background-color: #EAEAEA;
 }
+
+
+.cmatic-scoringevent .x-grid3-body .x-grid3-td-3,
+.cmatic-scoringevent .x-grid3-body .x-grid3-td-4,
+.cmatic-scoringevent .x-grid3-body .x-grid3-td-5,
+.cmatic-scoringevent .x-grid3-body .x-grid3-td-6,
+.cmatic-scoringevent .x-grid3-body .x-grid3-td-7,
+.cmatic-scoringevent .x-grid3-body .x-grid3-td-8,
+.cmatic-scoringevent .x-grid3-body .x-grid3-td-9,
+.cmatic-scoringevent .x-grid3-body .x-grid3-td-10 {
+    cursor: pointer;
+}
