@@ -106,14 +106,6 @@ cmatic.scoring.Event = Ext.extend(Ext.grid.EditorGridPanel, {
             scope: this,
             handler: this.todo
         }, {
-            text: cmatic.labels.button.startEvent,
-            scope: this,
-            handler: this.todo
-        }, {
-            text: cmatic.labels.button.finishEvent,
-            scope: this,
-            handler: this.todo
-        }, {
             xtype: 'tbseparator'
         }, {
             text: cmatic.labels.button.save,
@@ -254,19 +246,32 @@ cmatic.scoring.Event = Ext.extend(Ext.grid.EditorGridPanel, {
     initEvents: function () {
         cmatic.scoring.Event.superclass.initEvents.call(this);
 
+        // Prevent removing of an event with unsaved changes
         cmatic.scoring.app.getMainPanel().on('beforeRemove', function (mainPanel, tab) {
             if (this == tab) {
-                if (this.isSafeToClose()) {
+                if (!this.isSafeToClose()) {
                     Ext.Msg.alert(cmatic.labels.message.warning, cmatic.labels.message.cantCloseWithUnsavedChanges)
                     return false;
                 }
+            }
+        }, this);
+
+        this.on('beforeEdit', function (e) {
+            var currentEvent = cmatic.scoring.app.getCurrentEvent();
+            if (e.grid != currentEvent) {
+                if (currentEvent && currentEvent.title) {
+                    Ext.Msg.alert(cmatic.labels.message.warning, cmatic.labels.message.onlyEditCurrentEvent);
+                } else {
+                    Ext.Msg.alert(cmatic.labels.message.warning, cmatic.labels.message.mustUnlockToEdit);
+                }
+                return false;
             }
         }, this);
     },
 
 
     isSafeToClose: function () {
-        return this.getStore().getModifiedRecords().length > 0;
+        return this.getStore().getModifiedRecords().length == 0;
     },
 
 
@@ -377,10 +382,16 @@ cmatic.scoring.app = function () {
     var SCORING_STORE_ID_PREFIX = 'scoringStore_';
 
     // private member variables
+    var basePageTitle = '';
     var headerPanel;
     var eventPanel;
     var judgesPanel;
     var mainPanel;
+    var startEventButton;
+    var finishEventButton;
+    // This refers to the event that is being scored. Only one event can be unlocked
+    // for scoring at a time.
+    var currentEvent;
 
 
     function _primeDataStores () {
@@ -494,6 +505,16 @@ cmatic.scoring.app = function () {
 
 
     function _buildMainPanel() {
+        startEventButton = new Ext.Toolbar.Button({
+                text: cmatic.labels.button.startEvent,
+                handler: _startEvent
+            });
+        finishEventButton = new Ext.Toolbar.Button({
+            text: cmatic.labels.button.finishEvent,
+            scope: this,
+            handler: _finishEvent,
+            disabled: true
+        });
         return new Ext.TabPanel({
             region: 'center',
             id: 'mainPanel',
@@ -509,7 +530,7 @@ cmatic.scoring.app = function () {
             bbar: [{
                 text: cmatic.labels.button.reloadAll,
                 handler: _reloadDataStores
-            }]
+            }, startEventButton, finishEventButton]
         });
     }
 
@@ -562,6 +583,64 @@ cmatic.scoring.app = function () {
         }
 
         Ext.TaskMgr.start(refreshEventList);
+    }
+
+
+    function _startEvent() {
+        // TODO: this is currently "dead code" because we protect
+        // it via disabling and enabling the buttons.
+        if (currentEvent) {
+            Ext.Msg.alert(currentEvent.title, 'Another event is still running')
+            // another event is currently running
+            return false;
+        }
+
+        var tmp = cmatic.scoring.app.getMainPanel().getActiveTab();
+        // Special case, we know the only other tab is the FAQ, but it's
+        // not an event.
+        if ('FAQ' == tmp.title) {
+            currentEvent = null;
+            return false;
+        }
+
+        currentEvent = tmp;
+        startEventButton.disable();
+        finishEventButton.enable();
+        // Save the base page title the first time.
+        if ('' == basePageTitle) {
+            basePageTitle = document.title;
+        }
+        document.title = basePageTitle + ": " + currentEvent.title;
+
+
+        Ext.Msg.alert(cmatic.labels.message.unlocking, currentEvent.title);
+    }
+
+
+    function _finishEvent() {
+        // TODO: this is currently "dead code" because we protect
+        // it via disabling and enabling the buttons.
+        if (!currentEvent) {
+            Ext.Msg.alert(cmatic.labels.message.warning, 'No event currently running.');
+            return false;
+        }
+
+        // If there are unsaved changes, don't let them finish
+        // force user to save or cancel. This condition is a bit hacky,
+        // but we assume we can always close anything that doesn't have
+        // an "isSafeToClose" member.
+        if (!currentEvent.isSafeToClose || !currentEvent.isSafeToClose()) {
+            Ext.Msg.alert(currentEvent.title, cmatic.labels.message.cantCloseWithUnsavedChanges);
+            return false;
+        }
+
+        var eventName = currentEvent.title;
+        currentEvent = null;
+        finishEventButton.disable();
+        startEventButton.enable();
+        document.title = basePageTitle;
+
+        Ext.Msg.alert(cmatic.labels.message.locking, eventName);
     }
 
 
@@ -645,6 +724,11 @@ cmatic.scoring.app = function () {
 
         getMainPanel: function () {
             return mainPanel;
+        },
+
+
+        getCurrentEvent: function () {
+            return currentEvent;
         }
     };
 }();
