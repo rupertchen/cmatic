@@ -101,7 +101,7 @@ cmatic.scoring.Event = Ext.extend(Ext.grid.EditorGridPanel, {
         }, {
             text: cmatic.labels.button.randomize,
             scope: this,
-            handler: this.todo
+            handler: this.randomizeCompetitors
         }, {
             text: cmatic.labels.button.placement,
             scope: this,
@@ -301,11 +301,16 @@ cmatic.scoring.Event = Ext.extend(Ext.grid.EditorGridPanel, {
 
 
     randomizeCompetitors: function () {
-        this.askConfirmation(function (x) {
-            if ('yes' == x) {
-                // Do something.
-            }
+        if (cmatic.scoring.app.getCurrentEvent() != this) {
+            Ext.Msg.alert(cmatic.labels.message.warning, cmatic.labels.message.onlyEditCurrentEvent);
+            return false;
+        }
+
+        var s = this.getStore();
+        s.each(function (r) {
+            r.set('order', Math.round(Math.random() * 1000));
         });
+        s.sort('order', 'ASC');
     },
 
 
