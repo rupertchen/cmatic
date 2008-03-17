@@ -537,7 +537,6 @@ cmatic.scoring.Event = Ext.extend(Ext.grid.EditorGridPanel, {
         }
 
         scoringRecord.set('finalScore', finalScore);
-        scoringRecord.set('timeDeduction', timeDeduction);
         scoringRecord.set('tieBreaker0', tieBreaker0);
         scoringRecord.set('tieBreaker1', tieBreaker1);
         scoringRecord.set('tieBreaker2', tieBreaker2);
