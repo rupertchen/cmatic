@@ -27,7 +27,6 @@
 }
 
 /* Read-only score fields */
-.cmatic-scoringevent .x-grid3-body .x-grid3-td-11,
 .cmatic-scoringevent .x-grid3-body .x-grid3-td-12,
 .cmatic-scoringevent .x-grid3-body .x-grid3-td-13,
 .cmatic-scoringevent .x-grid3-body .x-grid3-td-14,
@@ -45,6 +44,7 @@
 .cmatic-scoringevent .x-grid3-body .x-grid3-td-7,
 .cmatic-scoringevent .x-grid3-body .x-grid3-td-8,
 .cmatic-scoringevent .x-grid3-body .x-grid3-td-9,
-.cmatic-scoringevent .x-grid3-body .x-grid3-td-10 {
+.cmatic-scoringevent .x-grid3-body .x-grid3-td-10,
+.cmatic-scoringevent .x-grid3-body .x-grid3-td-11 {
     cursor: pointer;
 }

@@ -21,6 +21,73 @@ cmatic.scoring.getGroupNameRenderer = function (groupId) {
 };
 
 
+/**
+ * TODO: This should be saved in the database instead as configuration
+ * on an event.
+ * TODO: This is currently unused. DON'T USE IT.
+ * @return array 2-item
+ */
+cmatic.scoring.getTimeWindow = function (eventId) {
+    var divisionId = cmatic.util.getCachedFieldValue('event', 'divisionId', eventId);
+    var ageGroupId = cmatic.util.getCachedFieldValue('event', 'ageGroupId', eventId);
+    var formId = cmatic.util.getCachedFieldValue('event', 'formId', eventId);
+
+    var division = cmatic.util.getCachedFieldValue('division', 'shortName', divisionId);
+    var ageGroup = cmatic.util.getCachedFieldValue('ageGroup', 'shortName', ageGroupId);
+    var form = cmatic.util.getCachedFieldValue('form', 'shortName', formId);
+
+    if (10 <= form && form <= 29) {
+        // Traditional
+        if ('A' == division && ('T' == ageGroup || 'A' == ageGroup || 'S' == ageGroup)) {
+            return [45, 120];
+        } else {
+            return [30, 120];
+        }
+    } else if (30 <= form && form <= 49) {
+        // Contemporary
+        if ('B' == division) {
+            return [30, null];
+        } else if ('I' == division) {
+            return [60, null];
+        } else if ('A' == division) {
+            if (32 == form || 46 == form) {
+                return [60, null];
+            } else {
+                return [80, null];
+            }
+        }
+    } else if (50 <= form && form <= 69) {
+        // Internal
+        if (51 == form || 52 == form) {
+            return [240, 300];
+        } else if (60 == form) {
+            return [180, 240];
+        } else if (50 == form) {
+            return [300, 360];
+        } else if (56 == form) {
+            return [60, 120];
+        } else if (58 == form || 54 == form || 53 == form || 57 == form || 59 == form) {
+            return [180, 210];
+        } else if (61 == form) {
+            return [120, 300];
+        } else if (62 == form || 63 == form) {
+            return [120, 180];
+        } else if (55 == form) {
+            return [60, 120];
+        }
+    } else {
+        // Group
+        if (71 == form) {
+            return [45, 120];
+        } else {
+            return [45, 360];
+        }
+    }
+
+    // If we got here, we we missed it.
+    return [null, null];
+}
+
 cmatic.scoring.EventList = Ext.extend(Ext.grid.GridPanel, {
     title: cmatic.labels.scoring.eventList,
     autoExpandColumn: 3,
@@ -209,7 +276,10 @@ cmatic.scoring.Event = Ext.extend(Ext.grid.EditorGridPanel, {
             header: cmatic.labels.type_scoring.short_timeDeduction,
             dataIndex: 'timeDeduction',
             sortable: true,
-            width: 60
+            width: 60,
+            editor: new Ext.form.NumberField({
+                allowNegative: false
+            })
         }, {
             header: cmatic.labels.type_scoring.short_tieBreaker0,
             dataIndex: 'tieBreaker0',
@@ -420,7 +490,6 @@ cmatic.scoring.Event = Ext.extend(Ext.grid.EditorGridPanel, {
         var tieBreaker0 = 0;
         var tieBreaker1 = 0;
         var tieBreaker2 = 0;
-        var timeDeduction = 0;
         if (this.isNandu) {
             // In nandu, add up all scores, subtract all deductions.
             finalScore = this.convertNumeric(scoringRecord.get('score0'))
