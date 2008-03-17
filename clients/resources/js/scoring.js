@@ -80,6 +80,7 @@ cmatic.scoring.EventList = Ext.extend(Ext.grid.GridPanel, {
 cmatic.scoring.Event = Ext.extend(Ext.grid.EditorGridPanel, {
     closable: true,
     enableColumnMove: false,
+    clicksToEdit: 1,
     autoScroll: true,
     stripeRows: true,
     sm: new Ext.grid.RowSelectionModel({singleSelect: true}),
