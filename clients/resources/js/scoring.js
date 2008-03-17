@@ -117,7 +117,7 @@ cmatic.scoring.Event = Ext.extend(Ext.grid.EditorGridPanel, {
         // TODO: FIXME: should not have this hard-coded
         this.isGroup = /^NNN:/.test(this.title);
         // TODO: FIXME: should not have this hard-coded
-        this.isNandu = /\(Nandu\)/.test(this.title);
+        this.isNandu = /Nandu/.test(this.title);
 
         this.autoExpandColumn = 2;
         this.colModel = new Ext.grid.ColumnModel([{
@@ -257,6 +257,7 @@ cmatic.scoring.Event = Ext.extend(Ext.grid.EditorGridPanel, {
             }
         }, this);
 
+        // Prevent editing of any but the currently unlocked event
         this.on('beforeEdit', function (e) {
             var currentEvent = cmatic.scoring.app.getCurrentEvent();
             if (e.grid != currentEvent) {
@@ -267,6 +268,11 @@ cmatic.scoring.Event = Ext.extend(Ext.grid.EditorGridPanel, {
                 }
                 return false;
             }
+        }, this);
+
+        // Fix-up scores
+        this.on('afterEdit', function (e) {
+            this.computeFinalScore(e.record);
         }, this);
     },
 
@@ -367,6 +373,53 @@ cmatic.scoring.Event = Ext.extend(Ext.grid.EditorGridPanel, {
         } else {
             Ext.Msg.alert(cmatic.labels.message.warning, cmatic.labels.message.noScoringUpdates)
         }
+    },
+
+
+    computeFinalScore: function (scoringRecord) {
+        var finalScore = 0;
+        if (this.isNandu) {
+            // In nandu, add up all scores, subtract all deductions.
+            finalScore = this.convertNumeric(scoringRecord.get('score0'))
+                + this.convertNumeric(scoringRecord.get('score1'))
+                + this.convertNumeric(scoringRecord.get('score2'))
+                + this.convertNumeric(scoringRecord.get('score3'))
+                + this.convertNumeric(scoringRecord.get('score4'))
+                + this.convertNumeric(scoringRecord.get('score5'))
+                - this.convertNumeric(scoringRecord.get('timeDeduction'))
+                - this.convertNumeric(scoringRecord.get('otherDeduction'));
+        } else {
+            // Get all given scores
+            // Ignore 0-valued scores
+            var givenScores = [];
+            // provide impossible scores for the initial min and max.
+            var maxScore = -1;
+            var minScore = 11;
+            var sumScores = 0;
+            var scoreFields = ['score0', 'score1', 'score2', 'score3', 'score4'];
+            for (var i = 0; i < scoreFields.length; i++) {
+                var score = this.convertNumeric(scoringRecord.get(scoreFields[i]));
+                if (score > 0) {
+                    maxScore = Math.max(maxScore, score);
+                    minScore = Math.min(minScore, score);
+                    sumScores += score;
+                    givenScores.push(score);
+                }
+            }
+
+            if (0 == givenScores.length || 3 > givenScores.length) {
+                // Short-circuit the empty case.
+                // If this doesn't meet the minimum judges, quit.
+            } else {
+                // average of scores not including the highest and lowest
+                var meritedScore = (sumScores - minScore - maxScore) / (givenScores.length - 2);
+                // final score is merited score minus any deductions
+                finalScore = meritedScore - this.convertNumeric(scoringRecord.get('timeDeduction')) - this.convertNumeric(scoringRecord.get('otherDeduction'));
+            }
+        }
+
+        scoringRecord.set('finalScore', finalScore);
+        return finalScore;
     },
 
 
