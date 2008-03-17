@@ -136,7 +136,12 @@ cmatic.scoring.Event = Ext.extend(Ext.grid.EditorGridPanel, {
             header: cmatic.labels.type_scoring.short_order,
             dataIndex: 'order',
             sortable: true,
-            width: 35
+            width: 35,
+            editor: new Ext.form.NumberField({
+                allowBlank: false,
+                allowNegative: false,
+                allowDecimal: false
+            })
         }, {
             header: this.isGroup ? cmatic.labels.type_scoring.groupId : cmatic.labels.type_scoring.competitorId,
             dataIndex: this.isGroup ? 'groupId' : 'competitorId',
@@ -147,50 +152,66 @@ cmatic.scoring.Event = Ext.extend(Ext.grid.EditorGridPanel, {
             dataIndex: 'score0',
             sortable: true,
             width: 40,
-            editor: new Ext.form.TextField()
+            editor: new Ext.form.NumberField({
+                allowNegative: false
+            })
         }, {
             header: cmatic.labels.type_scoring.short_score1,
             dataIndex: 'score1',
             sortable: true,
             width: 40,
-            editor: new Ext.form.TextField()
+            editor: new Ext.form.NumberField({
+                allowNegative: false
+            })
         }, {
             header: cmatic.labels.type_scoring.short_score2,
             dataIndex: 'score2',
             sortable: true,
             width: 40,
-            editor: new Ext.form.TextField()
+            editor: new Ext.form.NumberField({
+                allowNegative: false
+            })
         }, {
             header: cmatic.labels.type_scoring.short_score3,
             dataIndex: 'score3',
             sortable: true,
             width: 40,
-            editor: new Ext.form.TextField()
+            editor: new Ext.form.NumberField({
+                allowNegative: false
+            })
         }, {
             header: cmatic.labels.type_scoring.short_score4,
             dataIndex: 'score4',
             sortable: true,
             width: 40,
-            editor: new Ext.form.TextField()
+            editor: new Ext.form.NumberField({
+                allowNegative: false
+            })
         }, {
             header: cmatic.labels.type_scoring.short_score5,
             dataIndex: 'score5',
             hidden: !this.isNandu,
             sortable: true,
             width: 40,
-            editor: new Ext.form.TextField()
+            editor: new Ext.form.NumberField({
+                allowNegative: false
+            })
         }, {
             header: cmatic.labels.type_scoring.time,
             dataIndex: 'time',
             sortable: true,
             width: 40,
-            editor: new Ext.form.TextField()
+            editor: new Ext.form.NumberField({
+                allowNegative: false
+            })
         }, {
             header: cmatic.labels.type_scoring.short_otherDeduction,
             dataIndex: 'otherDeduction',
             sortable: true,
             width: 50,
-            editor: new Ext.form.TextField()
+            editor: new Ext.form.NumberField({
+                allowNegative: false
+            })
         }, {
             header: cmatic.labels.type_scoring.short_timeDeduction,
             dataIndex: 'timeDeduction',
@@ -292,9 +313,6 @@ cmatic.scoring.Event = Ext.extend(Ext.grid.EditorGridPanel, {
 
 
     saveScores: function () {
-        // TODO: Write this
-        // save changes
-        // commit everything?
         var scoringUpdates = [];
         var scoringRecords = this.getStore().getModifiedRecords();
         console.debug('modified records: %o', scoringRecords);
@@ -302,6 +320,7 @@ cmatic.scoring.Event = Ext.extend(Ext.grid.EditorGridPanel, {
             var rec = scoringRecords[i];
             scoringUpdates.push({
                 id: rec.get('id'),
+                order: rec.get('order'),
                 score0: this.convertNumeric(rec.get('score0')),
                 score1: this.convertNumeric(rec.get('score1')),
                 score2: this.convertNumeric(rec.get('score2')),
