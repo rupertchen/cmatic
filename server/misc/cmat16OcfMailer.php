@@ -38,7 +38,7 @@ http://www.ocf.berkeley.edu/~calwushu/cmat/16/competitors.php#rules .
 (*) Don't forget to check out Li Qiang's seminar. Details can be found online at
 http://www.ocf.berkeley.edu/~calwushu/cmat/16/liQiang.php .
 
-(*) There deadline for purchasing shoutouts has been extended. Get yours today!
+(*) There deadline for purchasing shoutouts has been extended to the end of this week!. Get yours today!
 Find details at http://www.ocf.berkeley.edu/~calwushu/cmat/16/shoutouts.php .
 
 EOD;
