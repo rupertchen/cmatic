@@ -432,6 +432,7 @@ cmatic.setup.event.EventSchedule = Ext.extend(Ext.Panel, {
         // proxy and div instead of using the rather heavyweight Panel.
         var rawSchedule = [[], [], [], [], [], [], [], [], []];
         this.store = cmatic.util.getDataStore('event');
+        store.sort('order');
 
         for (var i = 0; i < this.store.getCount(); i++) {
             var data = this.store.getAt(i);
@@ -611,7 +612,8 @@ cmatic.setup.event.SlatedEvent = Ext.extend(Ext.BoxComponent, {
         }, position);
         this.el.update(this.eventCode + " " + this.formName);
         // Every competitor is another 3 pixels. 10 is added on top of that just for the event name
-        this.el.setStyle('height', ((this.numCompetitors * 3) + 10) + 'px');
+        this.el.setStyle('height', ((this.numCompetitors * .5) + 1) + 'em');
+        this.el.setStyle('overflow', 'hidden');
 
         // faking the header for panel DD
         this.header = this.el;
@@ -817,7 +819,7 @@ cmatic.setup.app = function () {
                                                     var r = Ext.util.JSON.decode(response.responseText);
                                                     if (r.success) {
                                                         Ext.Msg.alert(cmatic.labels.message.success, cmatic.labels.message.changesSaved);
-                                                        editor.store.reload();
+                                                        cmatic.util.getDataStore('event').reload();
                                                     } else {
                                                         Ext.Msg.alert(cmatic.labels.message.error + ':107', cmatic.labels.message.changesNotSaved);
                                                     }
