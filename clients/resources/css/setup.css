@@ -7,3 +7,9 @@
     padding: 1px 3px;
     margin: 2px 0;
 }
+
+.x-slated-event-finished {
+    border-color: #444;
+    background-color: #BBB;
+    color: #444;
+}

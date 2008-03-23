@@ -432,7 +432,7 @@ cmatic.setup.event.EventSchedule = Ext.extend(Ext.Panel, {
         // proxy and div instead of using the rather heavyweight Panel.
         var rawSchedule = [[], [], [], [], [], [], [], [], []];
         this.store = cmatic.util.getDataStore('event');
-        store.sort('order');
+        this.store.sort('order');
 
         for (var i = 0; i < this.store.getCount(); i++) {
             var data = this.store.getAt(i);
@@ -445,7 +445,13 @@ cmatic.setup.event.EventSchedule = Ext.extend(Ext.Panel, {
             competitionRing.suspendEvents();
             for (var j = 0; j < rawSchedule[i].length; j++) {
                 var e = rawSchedule[i][j];
-                competitionRing.add({eventCode: e.get('code'), eventId: e.get('id'), numCompetitors: e.get('numCompetitors'), formName: cmatic.util.getCachedFieldValue('form', 'longName', e.get('formId'))});
+                competitionRing.add({
+                    eventCode: e.get('code'),
+                    eventId: e.get('id'),
+                    numCompetitors: e.get('numCompetitors'),
+                    formName: cmatic.util.getCachedFieldValue('form', 'longName', e.get('formId')),
+                    isFinished: e.get('isFinished')
+                });
             }
             competitionRing.resumeEvents();
             this.add(competitionRing);
@@ -599,6 +605,10 @@ cmatic.setup.event.SlatedEvent = Ext.extend(Ext.BoxComponent, {
      * formName (required)
      * TODO: comment this
      */
+    /**
+     * isFinished (required)
+     * TODO: comment this
+     */
 
 
     onRender : function(ct, position){
@@ -614,6 +624,9 @@ cmatic.setup.event.SlatedEvent = Ext.extend(Ext.BoxComponent, {
         // Every competitor is another 3 pixels. 10 is added on top of that just for the event name
         this.el.setStyle('height', ((this.numCompetitors * .5) + 1) + 'em');
         this.el.setStyle('overflow', 'hidden');
+        if (this.isFinished) {
+            this.el.addClass('x-slated-event-finished');
+        }
 
         // faking the header for panel DD
         this.header = this.el;
