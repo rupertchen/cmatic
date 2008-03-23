@@ -202,7 +202,7 @@ cmatic.labels.message = {
     areYouSure: 'Are you sure? Any unsaved changes may be lost.',
     onlyEditCurrentEvent: 'Only the currently unlocked event can be edited.',
     mustUnlockToEdit: 'The event must be unlocked before it can be edited.',
-    eventLocked: 'Event locked from edits.',
+    eventLocked: 'Event locked from edits. Be careful what you change!',
     eventUnlocked: 'Event unlocked for edits.',
     eventAlreadyLocked: 'Event is already locked from edits.',
     eventAlreadyUnlocked: 'Event is already unlocked for edits.',
