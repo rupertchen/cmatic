@@ -62,6 +62,7 @@ CREATE TABLE cmatic_config_event (
     ring_id integer NOT NULL DEFAULT 0,
     ring_order integer,
     num_competitors integer NOT NULL DEFAULT 0,
+    is_finished boolean NOT NULL DEFAULT false,
     UNIQUE (division_id, sex_id, age_group_id, form_id)
 );
 
