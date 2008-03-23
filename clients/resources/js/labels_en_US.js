@@ -52,6 +52,7 @@ cmatic.labels.type_event = {
     ringId: 'Ring',
     order: 'Order',
     numCompetitors: '# Competitors',
+    isFinished: 'Finished',
     short_code: 'Code',
     short_numCompetitors: '#'
 };
@@ -166,12 +167,12 @@ cmatic.labels.button = {
     editGroupEvents: 'Edit Group Events',
     editGroupDetails: 'Edit Group Details',
     remove: 'Remove',
-    showFinished: 'Show Finished',
+    hideFinished: 'Hide Finished',
     updateNumCompetitors: 'Update Competitors Per Event',
     reloadAll: 'Reload All Data',
     randomize: 'Randomize Competitors',
     placement: 'Update Placements',
-    startEvent: 'Start Event',
+    startEvent: 'Start & Unlock Event',
     finishEvent: 'Finish Event',
     lockEvent: 'Lock Event',
     unlockEvent: 'Unlock Event'

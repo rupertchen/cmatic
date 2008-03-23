@@ -91,6 +91,7 @@ cmatic.scoring.getTimeWindow = function (eventId) {
 cmatic.scoring.EventList = Ext.extend(Ext.grid.GridPanel, {
     title: cmatic.labels.scoring.eventList,
     autoExpandColumn: 3,
+    disableSelection: true,
     columns: [{
         id: 'id',
         dataIndex: 'id',
@@ -126,9 +127,17 @@ cmatic.scoring.EventList = Ext.extend(Ext.grid.GridPanel, {
                 scope: this,
                 handler: function () { this.getStore().reload(); }
             }, {
-                text: cmatic.labels.button.showFinished,
+                text: cmatic.labels.button.hideFinished,
                 enableToggle: true,
-                handler: function() { Ext.Msg.alert('Todo')}
+                scope: this,
+                handler: function() {
+                    var s = this.getStore();
+                    if (s.isFiltered()) {
+                        s.clearFilter();
+                    } else {
+                        s.filter('isFinished', 'false');
+                    }
+                }
             }];
         cmatic.scoring.EventList.superclass.initComponent.call(this);
     },
@@ -155,7 +164,38 @@ cmatic.scoring.Event = Ext.extend(Ext.grid.EditorGridPanel, {
     lockedFromEdit: true,
 
     initComponent: function () {
+        var isFinished = this.isFinished();
+
         this.title = cmatic.util.getShortEventNameRenderer(this.eventId);
+        if (isFinished) {
+            this.title += ' [FINISHED]';
+        }
+
+        this.buttonUnlock = new Ext.Toolbar.Button({
+            text: cmatic.labels.button.unlockEvent,
+            scope: this,
+            handler: this.unlock,
+            disabled: !isFinished
+        });
+        this.buttonLock = new Ext.Toolbar.Button({
+            text: cmatic.labels.button.lockEvent,
+            scope: this,
+            handler: this.lock,
+            disabled: !isFinished
+        });
+        this.buttonStart = new Ext.Toolbar.Button({
+            text: cmatic.labels.button.startEvent,
+            scope: this,
+            handler: this.start,
+            disabled: isFinished
+        });
+        this.buttonFinish = new Ext.Toolbar.Button({
+            text: cmatic.labels.button.finishEvent,
+            scope: this,
+            handler: this.finish,
+            disabled: isFinished
+        });
+
         this.tbar = [{
             text: cmatic.labels.button.save,
             scope: this,
@@ -180,25 +220,9 @@ cmatic.scoring.Event = Ext.extend(Ext.grid.EditorGridPanel, {
             handler: this.computePlacement
         }, {
             xtype: 'tbseparator'
-        }, {
-            text: cmatic.labels.button.unlockEvent,
-            scope: this,
-            handler: this.unlock
-        }, {
-            text: cmatic.labels.button.lockEvent,
-            scope: this,
-            handler: this.lock
-        }, {
+        }, this.buttonUnlock, this.buttonLock, {
             xtype: 'tbseparator'
-        }, {
-            text: cmatic.labels.button.startEvent,
-            scope: this,
-            handler: this.start
-        }, {
-            text: cmatic.labels.button.finishEvent,
-            scope: this,
-            handler: this.finish
-        }];
+        }, this.buttonStart, this.buttonFinish];
 
         // TODO: FIXME: should not have this hard-coded
         this.isGroup = /^NNN:/.test(this.title);
@@ -359,10 +383,6 @@ cmatic.scoring.Event = Ext.extend(Ext.grid.EditorGridPanel, {
             this.computeFinalScore(e.record);
         }, this);
     },
-
-
-    // TODO: Delete this
-    todo: function () { Ext.Msg.alert('TODO', 'not done.')},
 
 
     cancelChanges: function () {
@@ -561,13 +581,19 @@ cmatic.scoring.Event = Ext.extend(Ext.grid.EditorGridPanel, {
     },
 
 
+    isFinished: function () {
+        return cmatic.util.getDataStore('event').getById(this.eventId).get('isFinished');
+    },
+
+
     unlock: function () {
-        if (this.lockedFromEdit) {
-            this.lockedFromEdit = false;
-            Ext.Msg.alert(cmatic.labels.message.success, cmatic.labels.message.eventUnlocked);
-        } else {
+        if (!this.lockedFromEdit) {
             Ext.Msg.alert(cmatic.labels.message.warning, cmatic.labels.message.eventAlreadyUnlocked);
+            return;
         }
+
+       this.lockedFromEdit = false;
+        Ext.Msg.alert(cmatic.labels.message.success, cmatic.labels.message.eventUnlocked);
     },
 
 
@@ -587,6 +613,9 @@ cmatic.scoring.Event = Ext.extend(Ext.grid.EditorGridPanel, {
     },
 
 
+    /**
+     * Will also unlock
+     */
     start: function () {
         // Can't start this event if another is already started
         var currentEvent = cmatic.scoring.app.getCurrentEvent();
@@ -595,7 +624,7 @@ cmatic.scoring.Event = Ext.extend(Ext.grid.EditorGridPanel, {
             return;
         }
 
-        this.unlock();
+        this.lockedFromEdit = false;
         cmatic.scoring.app.setCurrentEvent(this);
         Ext.Msg.alert(cmatic.labels.message.success, cmatic.labels.message.eventStarted);
     },
@@ -607,8 +636,37 @@ cmatic.scoring.Event = Ext.extend(Ext.grid.EditorGridPanel, {
             return;
         }
 
-        cmatic.scoring.app.unsetCurrentEvent();
-        Ext.Msg.alert(cmatic.labels.message.success, cmatic.labels.message.eventFinished);
+        if (this.getScoringUpdates().length > 0) {
+            Ext.Msg.alert(cmatic.labels.message.warning, cmatic.labels.message.cantCloseWithoutUnsavedChanges);
+            return;
+        }
+
+        var thiz = this;
+        Ext.Ajax.request({
+            url: cmatic.url.set,
+            params: {
+                op: 'edit',
+                type: 'event',
+                records: '[{"id": ' + this.eventId + ', "isFinished": true}]'
+            },
+            success: function (response) {
+                var r = Ext.util.JSON.decode(response.responseText);
+                if (r.success) {
+                    cmatic.scoring.app.unsetCurrentEvent();
+                    Ext.Msg.alert(cmatic.labels.message.success, cmatic.labels.message.eventFinished);
+
+                    // change up buttons
+                    thiz.buttonUnlock.setDisabled(false);
+                    thiz.buttonLock.setDisabled(false);
+                    thiz.buttonStart.setDisabled(true);
+                    thiz.buttonFinish.setDisabled(true);
+                } else {
+                    cmatic.util.alertSaveFailed();
+                }
+            },
+            failure: cmatic.util.alertSaveFailed
+        });
+
     },
 
 
