@@ -152,10 +152,15 @@ cmatic.scoring.Event = Ext.extend(Ext.grid.EditorGridPanel, {
     stripeRows: true,
     sm: new Ext.grid.RowSelectionModel({singleSelect: true}),
     cls: 'cmatic-scoringevent',
+    lockedFromEdit: true,
 
     initComponent: function () {
         this.title = cmatic.util.getShortEventNameRenderer(this.eventId);
         this.tbar = [{
+            text: cmatic.labels.button.save,
+            scope: this,
+            handler: this.saveScores
+        }, {
             text: cmatic.labels.button.reload,
             scope: this,
             handler: this.reloadStore
@@ -176,9 +181,23 @@ cmatic.scoring.Event = Ext.extend(Ext.grid.EditorGridPanel, {
         }, {
             xtype: 'tbseparator'
         }, {
-            text: cmatic.labels.button.save,
+            text: cmatic.labels.button.unlockEvent,
             scope: this,
-            handler: this.saveScores
+            handler: this.unlock
+        }, {
+            text: cmatic.labels.button.lockEvent,
+            scope: this,
+            handler: this.lock
+        }, {
+            xtype: 'tbseparator'
+        }, {
+            text: cmatic.labels.button.startEvent,
+            scope: this,
+            handler: this.start
+        }, {
+            text: cmatic.labels.button.finishEvent,
+            scope: this,
+            handler: this.finish
         }];
 
         // TODO: FIXME: should not have this hard-coded
@@ -320,22 +339,17 @@ cmatic.scoring.Event = Ext.extend(Ext.grid.EditorGridPanel, {
         // Prevent removing of an event with unsaved changes
         cmatic.scoring.app.getMainPanel().on('beforeRemove', function (mainPanel, tab) {
             if (this == tab) {
-                if (!this.isSafeToClose()) {
+                if (this.getScoringUpdates().length > 0) {
                     Ext.Msg.alert(cmatic.labels.message.warning, cmatic.labels.message.cantCloseWithUnsavedChanges)
                     return false;
                 }
             }
         }, this);
 
-        // Prevent editing of any but the currently unlocked event
+        // Prevent editing of a locked event
         this.on('beforeEdit', function (e) {
-            var currentEvent = cmatic.scoring.app.getCurrentEvent();
-            if (e.grid != currentEvent) {
-                if (currentEvent && currentEvent.title) {
-                    Ext.Msg.alert(cmatic.labels.message.warning, cmatic.labels.message.onlyEditCurrentEvent);
-                } else {
-                    Ext.Msg.alert(cmatic.labels.message.warning, cmatic.labels.message.mustUnlockToEdit);
-                }
+            if (this.lockedFromEdit) {
+                Ext.Msg.alert(cmatic.labels.message.warning, cmatic.labels.message.mustUnlockToEdit);
                 return false;
             }
         }, this);
@@ -344,11 +358,6 @@ cmatic.scoring.Event = Ext.extend(Ext.grid.EditorGridPanel, {
         this.on('afterEdit', function (e) {
             this.computeFinalScore(e.record);
         }, this);
-    },
-
-
-    isSafeToClose: function () {
-        return this.getStore().getModifiedRecords().length == 0;
     },
 
 
@@ -371,7 +380,7 @@ cmatic.scoring.Event = Ext.extend(Ext.grid.EditorGridPanel, {
 
 
     randomizeCompetitors: function () {
-        if (cmatic.scoring.app.getCurrentEvent() != this) {
+        if (this.lockedFromEdit) {
             Ext.Msg.alert(cmatic.labels.message.warning, cmatic.labels.message.onlyEditCurrentEvent);
             return false;
         }
@@ -385,7 +394,7 @@ cmatic.scoring.Event = Ext.extend(Ext.grid.EditorGridPanel, {
 
 
     computePlacement: function () {
-        if (cmatic.scoring.app.getCurrentEvent() != this) {
+        if (this.lockedFromEdit) {
             Ext.Msg.alert(cmatic.labels.message.warning, cmatic.labels.message.onlyEditCurrentEvent);
             return false;
         }
@@ -432,8 +441,7 @@ cmatic.scoring.Event = Ext.extend(Ext.grid.EditorGridPanel, {
     },
 
 
-    saveScores: function () {
-        this.computePlacement();
+    getScoringUpdates: function () {
         var scoringUpdates = [];
         var scoringRecords = this.getStore().getModifiedRecords();
         for (var i = 0; i < scoringRecords.length; i++) {
@@ -457,7 +465,13 @@ cmatic.scoring.Event = Ext.extend(Ext.grid.EditorGridPanel, {
                 placement: this.convertNumeric(rec.get('placement'))
             });
         }
+        return scoringUpdates;
+    },
 
+
+    saveScores: function () {
+        this.computePlacement();
+        var scoringUpdates = this.getScoringUpdates();
         if (scoringUpdates.length > 0) {
             var thizStore = this.getStore();
             Ext.Ajax.request({
@@ -547,6 +561,57 @@ cmatic.scoring.Event = Ext.extend(Ext.grid.EditorGridPanel, {
     },
 
 
+    unlock: function () {
+        if (this.lockedFromEdit) {
+            this.lockedFromEdit = false;
+            Ext.Msg.alert(cmatic.labels.message.success, cmatic.labels.message.eventUnlocked);
+        } else {
+            Ext.Msg.alert(cmatic.labels.message.warning, cmatic.labels.message.eventAlreadyUnlocked);
+        }
+    },
+
+
+    lock: function () {
+        if (this.lockedFromEdit) {
+            Ext.Msg.alert(cmatic.labels.message.warning, cmatic.labels.message.eventAlreadyLocked);
+            return;
+        }
+
+        if (this.getScoringUpdates().length > 0) {
+            Ext.Msg.alert(cmatic.labels.message.warning, cmatic.labels.message.cantCloseWithUnsavedChanges);
+            return;
+        }
+
+        this.lockedFromEdit = true;
+        Ext.Msg.alert(cmatic.labels.message.success, cmatic.labels.message.eventLocked);
+    },
+
+
+    start: function () {
+        // Can't start this event if another is already started
+        var currentEvent = cmatic.scoring.app.getCurrentEvent();
+        if (currentEvent) {
+            Ext.Msg.alert(cmatic.labels.message.warning, (this == currentEvent) ? cmatic.labels.message.eventAlreadyStarted : cmatic.labels.message.otherEventAlreadyStarted)
+            return;
+        }
+
+        this.unlock();
+        cmatic.scoring.app.setCurrentEvent(this);
+        Ext.Msg.alert(cmatic.labels.message.success, cmatic.labels.message.eventStarted);
+    },
+
+
+    finish: function () {
+        if (this != cmatic.scoring.app.getCurrentEvent()) {
+            Ext.Msg.alert(cmatic.labels.message.warning, cmatic.labels.message.eventNotInProgress);
+            return;
+        }
+
+        cmatic.scoring.app.unsetCurrentEvent();
+        Ext.Msg.alert(cmatic.labels.message.success, cmatic.labels.message.eventFinished);
+    },
+
+
     askConfirmation: function (callback, scope) {
         Ext.Msg.confirm(cmatic.labels.message.confirmation, cmatic.labels.message.areYouSure, callback, scope);
     }
@@ -565,8 +630,6 @@ cmatic.scoring.app = function () {
     var eventPanel;
     var judgesPanel;
     var mainPanel;
-    var startEventButton;
-    var finishEventButton;
     // This refers to the event that is being scored. Only one event can be unlocked
     // for scoring at a time.
     var currentEvent;
@@ -683,16 +746,6 @@ cmatic.scoring.app = function () {
 
 
     function _buildMainPanel() {
-        startEventButton = new Ext.Toolbar.Button({
-                text: cmatic.labels.button.startEvent,
-                handler: _startEvent
-            });
-        finishEventButton = new Ext.Toolbar.Button({
-            text: cmatic.labels.button.finishEvent,
-            scope: this,
-            handler: _finishEvent,
-            disabled: true
-        });
         return new Ext.TabPanel({
             region: 'center',
             id: 'mainPanel',
@@ -708,7 +761,7 @@ cmatic.scoring.app = function () {
             bbar: [{
                 text: cmatic.labels.button.reloadAll,
                 handler: _reloadDataStores
-            }, startEventButton, finishEventButton]
+            }]
         });
     }
 
@@ -721,9 +774,16 @@ cmatic.scoring.app = function () {
         //judgesPanel = _buildJudgesPanel();
         mainPanel = _buildMainPanel();
 
+        mainPanel.on('beforeRemove', function (mainPanel, tab) {
+            if (tab == cmatic.scoring.app.getCurrentEvent()) {
+                Ext.Msg.alert(cmatic.labels.message.warning, cmatic.labels.message.cantCloseInProgress);
+                return false;
+            }
+        });
+
         return new Ext.Viewport({
             layout: 'border',
-            items:[headerPanel, eventPanel, /*judgesPanel, */mainPanel]
+            items:[/*headerPanel, */eventPanel, /*judgesPanel, */mainPanel]
         });
     }
 
@@ -739,6 +799,7 @@ cmatic.scoring.app = function () {
                 if (ringNumber && ringNumber > 0 && ringNumber < 9) {
                     document.title = document.title + ": Ring " + ringNumber;
                     _buildViewport(ringNumber);
+                    _startTasks();
                 } else {
                     alert(cmatic.labels.message.ringNumberTryAgain);
                     setTimeout(function() {_ringNumberPrompt()}, 100);
@@ -764,64 +825,6 @@ cmatic.scoring.app = function () {
     }
 
 
-    function _startEvent() {
-        // TODO: this is currently "dead code" because we protect
-        // it via disabling and enabling the buttons.
-        if (currentEvent) {
-            Ext.Msg.alert(currentEvent.title, 'Another event is still running')
-            // another event is currently running
-            return false;
-        }
-
-        var tmp = cmatic.scoring.app.getMainPanel().getActiveTab();
-        // Special case, we know the only other tab is the FAQ, but it's
-        // not an event.
-        if ('FAQ' == tmp.title) {
-            currentEvent = null;
-            return false;
-        }
-
-        currentEvent = tmp;
-        startEventButton.disable();
-        finishEventButton.enable();
-        // Save the base page title the first time.
-        if ('' == basePageTitle) {
-            basePageTitle = document.title;
-        }
-        document.title = basePageTitle + ": " + currentEvent.title;
-
-
-        Ext.Msg.alert(cmatic.labels.message.unlocking, currentEvent.title);
-    }
-
-
-    function _finishEvent() {
-        // TODO: this is currently "dead code" because we protect
-        // it via disabling and enabling the buttons.
-        if (!currentEvent) {
-            Ext.Msg.alert(cmatic.labels.message.warning, 'No event currently running.');
-            return false;
-        }
-
-        // If there are unsaved changes, don't let them finish
-        // force user to save or cancel. This condition is a bit hacky,
-        // but we assume we can always close anything that doesn't have
-        // an "isSafeToClose" member.
-        if (!currentEvent.isSafeToClose || !currentEvent.isSafeToClose()) {
-            Ext.Msg.alert(currentEvent.title, cmatic.labels.message.cantCloseWithUnsavedChanges);
-            return false;
-        }
-
-        var eventName = currentEvent.title;
-        currentEvent = null;
-        finishEventButton.disable();
-        startEventButton.enable();
-        document.title = basePageTitle;
-
-        Ext.Msg.alert(cmatic.labels.message.locking, eventName);
-    }
-
-
     function _getEventTabId(eventId) {
         return EVENT_TAB_ID_PREFIX + eventId;
     }
@@ -842,10 +845,6 @@ cmatic.scoring.app = function () {
             // Give some time for the browser to take care of everything
             // before unhiding the UI to allow user interaction.
             setTimeout(cmatic.util.removeLoadingMask, 2500);
-
-            // Don't start performing reoccuring tasks until aft er the
-            // user has been using the client (we guess) for some time.
-            setTimeout(_startTasks, 60000);
         },
 
 
@@ -882,7 +881,6 @@ cmatic.scoring.app = function () {
 
 
         openEventTab: function (eventId) {
-            // TODO: in progress
             // create or find panel
             var eventTabId = _getEventTabId(eventId);
             var panel = mainPanel.getComponent(eventTabId);
@@ -907,6 +905,21 @@ cmatic.scoring.app = function () {
 
         getCurrentEvent: function () {
             return currentEvent;
+        },
+
+
+        setCurrentEvent: function (eventTab) {
+            if (!basePageTitle) {
+                basePageTitle = document.title;
+            }
+            currentEvent = eventTab;
+            document.title = basePageTitle + ": " + cmatic.util.getFullEventNameRenderer(eventTab.eventId);
+        },
+
+
+        unsetCurrentEvent: function () {
+            currentEvent = null;
+            document.title = basePageTitle;
         }
     };
 }();

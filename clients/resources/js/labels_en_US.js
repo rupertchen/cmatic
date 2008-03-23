@@ -171,8 +171,10 @@ cmatic.labels.button = {
     reloadAll: 'Reload All Data',
     randomize: 'Randomize Competitors',
     placement: 'Update Placements',
-    startEvent: 'Unlock This Event',
-    finishEvent: 'Lock Current Event'
+    startEvent: 'Start Event',
+    finishEvent: 'Finish Event',
+    lockEvent: 'Lock Event',
+    unlockEvent: 'Unlock Event'
 };
 
 
@@ -196,9 +198,20 @@ cmatic.labels.message = {
     noScoringUpdates: 'No scoring updates to save.',
     ringNumberPrompt: 'Enter your ring number (1-8):',
     ringNumberTryAgain: 'Oops. That\'s an unknown ring. Please try again.',
-    areYouSure: 'Are you sure? Unsaved changes may be lost.',
+    areYouSure: 'Are you sure? Any unsaved changes may be lost.',
     onlyEditCurrentEvent: 'Only the currently unlocked event can be edited.',
-    mustUnlockToEdit: 'The event must be unlocked before it can be edited.'
+    mustUnlockToEdit: 'The event must be unlocked before it can be edited.',
+    eventLocked: 'Event locked from edits.',
+    eventUnlocked: 'Event unlocked for edits.',
+    eventAlreadyLocked: 'Event is already locked from edits.',
+    eventAlreadyUnlocked: 'Event is already unlocked for edits.',
+    eventStarted: 'Event started.',
+    eventFinished: 'Event finished.',
+    eventAlreadyStarted: 'Event is already in progress.',
+    eventAlreadyFinished: 'Event is already finished.',
+    otherEventAlreadyStarted: 'Another event is already in progress.',
+    eventNotInProgress: 'This event is not in progress.',
+    cantCloseInProgress: 'This event is still in progress. To continue, finish the event.'
 };
 
 
