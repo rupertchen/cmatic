@@ -430,13 +430,16 @@ cmatic.setup.event.EventSchedule = Ext.extend(Ext.Panel, {
         // I'll come back and revisit this when I have time.
         // A good solution would be to use Templates and create my own DD
         // proxy and div instead of using the rather heavyweight Panel.
-        var rawSchedule = [[], [], [], [], [], [], [], [], [], []];
+        var rawSchedule = [[], [], [], [], [], [], [], [], []];
         this.store = cmatic.util.getDataStore('event');
         this.store.sort('order');
 
         for (var i = 0; i < this.store.getCount(); i++) {
             var data = this.store.getAt(i);
-            rawSchedule[data.get('ringId')].push(data);
+            ringId = data.get('ringId');
+            if (ringId < rawSchedule.length) {
+                rawSchedule[data.get('ringId')].push(data);
+            }
         }
 
         this.suspendEvents();
