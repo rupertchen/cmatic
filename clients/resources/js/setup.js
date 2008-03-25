@@ -950,7 +950,7 @@ cmatic.setup.app = function () {
          */
         getMainPanel: function () {
             return mainPanel;
-        },
+        }
 
 
 
