@@ -243,7 +243,7 @@ cmatic.setup.event.EventPanel = function (config) {
             header: cmatic.labels.type_event.code,
             sortable: true,
             dataIndex: 'code',
-            width: 100,
+            width: 100
         }, {
             header: cmatic.labels.type_event.divisionId,
             sortable: true,
