@@ -60,7 +60,7 @@ foreach ($individualRs as $row) {
 }
 foreach ($groupRs as $row) {
     $cmatId = makeCmatId($row['competitor_id']);
-    if (!isset($events[$cmatid])) {
+    if (!isset($events[$cmatId])) {
         $events[$cmatId] = array();
     }
     $events[$cmatId][] = "Group: $row[group_name]";
