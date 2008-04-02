@@ -617,6 +617,8 @@ cmatic.setup.event.SlatedEvent = Ext.extend(Ext.BoxComponent, {
     onRender : function(ct, position){
         cmatic.setup.event.SlatedEvent.superclass.onRender.call(this, ct, position);
 
+        // TODO RPC: Speed this up by using an HTML template?
+
         // assume there is no existing markup, if there
         // is, it's gone now.
         this.el = ct.createChild({
