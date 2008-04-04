@@ -17,7 +17,7 @@ cmatic.scoring.getCompetitorNameRenderer = function (competitorId) {
 
 
 cmatic.scoring.getGroupNameRenderer = function (groupId) {
-    return groupId;
+    return cmatic.util.getCachedFieldValue('group', 'name', groupId);
 };
 
 
@@ -27,6 +27,7 @@ cmatic.scoring.getGroupNameRenderer = function (groupId) {
  * TODO: This is currently unused. DON'T USE IT.
  * @return array 2-item
  */
+/*
 cmatic.scoring.getTimeWindow = function (eventId) {
     var divisionId = cmatic.util.getCachedFieldValue('event', 'divisionId', eventId);
     var ageGroupId = cmatic.util.getCachedFieldValue('event', 'ageGroupId', eventId);
@@ -87,6 +88,7 @@ cmatic.scoring.getTimeWindow = function (eventId) {
     // If we got here, we we missed it.
     return [null, null];
 }
+*/
 
 cmatic.scoring.EventList = Ext.extend(Ext.grid.GridPanel, {
     title: cmatic.labels.scoring.eventList,
