@@ -166,6 +166,7 @@ CREATE TABLE cmatic_result_scoring (
     score_4 numeric,
     score_5 numeric,
     seconds integer,
+    time_text text,
     time_deduction numeric,
     other_deduction numeric,
     final_score numeric,

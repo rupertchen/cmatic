@@ -304,9 +304,7 @@ cmatic.scoring.Event = Ext.extend(Ext.grid.EditorGridPanel, {
             dataIndex: 'time',
             sortable: true,
             width: 40,
-            editor: new Ext.form.NumberField({
-                allowNegative: false
-            })
+            editor: new Ext.form.TextField()
         }, {
             header: cmatic.labels.type_scoring.short_otherDeduction,
             dataIndex: 'otherDeduction',
