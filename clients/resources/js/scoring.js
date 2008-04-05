@@ -101,6 +101,12 @@ cmatic.scoring.EventList = Ext.extend(Ext.grid.GridPanel, {
         sortable: true,
         hidden: true
     }, {
+    	id: 'order',
+	dataIndex: 'order',
+	header: cmatic.labels.type_event.order,
+	sortable: true,
+	width: 10
+    }, {
         id: 'code',
         dataIndex: 'code',
         header: cmatic.labels.type_event.short_code,
