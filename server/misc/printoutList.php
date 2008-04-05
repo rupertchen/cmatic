@@ -19,7 +19,7 @@ foreach ($eventRs as $row) {
 
 // Output
 foreach ($schedule as $ring) {
-    print '<ol style="float: left, width: 75px; margin: 5px;">';
+    print '<ol style="float: left; width: 75px; margin: 5px;">';
     foreach ($ring as $event) {
         print '<li><a href="printoutEvent.php?id=' . $event[0] . '">' . $event[1] . '</a></li>';
     }

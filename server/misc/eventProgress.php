@@ -32,6 +32,7 @@ foreach ($eventsRs as $row) {
 print <<<EOD
 <html>
 <head>
+    <meta http-equiv="refresh" content="30">
     <title>Tentative Event Schedule</title>
     <style type="text/css">
         .title {

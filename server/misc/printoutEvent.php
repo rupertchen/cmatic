@@ -22,6 +22,7 @@ function makeName($first, $last) {
 // Get data
 $scoringTable = CmaticSchema::getTypeDbTable('scoring');
 $competitorTable = CmaticSchema::getTypeDbTable('competitor');
+$eventTable = CmaticSchema::getTypeDbTable('event');
 $conn = PdoHelper::getPdo();
 $r = $conn->query("select s.competitor_id as id, (c.last_name || ', ' || c.first_name) as name from $scoringTable s, $competitorTable c where s.competitor_id = c.competitor_id and s.event_id = $_REQUEST[id] order by performance_order");
 $scoringRs = $r->fetchAll(PDO::FETCH_ASSOC);
@@ -31,10 +32,16 @@ if (0 == count($scoringRs)) {
     $r = $conn->query("select '' as id, g.name as name from $scoringTable s, $groupTable g where s.group_id = g.group_id and s.event_id = $_REQUEST[id] order by performance_order");
     $scoringRs = $r->fetchAll(PDO::FETCH_ASSOC);
 }
+
+$r = $conn->query("select * from $eventTable where event_id = $_REQUEST[id]");
+$eventRs = $r->fetchAll(PDO::FETCH_ASSOC);
+
 $conn = null;
 
+$EVENT_CODE_TITLE = 'Ring ' . $eventRs[0]['ring_id'] . ': ' . $eventRs[0]['event_code'];;
 // Output
 print <<<EOD
+<h1>$EVENT_CODE_TITLE</h1>
 <table border="1" cellpadding="2" cellspacing="2">
     <thead>
         <th>Order</th>
