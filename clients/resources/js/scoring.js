@@ -526,12 +526,12 @@ cmatic.scoring.Event = Ext.extend(Ext.grid.EditorGridPanel, {
         var tieBreaker2 = 0;
         if (this.isNandu) {
             // In nandu, add up all scores, subtract all deductions.
-            finalScore = this.convertNumeric(scoringRecord.get('score0'))
-                + this.convertNumeric(scoringRecord.get('score1'))
-                + this.convertNumeric(scoringRecord.get('score2'))
-                + this.convertNumeric(scoringRecord.get('score3'))
-                + this.convertNumeric(scoringRecord.get('score4'))
-                + this.convertNumeric(scoringRecord.get('score5'))
+            finalScore = (this.convertNumeric(scoringRecord.get('score0'))
+                + this.convertNumeric(scoringRecord.get('score1')))/2
+                + (this.convertNumeric(scoringRecord.get('score2'))
+                + this.convertNumeric(scoringRecord.get('score3')))/2
+                + (this.convertNumeric(scoringRecord.get('score4'))
+                + this.convertNumeric(scoringRecord.get('score5')))/2
                 - this.convertNumeric(scoringRecord.get('timeDeduction'))
                 - this.convertNumeric(scoringRecord.get('otherDeduction'));
         } else {
