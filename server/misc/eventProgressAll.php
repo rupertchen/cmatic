@@ -10,10 +10,9 @@ $formTable = CmaticSchema::getTypeDbTable('form');
 
 // Get data
 $conn = PdoHelper::getPdo();
-$r = $conn->query("select e.event_code, e.num_competitors, e.ring_id, e.ring_order, f.long_name as form_name"
+$r = $conn->query("select e.event_code, e.num_competitors, e.ring_id, e.ring_order, f.long_name as form_name, e.is_finished"
     . " from $eventTable e, $formTable f"
     . " where e.form_id = f.form_id"
-    . " and is_finished = false"
     . " order by ring_id, ring_order");
 $eventsRs = $r->fetchAll(PDO::FETCH_ASSOC);
 
@@ -33,7 +32,7 @@ print <<<EOD
 <html>
 <head>
     <meta http-equiv="refresh" content="30">
-    <title>Tentative Event Schedule</title>
+    <title>Complete Event Schedule</title>
     <style type="text/css">
         .title {
             text-align: center;
@@ -41,7 +40,6 @@ print <<<EOD
 
         .schedule {
             width: 100%;
-            vertical-align: top;
         }
 
         .schedule-ring {
@@ -57,6 +55,11 @@ print <<<EOD
             padding: 2px 4px;
         }
 
+	.event-finished {
+	    background-color: #CCC;
+	    color: #555;
+	}
+
         .event-code {
             font-weight: bold;
             font-family: "courier new", monospace;
@@ -71,7 +74,7 @@ print <<<EOD
     </style>
 </head>
 <body>
-<h1 class="title">Tentative Event Schedule</h1>
+<h1 class="title">Complete Event Schedule</h1>
 <p>
     Format is EVENT_CODE (APPROXIMATE_COMPETITOR_COUNT): FORM_NAME.
     Events that have finished are not shown.
@@ -97,7 +100,8 @@ for ($ringId = 1; $ringId <= 8; $ringId++) {
     if ($ringSchedule) {
         foreach ($schedule[$ringId] as $event) {
             $height =
-            printf('<div class="event" style="height: %dem"><span class="event-code">%s</span> <span class="event-size">(%s)</span>: <span class="event-form">%s</span></div>',
+            printf('<div class="event %s" style="height: %dem"><span class="event-code">%s</span> <span class="event-size">(%s)</span>: <span class="event-form">%s</span></div>',
+	        $event['is_finished'] ? 'event-finished' : '',
                 max(floatval($event['num_competitors']) * 0.5, 1),
                 $event['event_code'],
                 $event['num_competitors'],
