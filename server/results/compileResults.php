@@ -83,13 +83,14 @@ foreach ($eventRs as $event) {
     }
 
     $buffer = array();
-    getEventHtml($buffer, $eventCode, $eventName, 'foo.css', $scores);
+    getEventHtml($buffer, $eventCode, $eventName, 'style.css', $scores);
 
     $handle = fopen("output/$eventCode.html", 'w');
     fwrite($handle, implode("\n", $buffer));
     fclose($handle);
     print "generated: $eventCode<br />";
 }
+
 
 // Create index file
 $buffer = array();
@@ -118,8 +119,29 @@ fclose($handle);
 print "generated index<br />";
 
 
+// Create css file
+$handle = fopen('output/style.css', 'w');
+fwrite($handle, getCss());
+fclose($handle);
+
+
+
+
 function getCss() {
     return <<<EOD
+.oddRow {
+    background-color: #EEE;
+}
+
+.placement,
+.score {
+    text-align: right;
+    padding-right: 8px;
+}
+
+.name {
+    padding: 0 10px;
+}
 
 EOD;
 }
@@ -156,7 +178,6 @@ function getEventHtml (&$buffer, $code, $name, $stylesheet, $scores) {
         <th scope="col">Score 4</th>
         <th scope="col">Score 5</th>
         <th scope="col">Score 6</th>
-        <th scope="col">Time</th>
         <th scope="col">Time Deduction</th>
         <th scope="col">Other Deduction</th>
         <th scope="col">Final Score</th>
@@ -168,7 +189,7 @@ EOD;
     $isOdd = true;
     foreach ($scores as $s) {
         // Scoring
-        $buffer[] = sprintf('<tr class="%s"><td>%d</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>',
+        $buffer[] = sprintf('<tr class="%s"><td class="placement">%d</td><td class="name">%s</td><td class="score">%s</td><td class="score">%s</td><td class="score">%s</td><td class="score">%s</td><td class="score">%s</td><td class="score">%s</td><td class="score">%s</td><td class="score">%s</td><td class="score">%s</td></tr>',
                 $isOdd ? 'oddRow' : 'evenRow',
                 $s['placement'],
                 $s['name'],
@@ -178,10 +199,11 @@ EOD;
                 formatScore($s['score4']),
                 formatScore($s['score5']),
                 formatScore($s['score6']),
-                $s['time'],
+                //$s['time'],
                 formatScore($s['timeDeduction']),
                 formatScore($s['otherDeduction']),
                 formatScore($s['finalScore']));
+        $isOdd = !$isOdd;
     }
 
     $buffer[] = <<<EOD
