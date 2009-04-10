@@ -94,7 +94,7 @@ if ($op == 'new') {
         $conn->query(sprintf('update %s set last_mod = now(), %s where %s=%s', $typeDbTable,
                 implode(',', $setClause), CmaticSchema::getFieldDbColumn($typeApiName, 'id'), $recordId));
     }
-} else if ($op == 'delete') {
+} else if ($op == 'delete') { // Disable deletes it's too scary to allow
     // TODO: There needs to be some checks to make sure not just anything can be deleted.
     // Specifically, we should NEVER be able to delete scoring rows if they have scores.
     // Perhaps this should be set up as a trigger?
@@ -110,8 +110,8 @@ $conn = null;
 
 // What should the response be on a successful set-request?
 if (isset($newId)) {
-    print "{success: 'true', newId: $newId}";
+    print "{\"success\": \"true\", newId: $newId}";
 } else {
-    print "{success: 'true'}";
+    print '{"success": "true"}';
 }
 ?>

@@ -2,7 +2,11 @@
 // This is a global variable (yes, shame on me) that contains all
 // other globals for the app. It is the *ONLY* global variable.
 $CMATIC = array();
-require_once '../.cmatic_conf.php';
+// TODO:
+// Break this file apart into one half that does not require .cmatic_conf
+// and another part that does.
+//require_once '../.cmatic_conf.php';
+include_once '../.cmatic_conf.php';
 
 /**
  * Convenience methods for using PDO.

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config:Config
+	xmlns:config = "config"
+	xmlns:dev = "dev"
+	xmlns:prod = "prod">
+
+	<!-- DEPLOYMENT ENVIRONMENT SELECTOR [ REQUIRED! ]-->
+	<config:deploy>dev</config:deploy>
+
+	<!-- DEV ENVIRONMENT-->
+	<dev:getService>http://c17.skaos.gotdns.org/server/api/get.php</dev:getService>
+	<dev:setService>http://c17.skaos.gotdns.org/server/api/set.php</dev:setService>
+
+	<!-- PROD ENVIRONMENT-->
+	<prod:getService>http://c17.skaos.gotdns.org/server/api/get.php</prod:getService>
+	<prod:setService>http://c17.skaos.gotdns.org/server/api/set.php</prod:setService>
+</config:Config>
