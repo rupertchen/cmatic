@@ -84,7 +84,7 @@ function step2Body($confData = false) {
         <h1>Action Required: CMATic Configuration Not Saved</h1>
         <p>
             The CMATic installer was unable to write to the settings file.
-            Copy the following configuration into <kbd>&lt;CMATic root&gt;/server/.cmatic_config</kbd> before continuing.
+            Copy the following configuration into <kbd>&lt;CMATic root&gt;/server/.cmatic_conf.php</kbd> before continuing.
             Remember to replace the password placeholder text with the real password.
         </p>
         <pre><code><?php echo TextUtils::htmlize($confData); ?></code></pre>
