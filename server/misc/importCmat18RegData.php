@@ -6,7 +6,10 @@
   //    age groups such as push hands and group events will be skipped
   //    and must be added manually.
   // 2) Weight for push hands competitors will need to be entered manually
-  //    by looking at which push hands event is listed in the
+  //    by looking at which push hands event is listed under "Events".
+  //
+  // When running the script, it is best to save the output to a file
+  // to maintain a record of additional manual work that needs to be done.
 
 
 require_once '../util/Db.php';
