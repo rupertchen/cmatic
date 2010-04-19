@@ -1,5 +1,14 @@
 <?php
 
+  // Does a basic import of data from Po's CMAT18 registration files.
+  // There are a few quirks and manual touch-ups that are required.
+  // 1) Only "standard" individual events are imported. Events without
+  //    age groups such as push hands and group events will be skipped
+  //    and must be added manually.
+  // 2) Weight for push hands competitors will need to be entered manually
+  //    by looking at which push hands event is listed in the 
+
+
 require_once '../util/Db.php';
 require_once '../util/TextUtils.php';
 
@@ -35,9 +44,12 @@ function getFileNames() {
 function importFiles($fileNames) {
   foreach ($fileNames as $fileName) {
     if (file_exists($fileName)) {
-      printf("Importing %s.", $fileName);
-      importFile($fileName);
-      printf(" Done.\n");
+      printf("Importing: %s.\n", $fileName);
+      try {
+	importFile($fileName);
+      } catch (Exception $e) {
+	printf("\tSkipped: %s\n", $e->getMessage());
+      }
     } else {
       printf("Skipped: %s. File does not exist.\n", $fileName);
     }
@@ -48,7 +60,7 @@ function importFiles($fileNames) {
 function importFile($fileName) {
   $reg = parseLines(file($fileName));
   if (isRegistrationAlreadyImported($reg)) {
-    return;
+    throw new Exception('Similar competitor already exists.');
   }
   insertRegistration($reg);
 }
@@ -80,26 +92,27 @@ function isMarker($s) {
 
 
 function isRegistrationAlreadyImported($reg) {
-  // TODO: Should check that this competitor doesn't already exist.
-  return false;
+  return (bool) $reg->getCompetitorId();
 }
 
 
 function insertRegistration(Registration $reg) {
-  var_dump($reg);
+  $competitorSql = $reg->getInsertCompetitorSql();
 
-  $competitor_sql = $reg->getInsertCompetitorSql();
-  var_dump($competitor_sql);
+  $conn = PdoHelper::GetPdo();
+  $conn->beginTransaction();
+  $conn->query($competitorSql);
+  $conn->commit();
+  $conn = null;
 
-  $individual_event_sqls = $reg->getIndividualEventSqls();
-  var_dump($individual_event_sqls);
-
-  if (false) {
-    $conn = PdoHelper::GetPdo();
-    $conn->beginTransaction();
-    $conn->query($competitor_sql);
-    $conn->commit();
+  $conn = PdoHelper::GetPdo();
+  $conn->beginTransaction();
+  foreach ($reg->getIndividualEventSqls() as $sql) {
+    $conn->query($sql);
   }
+  $conn->commit();
+  $conn = null;
+
 }
 
 
@@ -145,17 +158,17 @@ class Registration {
 
 
   function getFirstName() {
-    return $this->_raw['First Name:'][0];
+    return $this->_getRaw('First Name:');
   }
 
 
   function getLastName() {
-    return $this->_raw['Last Name:'][0];
+    return $this->_getRaw('Last Name:');
   }
 
 
   function getSexId() {
-    switch ($this->_raw['Gender:'][0]) {
+    switch ($this->_getRaw('Gender:')) {
     case 'Female':
       return DbId::SEX_FEMALE;
     case 'Male':
@@ -167,7 +180,7 @@ class Registration {
 
 
   function getAge() {
-    switch ($this->_raw['Age Group:'][0]) {
+    switch ($this->_getRaw('Age Group:')) {
     case '7 or younger':
       return 7;
     case '8-12':
@@ -181,13 +194,13 @@ class Registration {
     case '53 or older':
       return 53;
     default:
-      return null;
+      return 0;
     }
   }
 
 
   function getDivisionId() {
-    switch ($this->_raw['Experience Level:'][0]) {
+    switch ($this->_getRaw('Experience Level:')) {
     case 'Beginner':
       return DbId::DIV_BEGINNER;
     case 'Intermediate':
@@ -201,43 +214,48 @@ class Registration {
 
 
   function getStreetAddress() {
-    return implode(' ', $this->_raw['Address Street:']);
+    $street = $this->_getRaw('Address Street:');
+    if (is_array($street)) {
+      return implode(' ', $street);
+    } else {
+      return $street;
+    }
   }
 
 
   function getCity() {
-    return $this->_raw['Address City:'][0];
+    return $this->_getRaw('Address City:');
   }
 
 
   function getState() {
-    return $this->_raw['Address State:'][0];
+    return $this->_getRaw('Address State:');
   }
 
 
   function getPostalCode() {
-    return $this->_raw['Address Zip:'][0];
+    return $this->_getRaw('Address Zip:');
   }
 
 
   function getCountry() {
-    return $this->_raw['Address Country:'][0];
+    return $this->_getRaw('Address Country:');
   }
 
 
   function getEmail() {
-    return $this->_raw['Email Address:'][0];
+    return $this->_getRaw('Email Address:');
   }
 
 
   function getPhone1() {
-    return $this->_raw['Phone Number:'][0];
+    return $this->_getRaw('Phone Number:');
   }
 
 
   function getEmergencyContactName() {
-    $name = array($this->_raw['Emergency Contact Last Name:'][0],
-		  $this->_raw['Emergency Contact First Name:'][0]);
+    $name = array($this->_getRaw('Emergency Contact Last Name:'),
+		  $this->_getRaw('Emergency Contact First Name:'));
     return implode(', ', $name);
   }
 
@@ -248,34 +266,123 @@ class Registration {
 
 
   function getEmergencyContactPhone() {
-    return $this->_raw['Emergency Contact Phone Number:'][0];
+    return $this->_getRaw('Emergency Contact Phone Number:');
   }
 
 
   function getAmountPaid() {
-    return $this->_raw['Fees:'][0];
-  }
-
-
-  function getComments() {
-    switch ($this->_raw['All-around:'][0]) {
-    case 'Yes':
-      return 'All-around: Yes';
-    default:
-      return 'All-around: No';
+    $fees = $this->_getRaw('Fees:'); 
+    return (float)$fees;
+    if (is_numeric($fees)) {
+      return $fees;
+    } else {
+      return 0;
     }
   }
 
 
+  function getComments() {
+    $bits = array();
+    $reg_num = $this->_getRaw('Registration Number:');
+    if ($reg_num) {
+      $bits[] = 'Registration Number: ' . $reg_num;
+    }
+    if ($this->_raw['All-around:'][0] == 'Yes') {
+      $bits[] = 'All-around: Yes';
+    }
+    return implode('; ', $bits);
+  }
+
+
+  function _getRaw($label) {
+    $x = $this->_raw[$label];
+    if (!$x) {
+      return null;
+    }
+
+    if (count($x) == 1) {
+      return $x[0];
+    }
+    return $x;
+  }
+
+
   function getIndividualEventSqls() {
-    // TODO:
-    $form_names = explode(',', $this->_raw['Events:'][0]);
-    $form_names = array_map('trim', $form_names);
-    var_dump($form_names);
-    $form_ids = array_map(array('DbId', 'FormNameToId'), $form_names);
-    var_dump($form_ids);
+    $formNames = array_unique(array_map('trim',
+					explode(',', $this->_raw['Events:'][0])));
     $sqls = array();
+
+    $competitorId = $this->getCompetitorId();
+    if (!$competitorId) {
+      throw new Exception('Could not determine competitor id.');
+    }
+    $divisionId = $this->getDivisionId();
+    $sexId = $this->getSexId();
+    $age = $this->getAge();
+    foreach ($formNames as $formName) {
+      $formId = DbId::FormNameToId($formName);
+      $eventId = $this->getEventId($divisionId,
+				   $sexId,
+				   $age,
+				   $formId);
+      if (!$eventId) {
+	printf("\tUnable to auto-place competitor (%d:%s, %s) in form (%d:%s)\n",
+	       $competitorId,
+	       $this->getLastName(),
+	       $this->getFirstName(),
+	       $formId,
+	       $formName);
+      } else {
+	$sqls[] = sprintf('insert into %s (event_id, competitor_id) values (%d, %d)',
+			  CmaticSchema::getTypeDbTable('scoring'),
+			  $eventId,
+			  $competitorId);
+      }
+    }
+
     return $sqls;
+  }
+
+
+  function getEventId($divisionId, $sexId, $age, $formId) {
+    $sql = sprintf('select event_id from %s where division_id = %d and sex_id = %d and age_group_id in (%s) and form_id = %d',
+		   CmaticSchema::getTypeDbTable('event'),
+		   $divisionId,
+		   $sexId,
+		   implode(', ', DbId::AgeToAgeGroupIds($age)),
+		   $formId);
+    $conn = PdoHelper::GetPdo();
+    $results = $conn->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+    switch (count($results)) {
+    case 0:
+      return null;
+    case 1:
+      return $results[0]['event_id'];
+    default:
+      throw new Exception('Multiple possible event IDs');
+    }
+  }
+
+
+  function getCompetitorId() {
+    $clauses = array();
+    $cols = $this->getCompetitorColumns();
+    foreach (array('first_name', 'last_name', 'sex_id', 'age', 'division_id') as $col) {
+      $clauses[] = sprintf('%s = %s', $col, $cols[$col]);
+    }
+    $sql = sprintf('select competitor_id from %s where %s',
+		   CmaticSchema::getTypeDbTable('competitor'),
+		   implode(' and ', $clauses));
+    $conn = PdoHelper::GetPdo();
+    $results = $conn->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+    switch (count($results)) {
+    case 0:
+      return null;
+    case 1:
+      return $results[0]['competitor_id'];
+    default:
+      throw new Exception('Multiple possible competitor IDs');
+    }
   }
 
 
@@ -305,6 +412,15 @@ class DbId {
   const DIV_BEGINNER = 2;
   const DIV_INTERMEDIATE = 3;
   const DIV_ADVANCED = 4;
+
+  const AGE_YOUNG_CHILD = 1;
+  const AGE_CHILD = 2;
+  const AGE_TEEN = 3;
+  const AGE_ADULT_WUSHU = 4;
+  const AGE_SENIOR_WUSHU = 5;
+  const AGE_ADULT_INTERNAL = 6;
+  const AGE_SENIOR_INTERNAL = 7;
+  const AGE_NA = 8;
 
 
   static function FormNameToId($name) {
@@ -388,6 +504,28 @@ class DbId {
       return 36;
     case 'Group Set - Guang Ping':
       return 37;
+    }
+  }
+
+
+  function AgeToAgeGroupIds($age) {
+    if ($age < 8) {
+      return array(self::AGE_YOUNG_CHILD);
+    }
+    if ($age < 13) {
+      return array(self::AGE_CHILD);
+    }
+    if ($age < 18) {
+      return array(self::AGE_TEEN);
+    }
+    if ($age < 36) {
+      return array(self::AGE_ADULT_WUSHU, self::AGE_ADULT_INTERNAL);
+    }
+    if ($age < 53) {
+      return array(self::AGE_SENIOR_WUSHU, self::AGE_ADULT_INTERNAL);
+    }
+    if ($age >= 53) {
+      return array(self::AGE_SENIOR_WUSHU, self::AGE_SENIOR_INTERNAL);
     }
   }
 }
