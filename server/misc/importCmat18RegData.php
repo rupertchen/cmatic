@@ -6,7 +6,7 @@
   //    age groups such as push hands and group events will be skipped
   //    and must be added manually.
   // 2) Weight for push hands competitors will need to be entered manually
-  //    by looking at which push hands event is listed in the 
+  //    by looking at which push hands event is listed in the
 
 
 require_once '../util/Db.php';
@@ -271,7 +271,7 @@ class Registration {
 
 
   function getAmountPaid() {
-    $fees = $this->_getRaw('Fees:'); 
+    $fees = $this->_getRaw('Fees:');
     return (float)$fees;
     if (is_numeric($fees)) {
       return $fees;
