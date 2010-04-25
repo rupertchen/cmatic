@@ -6,7 +6,7 @@ require_once '../util/TextUtils.php';
 
 
 function makeCmatId($id) {
-    return sprintf('CMAT17%04d', $id);
+    return sprintf('CMAT18%04d', $id);
 }
 
 

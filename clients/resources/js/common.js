@@ -9,8 +9,8 @@ Ext.namespace('cmatic.util');
  * domain.
  */
 cmatic.base = {
-    clientUrl: '/clients/',
-    serverApiUrl: '/server/api/'
+    clientUrl: '/cmat18/clients/',
+    serverApiUrl: '/cmat18/server/api/'
 };
 
 /**
@@ -285,7 +285,7 @@ cmatic.util.getShortEventNameRenderer = function (eventId) {
 
 
 cmatic.util.competitorIdRenderer = function (numberId) {
-    return 'CMAT' + (17000 + numberId);
+    return 'CMAT' + (18000 + numberId);
 };
 
 
